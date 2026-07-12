@@ -1,0 +1,10 @@
+TASK: DiLoCo training (Task 2.10)
+
+CHECKLIST: four_workers, four_inner_optimizers, outer_optimizer, dashed_arrows_outer_to_workers, outer_loop_sync_label.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

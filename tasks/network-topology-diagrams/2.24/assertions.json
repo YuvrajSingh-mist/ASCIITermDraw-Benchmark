@@ -1,0 +1,17 @@
+{
+  "required_labels": [
+    "Logical Blocks",
+    "Block 0",
+    "Block 1",
+    "Block 2",
+    "Physical 3",
+    "Physical 0",
+    "Physical 7",
+    "Block Table"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 5,
+  "required_edges": [],
+  "required_edge_labels": [],
+  "preserved_elements": []
+}

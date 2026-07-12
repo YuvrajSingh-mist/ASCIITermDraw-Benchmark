@@ -1,0 +1,5 @@
+Draw a notification system:
+- Three event sources publish to "Kafka": "Order Service", "Payment Service", "Shipping Service"
+- "Notification Service" consumes from Kafka and checks "User Preferences DB"
+- Notification Service delivers to three channels: "Email Service", "SMS Service", "Push Service"
+- Each channel connects to its provider: Email → "SendGrid", SMS → "Twilio", Push → "FCM"

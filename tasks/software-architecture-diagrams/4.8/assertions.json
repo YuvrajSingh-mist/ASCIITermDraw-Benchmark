@@ -1,0 +1,53 @@
+{
+  "required_labels": [
+    "Mobile Client",
+    "Web Client",
+    "API Gateway",
+    "Auth Middleware",
+    "Rate Limiter",
+    "User Service",
+    "Users DB",
+    "Product Service",
+    "Products DB",
+    "Order Service",
+    "Orders DB"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 9,
+  "required_edges": [
+    {
+      "from": "Mobile Client",
+      "to": "API Gateway"
+    },
+    {
+      "from": "Web Client",
+      "to": "API Gateway"
+    },
+    {
+      "from": "API Gateway",
+      "to": "User Service"
+    },
+    {
+      "from": "API Gateway",
+      "to": "Product Service"
+    },
+    {
+      "from": "API Gateway",
+      "to": "Order Service"
+    },
+    {
+      "from": "User Service",
+      "to": "Users DB"
+    },
+    {
+      "from": "Product Service",
+      "to": "Products DB"
+    },
+    {
+      "from": "Order Service",
+      "to": "Orders DB"
+    }
+  ],
+  "required_edge_labels": [],
+  "preserved_elements": []
+}

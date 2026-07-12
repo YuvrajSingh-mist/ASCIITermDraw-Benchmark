@@ -1,0 +1,34 @@
+{
+  "required_labels": [
+    "Mac Mini M4 (Training)",
+    "Jetson Orin Nano-1",
+    "Jetson Orin Nano-2",
+    "Jetson Orin Nano-3",
+    "Jetson Orin Nano-4",
+    "SSH / TCP"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 5,
+  "required_edges": [
+    {
+      "from": "Mac Mini",
+      "to": "Jetson-1"
+    },
+    {
+      "from": "Mac Mini",
+      "to": "Jetson-2"
+    },
+    {
+      "from": "Mac Mini",
+      "to": "Jetson-3"
+    },
+    {
+      "from": "Mac Mini",
+      "to": "Jetson-4"
+    }
+  ],
+  "required_edge_labels": [
+    "SSH / TCP"
+  ],
+  "preserved_elements": []
+}

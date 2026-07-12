@@ -1,0 +1,10 @@
+TASK: Scale up (Task 3.6)
+
+CHECKLIST: nginx_present, app1_present, app2_added, app3_added, nginx_to_all_three, apps_same_level.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

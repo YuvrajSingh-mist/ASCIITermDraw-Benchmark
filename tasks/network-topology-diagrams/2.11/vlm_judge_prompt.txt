@@ -1,0 +1,10 @@
+TASK: Ring allreduce (Task 2.11)
+
+CHECKLIST: four_gpus, directed_ring_0_1_2_3_0, ring_closure_3_to_0, gradient_labels, all_same_direction.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

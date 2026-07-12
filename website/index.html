@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TermDraw-Bench  -  ASCII Diagram Generation and Editing Benchmark</title>
+  <meta name="description" content="TermDraw-Bench is a benchmark for ASCII diagram generation and editing across 80 tasks, with Fireworks-ready batch generation, structural scoring, and VLM judging.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="TermDraw-Bench  -  ASCII Diagram Generation and Editing Benchmark">
+  <meta property="og:description" content="Evaluate whether models can actually draw in plain text with box-layout, topology, architecture, and diagram-editing tasks.">
+  <meta property="og:url" content="https://example.com/termdraw-bench/">
+  <meta property="og:site_name" content="TermDraw-Bench">
+  <meta property="twitter:card" content="summary_large_image">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+<nav aria-label="Main navigation">
+  <span class="nav-title">TermDraw-Bench</span>
+  <div class="nav-links">
+    <a href="#documentation">Documentation</a>
+    <a href="./quickstart.html">Quick Start</a>
+  </div>
+</nav>
+
+<main>
+  <div class="hero">
+    <div class="container">
+      <h1>TermDraw-Bench</h1>
+      <p class="hero-subtitle">ASCII Diagram Generation and Editing Benchmark</p>
+      <p class="hero-desc">
+        Evaluate whether a model can actually draw in plain text. TermDraw-Bench measures box layout,
+        topology construction, software architecture sketching, and image-conditioned ASCII editing with
+        task directories, rendered references, structural checks, and model-specific judge prompts.
+      </p>
+      <p class="hero-desc hero-note">
+        The benchmark is built as a publishable repository artifact: organized task categories, reproducible
+        generators, Playwright rendering, Fireworks batch inference, and structured JSON judging.
+      </p>
+      <div class="hero-btns">
+        <a href="#overview" class="btn btn-primary">Overview</a>
+        <a href="./quickstart.html" class="btn btn-outline">Quick Start</a>
+      </div>
+    </div>
+  </div>
+
+  <section id="overview" aria-labelledby="heading-overview">
+    <div class="container">
+      <h2 class="section-title" id="heading-overview">Overview</h2>
+      <div class="prose">
+        <p>
+          <strong>TermDraw-Bench</strong> is a benchmark for structured ASCII diagram generation and editing.
+          Instead of grading models on prose quality alone, it checks whether they can place labels, preserve
+          spacing, route arrows, maintain topology, and make constrained edits to an existing diagram.
+        </p>
+        <p>
+          The benchmark covers four families of tasks: box layout basics, network topology diagrams,
+          diagram editing from source images, and canonical software architecture sketches. Every task ships
+          with a prompt, a reference ASCII artifact, machine-readable L1 assertions, and a task-specific VLM
+          judge prompt for L2 evaluation.
+        </p>
+      </div>
+      <div class="callout">
+        <strong>Current benchmark size.</strong>
+        <span id="stats-inline">Loading benchmark metadata...</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="categories" aria-labelledby="heading-categories">
+    <div class="container">
+      <h2 class="section-title" id="heading-categories">Task Categories</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>What it measures</th>
+          </tr>
+        </thead>
+        <tbody id="category-table-body"></tbody>
+      </table>
+      <p class="muted-note">
+        The task browser is generated from the real repository tree, so the website stays aligned with the
+        benchmark that contributors actually run.
+      </p>
+    </div>
+  </section>
+
+  <section id="anatomy" aria-labelledby="heading-anatomy">
+    <div class="container">
+      <h2 class="section-title" id="heading-anatomy">Benchmark Anatomy</h2>
+      <pre><code class="language-text">prompt.txt + source.png?  -->  model inference  -->  ASCII output (.txt)
+                                             | 
+                                             +--> L1 assertions.json score
+                                             |
+                                             +--> L2 vlm_judge_prompt.txt score
+                                             |
+                                             +--> combined CSV / judge JSON artifacts</code></pre>
+      <div class="prose">
+        <p>
+          Category 3 is multimodal: the model receives a rendered <code>source.png</code> and must apply a textual edit
+          instruction while still returning plain ASCII. The remaining categories are text-to-ASCII generation tasks.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="quickstart" aria-labelledby="heading-quickstart">
+    <div class="container">
+      <h2 class="section-title" id="heading-quickstart">Quick Start</h2>
+      <div class="prose">
+        <p>Set up the repository, render references, and run a Fireworks smoke test with commands ready to copy.</p>
+      </div>
+      <div style="margin-top: 1rem;">
+        <a href="./quickstart.html" class="btn btn-outline">Open Setup Guide</a>
+      </div>
+      <pre style="margin-top: 1.5rem;"><code class="language-bash">uv venv
+uv sync
+npm install
+npx playwright install chromium
+cp .env.example .env.local
+
+python3 scripts/smoke_generate.py \
+  --model accounts/fireworks/models/qwen3p7-plus \
+  --tasks tasks \
+  --oneshot oneshot \
+  --outputs outputs/smoke-qwen3p7-plus \
+  --sample-count 5 \
+  --seed 7 \
+  --reasoning-effort none \
+  --network-retries 5</code></pre>
+    </div>
+  </section>
+
+  <section id="features" aria-labelledby="heading-features">
+    <div class="container">
+      <h2 class="section-title" id="heading-features">Key Features</h2>
+
+      <h3 class="subsection-title">Benchmark Coverage</h3>
+      <div class="prose">
+        <ul>
+          <li><strong>Box Layout Basics</strong>  -  simple boxes, chains, stacks, fan-in, fan-out, diamonds, and spacing-sensitive arrangements.</li>
+          <li><strong>Network Topology Diagrams</strong>  -  brokers, parameter servers, service meshes, CDNs, DNS flows, and cluster communication patterns.</li>
+          <li><strong>Diagram Editing</strong>  -  image-conditioned edit tasks that require preserving the original structure while applying the requested change.</li>
+          <li><strong>Software Architecture Diagrams</strong>  -  3-tier systems, event pipelines, API gateways, queues, ETL layouts, and other canonical engineering sketches.</li>
+        </ul>
+      </div>
+
+      <h3 class="subsection-title">Evaluation Pipeline</h3>
+      <div class="callout">
+        <strong>Two-layer scoring.</strong>
+        L1 uses structural assertions to catch hard format and topology failures. L2 uses task-specific VLM prompts
+        with structured JSON output to score semantic correctness more holistically.
+      </div>
+      <div class="prose">
+        <ul>
+          <li><strong>Playwright PNG rendering</strong>  -  reference ASCII artifacts are rendered as diagram-only images for editing tasks and visual inspection.</li>
+          <li><strong>Fireworks batch generation</strong>  -  benchmark-wide inference is wired for batch runs with reasoning disabled and network retries for transport failures.</li>
+          <li><strong>Pydantic / Instructor judging</strong>  -  smaller synchronous judge runs can use schema-constrained JSON validation.</li>
+          <li><strong>Repository-first organization</strong>  -  task directories, scripts, outputs, and website metadata are all arranged for extension and public contribution.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="examples" aria-labelledby="heading-examples">
+    <div class="container">
+      <h2 class="section-title" id="heading-examples">Example Tasks</h2>
+      <div class="task-grid" id="featured-task-grid"></div>
+    </div>
+  </section>
+
+  <section id="technical" aria-labelledby="heading-technical">
+    <div class="container">
+      <h2 class="section-title" id="heading-technical">Technical Details</h2>
+      <div class="prose">
+        <p>
+          TermDraw-Bench is designed to be regenerated and audited from source. The task corpus is produced from
+          <code>generate_benchmark.py</code>, task assets live in named category directories, and the website data is built from
+          the repository tree rather than from hand-maintained content.
+        </p>
+
+        <h3 class="subsection-title" style="margin-top: 1rem;">Inference and Scoring</h3>
+        <ul>
+          <li><strong>Smoke generation</strong>  -  synchronous shared-module Fireworks calls for fast spot checks on a random subset of tasks.</li>
+          <li><strong>Batch generation</strong>  -  dataset-backed Fireworks jobs for full-benchmark runs across all tasks.</li>
+          <li><strong>L1 checker</strong>  -  label recall, entity count, edge presence, and format compliance derived from <code>assertions.json</code>.</li>
+          <li><strong>L2 judge</strong>  -  task-specific prompts that request structured JSON outputs using Fireworks batch or Instructor-backed synchronous calls.</li>
+        </ul>
+
+        <h3 class="subsection-title">Assets and Rendering</h3>
+        <ul>
+          <li><strong>ASCII references</strong>  -  each task contains a canonical <code>reference.ascii</code> target.</li>
+          <li><strong>Source diagrams</strong>  -  edit tasks additionally contain <code>source.ascii</code> and rendered source images.</li>
+          <li><strong>Diagram-only PNGs</strong>  -  the renderer captures the artifact itself, not the surrounding prompt or page chrome.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="task-index" aria-labelledby="heading-task-index">
+    <div class="container">
+      <h2 class="section-title" id="heading-task-index">Task Index</h2>
+      <div class="prose">
+        <p>Browse the benchmark corpus directly from the published site.</p>
+      </div>
+      <div class="filter-wrap">
+        <label for="task-filter">Search by task id, title, category, or prompt</label>
+        <input id="task-filter" type="search" placeholder="e.g. parameter server, 3.14, gateway">
+      </div>
+      <div id="task-list" class="task-list"></div>
+    </div>
+  </section>
+
+  <section id="documentation" aria-labelledby="heading-documentation">
+    <div class="container">
+      <h2 class="section-title" id="heading-documentation">Documentation</h2>
+      <p class="docs-intro">Core entrypoints and artifacts for working with the benchmark:</p>
+      <ul class="docs-list">
+        <li>
+          <a href="./quickstart.html">Quick Start Guide</a>
+          <span> -  environment setup, rendering, smoke tests, batch runs, judging, and local website preview</span>
+        </li>
+        <li>
+          <a href="./site_data.json">Task Metadata</a>
+          <span> -  generated category and task index consumed by the published website</span>
+        </li>
+        <li>
+          <a href="#task-index">Task Browser</a>
+          <span> -  searchable task inventory generated from the benchmark repository</span>
+        </li>
+        <li>
+          <a href="#technical">Technical Details</a>
+          <span> -  inference, rendering, scoring, and repository-structure notes</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section style="border-bottom: none;">
+    <div class="container" style="text-align: center;">
+      <h2 class="section-title">Publishing Notes</h2>
+      <div class="prose publish-note">
+        <p>The website is static and GitHub Pages-ready. Its data file is generated from the real task tree, so publishing the site also publishes the benchmark structure.</p>
+        <p>Contributions are expected to happen through the repository itself: new tasks, improved judges, better renderers, and stronger evaluation baselines can all build on the same layout.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-links">
+      <a href="#documentation">Documentation</a>
+      <a href="./quickstart.html">Quick Start</a>
+    </div>
+    <p><strong>TermDraw-Bench</strong> &nbsp;&middot;&nbsp; ASCII diagram generation and editing benchmark &nbsp;&middot;&nbsp; GitHub Pages ready</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>

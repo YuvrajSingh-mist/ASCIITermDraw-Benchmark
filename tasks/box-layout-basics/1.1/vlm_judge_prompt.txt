@@ -1,0 +1,18 @@
+TASK: Single labeled box (Task 1.1)
+
+The diagram should show exactly one closed ASCII box containing the label
+"API Gateway".
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+CHECKLIST (score each 1=correct, 0=wrong/missing):
+1. box_closed: four `+` corners with `-` top/bottom and `|` sides
+2. label_present: text "API Gateway" appears inside the box
+3. single_box: only one box is drawn, no extra boxes
+4. label_inside: label is between the walls, not outside the box
+
+RESPOND in this JSON format only:
+{"scores": {"box_closed": 0, "label_present": 0, "single_box": 0, "label_inside": 0}, "total": 0, "pass": false, "reason": "string"}

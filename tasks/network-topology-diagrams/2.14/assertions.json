@@ -1,0 +1,29 @@
+{
+  "required_labels": [
+    "Primary DB",
+    "Replica-1",
+    "Replica-2",
+    "Replica-3",
+    "async sync"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 4,
+  "required_edges": [
+    {
+      "from": "Primary DB",
+      "to": "Replica-1"
+    },
+    {
+      "from": "Primary DB",
+      "to": "Replica-2"
+    },
+    {
+      "from": "Primary DB",
+      "to": "Replica-3"
+    }
+  ],
+  "required_edge_labels": [
+    "async sync"
+  ],
+  "preserved_elements": []
+}

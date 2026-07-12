@@ -1,0 +1,10 @@
+TASK: BitTorrent swarm (Task 2.9)
+
+CHECKLIST: tracker, five_peers, tracker_to_all_five, p2p_ab, p2p_bc, p2p_cd, p2p_de, p2p_ae.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

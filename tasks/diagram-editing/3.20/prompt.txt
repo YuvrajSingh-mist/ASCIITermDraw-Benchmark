@@ -1,0 +1,1 @@
+Split into two boxes side by side: "Write Primary" on the left and "Read Replica" on the right. Show an arrow from Write Primary to Read Replica labeled "replication".

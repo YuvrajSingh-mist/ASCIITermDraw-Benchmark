@@ -1,0 +1,10 @@
+TASK: Ring network (Task 2.4)
+
+CHECKLIST: four_nodes, a_to_b, b_to_c, c_to_d, d_to_a_ring_closure.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

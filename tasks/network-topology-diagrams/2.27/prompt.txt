@@ -1,0 +1,1 @@
+Draw an API gateway pattern. "Client" connects to "API Gateway". Inside the gateway show "Auth" and "Rate Limiter" as sub-components. Gateway routes to three services: "User Service", "Order Service", "Product Service".

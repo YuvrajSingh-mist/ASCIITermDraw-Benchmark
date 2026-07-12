@@ -1,0 +1,10 @@
+TASK: Training to inference nodes (Task 2.8)
+
+CHECKLIST: mac_mini_top, four_jetsons_in_row, ssh_tcp_label, four_connections.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

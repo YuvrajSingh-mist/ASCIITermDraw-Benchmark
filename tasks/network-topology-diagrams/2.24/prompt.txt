@@ -1,0 +1,1 @@
+Draw PagedAttention KV cache. Show "Logical Blocks" on the left (Block 0, Block 1, Block 2) mapped via arrows to "Physical Blocks" on the right (Physical 3, Physical 0, Physical 7). Add a "Block Table" box in the middle showing the mapping.

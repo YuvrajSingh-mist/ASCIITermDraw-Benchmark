@@ -1,0 +1,10 @@
+TASK: Remove a node (Task 3.2)
+
+CHECKLIST: cache_absent, web_present, db_present, direct_web_to_db, only_two_boxes.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

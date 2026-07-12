@@ -1,0 +1,10 @@
+TASK: Federated learning (Task 2.22)
+
+CHECKLIST: aggregator, four_trainers, bidirectional_links, model_update_labels.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

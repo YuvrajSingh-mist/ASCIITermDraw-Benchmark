@@ -1,0 +1,1 @@
+Draw a TCP three-way handshake between "Client" and "Server" using a sequence diagram (vertical lanes). Show: Client sends SYN →, Server replies ← SYN-ACK, Client sends ACK →.

@@ -1,0 +1,1 @@
+Remove Follower-3 and its connection from the Leader.

@@ -1,0 +1,10 @@
+TASK: PagedAttention KV cache (Task 2.24)
+
+CHECKLIST: logical_blocks, block_table, three_physical_blocks, mapping_indicated.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

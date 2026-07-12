@@ -1,0 +1,29 @@
+{
+  "required_labels": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "HTTP",
+    "gRPC",
+    "SQL",
+    "cache"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 5,
+  "required_edges": [],
+  "required_edge_labels": [
+    "HTTP",
+    "gRPC",
+    "SQL",
+    "cache"
+  ],
+  "preserved_elements": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E"
+  ]
+}

@@ -1,0 +1,10 @@
+TASK: Ride-sharing backend (Task 4.14)
+
+CHECKLIST: rider_app, driver_app, api_gateway, location_service, location_redis, geohash_label, matching_service, trips_db, payment_service, stripe, notification_service, notification_to_both.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

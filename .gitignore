@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.DS_Store
+.venv/
+.env
+.env.*
+!.env.example
+outputs/*
+!outputs/.gitignore
+results*.csv
+node_modules/
+termdraw_benchmark_spec.md
+outputs/

@@ -1,0 +1,19 @@
+{
+  "required_labels": [
+    "Producer",
+    "Consumer",
+    "events"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 2,
+  "required_edges": [
+    {
+      "from": "Producer",
+      "to": "Consumer"
+    }
+  ],
+  "required_edge_labels": [
+    "events"
+  ],
+  "preserved_elements": []
+}

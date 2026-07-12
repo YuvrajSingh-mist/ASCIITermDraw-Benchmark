@@ -1,0 +1,10 @@
+TASK: CDN architecture (Task 2.16)
+
+CHECKLIST: users, two_edges, origin, users_to_both_edges, both_edges_to_origin, cache_miss_labels.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

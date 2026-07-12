@@ -1,0 +1,1 @@
+Change all three arrows to bidirectional.

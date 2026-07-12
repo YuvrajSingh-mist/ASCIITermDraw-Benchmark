@@ -1,0 +1,1 @@
+Draw a Kubernetes cluster. One outer box labeled "Control Plane" contains three sub-components: "API Server", "etcd", "Scheduler". Below the Control Plane, three worker boxes: "Worker-1", "Worker-2", "Worker-3". Connect Control Plane to each Worker.

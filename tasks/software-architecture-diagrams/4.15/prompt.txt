@@ -1,0 +1,6 @@
+Draw a Lambda architecture data pipeline:
+- Three data sources publish to "Kafka (Event Stream)": "App Events", "DB Change Stream", "IoT Sensors"
+- Speed layer: Kafka → "Stream Processor (Flink)" → "Time-Series DB" — label "speed layer"
+- Batch layer: Kafka → "Batch Processor (Spark)" → "Data Warehouse (BigQuery)" — label "batch layer"
+- Both outputs feed "Analytics Dashboard"
+- "Data Catalog" connects to both storage layers

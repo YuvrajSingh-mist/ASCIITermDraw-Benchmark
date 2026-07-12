@@ -1,0 +1,21 @@
+{
+  "required_labels": [
+    "Web",
+    "DB"
+  ],
+  "forbidden_labels": [
+    "Cache"
+  ],
+  "entity_count": 2,
+  "required_edges": [
+    {
+      "from": "Web",
+      "to": "DB"
+    }
+  ],
+  "required_edge_labels": [],
+  "preserved_elements": [
+    "Web",
+    "DB"
+  ]
+}

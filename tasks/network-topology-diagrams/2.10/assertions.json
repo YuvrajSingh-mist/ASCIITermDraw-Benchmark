@@ -1,0 +1,15 @@
+{
+  "required_labels": [
+    "Worker",
+    "Inner Optimizer",
+    "Outer Optimizer",
+    "outer loop sync"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 9,
+  "required_edges": [],
+  "required_edge_labels": [
+    "outer loop sync"
+  ],
+  "preserved_elements": []
+}

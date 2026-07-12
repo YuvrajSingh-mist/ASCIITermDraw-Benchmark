@@ -1,0 +1,10 @@
+TASK: Video upload pipeline (Task 4.12)
+
+CHECKLIST: upload_service, raw_s3, kafka_queue, transcoder_workers, processed_s3, cdn, metadata_service, video_db, upload_to_raw_s3, kafka_to_workers, workers_to_processed, cdn_to_user.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

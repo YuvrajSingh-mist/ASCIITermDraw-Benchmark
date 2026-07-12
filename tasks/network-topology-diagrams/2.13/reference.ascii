@@ -1,0 +1,9 @@
+                         +------------------+
+                         | Parameter Server |
+                         +------------------+
+                    pull params to all workers
+               /             |             |             \
+              v              v             v              v
++--------+  <---- push gradients ----> +--------+  +--------+  +--------+
+|Worker-1|                             |Worker-2|  |Worker-3|  |Worker-4|
++--------+                             +--------+  +--------+  +--------+

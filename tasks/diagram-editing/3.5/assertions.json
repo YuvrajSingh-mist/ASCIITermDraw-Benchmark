@@ -1,0 +1,14 @@
+{
+  "required_labels": [
+    "Auth Service",
+    "/login",
+    "/refresh"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 1,
+  "required_edges": [],
+  "required_edge_labels": [],
+  "preserved_elements": [
+    "Auth Service"
+  ]
+}

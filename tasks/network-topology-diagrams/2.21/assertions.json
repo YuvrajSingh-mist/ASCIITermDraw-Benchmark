@@ -1,0 +1,36 @@
+{
+  "required_labels": [
+    "Service A",
+    "Service B",
+    "Service C",
+    "Event Bus",
+    "Analytics Service",
+    "Audit Service"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 6,
+  "required_edges": [
+    {
+      "from": "Service A",
+      "to": "Event Bus"
+    },
+    {
+      "from": "Service B",
+      "to": "Event Bus"
+    },
+    {
+      "from": "Service C",
+      "to": "Event Bus"
+    },
+    {
+      "from": "Event Bus",
+      "to": "Analytics Service"
+    },
+    {
+      "from": "Event Bus",
+      "to": "Audit Service"
+    }
+  ],
+  "required_edge_labels": [],
+  "preserved_elements": []
+}

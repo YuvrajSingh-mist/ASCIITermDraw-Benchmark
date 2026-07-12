@@ -1,0 +1,1 @@
+Swap positions: move Node A to the right and Node B to the left. Update the arrow direction accordingly.

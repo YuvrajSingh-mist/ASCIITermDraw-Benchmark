@@ -1,0 +1,10 @@
+TASK: CI/CD pipeline (Task 4.3)
+
+CHECKLIST: all_six_stages, correct_order, forward_arrows, rollback_arrow, on_failure_label, rollback_visual_distinction.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

@@ -1,0 +1,6 @@
+Draw a CDN architecture:
+- "Users (Global)" on the left
+- Two edge cache nodes in the middle: "Edge Cache (US)" and "Edge Cache (EU)"
+- "Origin Server" on the right
+- Users connect to both edge nodes (label "cached response")
+- Both edge nodes connect to Origin Server (label "cache miss")

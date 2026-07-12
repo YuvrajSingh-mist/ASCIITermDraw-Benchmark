@@ -1,0 +1,21 @@
+{
+  "required_labels": [
+    "Write Primary",
+    "Read Replica",
+    "replication"
+  ],
+  "forbidden_labels": [
+    "Database"
+  ],
+  "entity_count": 2,
+  "required_edges": [
+    {
+      "from": "Write Primary",
+      "to": "Read Replica"
+    }
+  ],
+  "required_edge_labels": [
+    "replication"
+  ],
+  "preserved_elements": []
+}

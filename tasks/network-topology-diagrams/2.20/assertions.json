@@ -1,0 +1,18 @@
+{
+  "required_labels": [
+    "Client",
+    "Server",
+    "SYN",
+    "SYN-ACK",
+    "ACK"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 0,
+  "required_edges": [],
+  "required_edge_labels": [
+    "SYN",
+    "SYN-ACK",
+    "ACK"
+  ],
+  "preserved_elements": []
+}

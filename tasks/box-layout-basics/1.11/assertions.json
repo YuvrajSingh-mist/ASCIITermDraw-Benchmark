@@ -1,0 +1,12 @@
+{
+  "required_labels": [
+    "Config",
+    "host: localhost",
+    "port: 8080"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 1,
+  "required_edges": [],
+  "required_edge_labels": [],
+  "preserved_elements": []
+}

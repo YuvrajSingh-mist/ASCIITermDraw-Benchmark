@@ -1,0 +1,10 @@
+{
+  "name": "termdraw-bench",
+  "private": true,
+  "scripts": {
+    "render:ascii": "node scripts/renderers/render_ascii.mjs"
+  },
+  "dependencies": {
+    "playwright": "^1.61.1"
+  }
+}

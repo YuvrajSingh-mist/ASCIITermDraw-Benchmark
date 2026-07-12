@@ -1,0 +1,10 @@
+TASK: Swap B and C (Task 3.18)
+
+CHECKLIST: order_a_c_b_d, arrows_a_to_c_to_b_to_d.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

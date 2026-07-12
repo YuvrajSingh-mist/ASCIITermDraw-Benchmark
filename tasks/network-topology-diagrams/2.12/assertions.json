@@ -1,0 +1,16 @@
+{
+  "required_labels": [
+    "Pi-1",
+    "Pi-2",
+    "Pi-3",
+    "Pi-4",
+    "Pi-5",
+    "Pi-6",
+    "Tracker"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 7,
+  "required_edges": [],
+  "required_edge_labels": [],
+  "preserved_elements": []
+}

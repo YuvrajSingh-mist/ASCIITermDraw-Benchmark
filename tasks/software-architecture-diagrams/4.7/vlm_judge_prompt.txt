@@ -1,0 +1,10 @@
+TASK: Notification system (Task 4.7)
+
+CHECKLIST: three_sources, kafka, notification_service, user_prefs_db, three_channels, three_providers, sources_to_kafka, kafka_to_notification, notification_to_channels, channels_to_providers.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

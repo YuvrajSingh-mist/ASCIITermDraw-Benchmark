@@ -1,0 +1,11 @@
+{
+  "required_labels": [
+    "Server Status",
+    "Running"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 1,
+  "required_edges": [],
+  "required_edge_labels": [],
+  "preserved_elements": []
+}

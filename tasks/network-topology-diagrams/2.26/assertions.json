@@ -1,0 +1,36 @@
+{
+  "required_labels": [
+    "Code Push",
+    "Build",
+    "Unit Tests",
+    "Integration Tests",
+    "Staging",
+    "Production"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 6,
+  "required_edges": [
+    {
+      "from": "Code Push",
+      "to": "Build"
+    },
+    {
+      "from": "Build",
+      "to": "Unit Tests"
+    },
+    {
+      "from": "Unit Tests",
+      "to": "Integration Tests"
+    },
+    {
+      "from": "Integration Tests",
+      "to": "Staging"
+    },
+    {
+      "from": "Staging",
+      "to": "Production"
+    }
+  ],
+  "required_edge_labels": [],
+  "preserved_elements": []
+}

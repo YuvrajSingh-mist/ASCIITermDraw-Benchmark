@@ -1,0 +1,16 @@
+{
+  "required_labels": [
+    "Parameter Server",
+    "Worker",
+    "push gradients",
+    "pull params"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 5,
+  "required_edges": [],
+  "required_edge_labels": [
+    "push gradients",
+    "pull params"
+  ],
+  "preserved_elements": []
+}

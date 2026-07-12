@@ -1,0 +1,18 @@
+TASK: Vertical stack (Task 1.3)
+
+Four boxes stacked top-to-bottom with downward arrows in this order:
+Load Balancer → App Server → Cache → Database.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+CHECKLIST:
+1. four_boxes: four closed boxes exist
+2. all_labels: all four labels present
+3. correct_order: Load Balancer is topmost, Database is bottommost
+4. three_arrows: three downward connectors between adjacent boxes
+5. consistent_widths: all boxes have the same width (padded to match longest label)
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

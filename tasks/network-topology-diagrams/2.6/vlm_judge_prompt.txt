@@ -1,0 +1,10 @@
+TASK: Pub/sub (Task 2.6)
+
+CHECKLIST: order_service, kafka, inventory_service, notification_service, publish_label, subscribe_labels, correct_directions.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

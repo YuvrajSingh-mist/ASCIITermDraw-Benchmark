@@ -1,0 +1,1 @@
+Draw a single ASCII box with the label "API Gateway" centered inside it.

@@ -1,0 +1,1 @@
+Draw two boxes "Service A" and "Service B" side by side with a bidirectional arrow between them showing data flows both ways.

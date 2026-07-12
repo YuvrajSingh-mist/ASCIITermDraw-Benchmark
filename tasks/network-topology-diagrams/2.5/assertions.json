@@ -1,0 +1,29 @@
+{
+  "forbidden_labels": [],
+  "required_edge_labels": [],
+  "preserved_elements": [],
+  "required_labels": [
+    "Control Plane",
+    "API Server",
+    "etcd",
+    "Scheduler",
+    "Worker-1",
+    "Worker-2",
+    "Worker-3"
+  ],
+  "entity_count": 4,
+  "required_edges": [
+    {
+      "from": "Control Plane",
+      "to": "Worker-1"
+    },
+    {
+      "from": "Control Plane",
+      "to": "Worker-2"
+    },
+    {
+      "from": "Control Plane",
+      "to": "Worker-3"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+TASK: Add an edge (Task 3.4)
+
+CHECKLIST: service_unchanged, monitor_unchanged, bidirectional_connector, metrics_label.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

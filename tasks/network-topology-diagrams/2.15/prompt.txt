@@ -1,0 +1,1 @@
+Draw a service mesh with sidecars. Three services in a row: "Service A", "Service B", "Service C". Each has a small sidecar box directly below it labeled "Proxy". All Proxy boxes connect to a central "Control Plane" box below.

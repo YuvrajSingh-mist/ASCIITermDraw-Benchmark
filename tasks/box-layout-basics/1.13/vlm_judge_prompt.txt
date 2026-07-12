@@ -1,0 +1,16 @@
+TASK: Title bar box (Task 1.13)
+
+Box with "Server Status" in the title, = divider, then "Running" below.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+CHECKLIST:
+1. box_closed: closed box
+2. title_label: "Server Status" in top section
+3. equals_divider: = characters used as internal divider (not - or +)
+4. running_label: "Running" in content section below divider
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

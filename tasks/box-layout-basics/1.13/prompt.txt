@@ -1,0 +1,1 @@
+Draw an ASCII box with a title bar. Use "=" as the divider between the title and content. Title: "Server Status". Content: "Running".

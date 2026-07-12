@@ -1,0 +1,5 @@
+Draw a Dropbox-style file storage system:
+- "Client (Desktop)" uploads to "Upload Service"
+- Upload Service stores file chunks in "S3 (Block Store)" and metadata in "Metadata DB (PostgreSQL)"
+- "Download Service" reads from both S3 and Metadata DB to serve files to Client
+- "Sync Service" connects to "Notification Queue (Kafka)" to send change notifications to Client

@@ -1,0 +1,21 @@
+{
+  "forbidden_labels": [],
+  "required_edge_labels": [],
+  "preserved_elements": [],
+  "required_labels": [
+    "Browser",
+    "Web Server",
+    "PostgreSQL"
+  ],
+  "entity_count": 3,
+  "required_edges": [
+    {
+      "from": "Browser",
+      "to": "Web Server"
+    },
+    {
+      "from": "Web Server",
+      "to": "PostgreSQL"
+    }
+  ]
+}

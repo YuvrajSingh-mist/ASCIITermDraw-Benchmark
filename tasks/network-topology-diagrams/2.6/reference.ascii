@@ -1,0 +1,14 @@
+ Order Service
++---------------+
+| Order Service |
++---------------+
+     | publish
+     v
++-------+
+| Kafka |
++-------+
+  | subscribe        | subscribe
+  v                  v
++-------------------+  +----------------------+
+| Inventory Service |  | Notification Service |
++-------------------+  +----------------------+

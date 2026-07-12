@@ -1,0 +1,10 @@
+TASK: API gateway pattern (Task 2.27)
+
+CHECKLIST: client, gateway, auth_inside, rate_limiter_inside, gateway_to_three_services.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

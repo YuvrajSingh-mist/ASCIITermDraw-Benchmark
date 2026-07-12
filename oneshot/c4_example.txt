@@ -1,0 +1,7 @@
+EXAMPLE PROMPT:
+Draw a 2-tier architecture: "Client" on the left sends requests to "Web Server" on the right.
+
+EXAMPLE OUTPUT:
++--------+     HTTP      +------------+
+| Client |-------------->| Web Server |
++--------+               +------------+

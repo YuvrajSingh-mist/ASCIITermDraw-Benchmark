@@ -1,0 +1,24 @@
+{
+  "required_labels": [
+    "Browser",
+    "API Server",
+    "Database"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 3,
+  "required_edges": [
+    {
+      "from": "Browser",
+      "to": "API Server"
+    },
+    {
+      "from": "API Server",
+      "to": "Database"
+    }
+  ],
+  "required_edge_labels": [],
+  "preserved_elements": [
+    "Browser",
+    "Database"
+  ]
+}

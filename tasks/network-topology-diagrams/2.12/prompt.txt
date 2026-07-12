@@ -1,0 +1,1 @@
+Draw a peer discovery diagram. Six Pi nodes in two rows of three: top row "Pi-1", "Pi-2", "Pi-3"; bottom row "Pi-4", "Pi-5", "Pi-6". Show dotted broadcast lines (using ...) between all Pi nodes representing mDNS multicast. One "Tracker" node to the side connected only to Pi-1.

@@ -1,0 +1,10 @@
+TASK: Twitter news feed hybrid fan-out (Task 4.11)
+
+CHECKLIST: tweet_service, cassandra, kafka, fanout_service, social_graph, feed_cache, feed_service, write_path_complete, fan_out_on_write_label, fan_out_on_read_label, celebrity_bypass, two_paths_distinct.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

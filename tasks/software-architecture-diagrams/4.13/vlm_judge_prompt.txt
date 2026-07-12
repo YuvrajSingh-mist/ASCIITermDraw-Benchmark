@@ -1,0 +1,10 @@
+TASK: Chat system (Task 4.13)
+
+CHECKLIST: user_a, user_b, chat_server, websocket_label, kafka, message_service, cassandra, presence_service, redis_presence, push_notification, apns_fcm, bidirectional_users.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

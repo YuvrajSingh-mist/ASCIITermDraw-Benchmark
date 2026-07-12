@@ -1,0 +1,43 @@
+{
+  "required_labels": [
+    "Code Push",
+    "Build",
+    "Unit Tests",
+    "Integration Tests",
+    "Staging Deploy",
+    "Prod Deploy",
+    "on failure"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 6,
+  "required_edges": [
+    {
+      "from": "Code Push",
+      "to": "Build"
+    },
+    {
+      "from": "Build",
+      "to": "Unit Tests"
+    },
+    {
+      "from": "Unit Tests",
+      "to": "Integration Tests"
+    },
+    {
+      "from": "Integration Tests",
+      "to": "Staging Deploy"
+    },
+    {
+      "from": "Staging Deploy",
+      "to": "Prod Deploy"
+    },
+    {
+      "from": "Prod Deploy",
+      "to": "Staging Deploy"
+    }
+  ],
+  "required_edge_labels": [
+    "on failure"
+  ],
+  "preserved_elements": []
+}

@@ -1,0 +1,1 @@
+Draw three boxes in an L-shape: "Node A" on the top-left, "Node B" to the right of Node A, and "Node C" below Node B. Connect A to B with a right arrow, and B to C with a downward arrow.

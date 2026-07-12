@@ -1,0 +1,30 @@
+{
+  "required_labels": [
+    "Draft Model (small)",
+    "Verifier Model (large)",
+    "Output",
+    "accept",
+    "reject"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 3,
+  "required_edges": [
+    {
+      "from": "Draft Model (small)",
+      "to": "Verifier Model (large)"
+    },
+    {
+      "from": "Verifier Model (large)",
+      "to": "Output"
+    },
+    {
+      "from": "Verifier Model (large)",
+      "to": "Draft Model (small)"
+    }
+  ],
+  "required_edge_labels": [
+    "accept",
+    "reject"
+  ],
+  "preserved_elements": []
+}

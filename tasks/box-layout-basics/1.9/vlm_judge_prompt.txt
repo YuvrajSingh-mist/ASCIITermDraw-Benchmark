@@ -1,0 +1,20 @@
+TASK: Multi-section box (Task 1.9)
+
+A single box with "users" in the top section, a horizontal divider, then three
+fields: "id (PK)", "email", "created_at".
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+CHECKLIST:
+1. outer_box_closed: outer box has four + corners and proper walls
+2. users_label: "users" appears in the top section
+3. internal_divider: a horizontal divider line (+-...+ or |---|) separates the two sections
+4. id_pk: "id (PK)" appears in the lower section
+5. email: "email" appears in the lower section
+6. created_at: "created_at" appears in the lower section
+7. divider_aligned: internal divider connects to the side walls
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

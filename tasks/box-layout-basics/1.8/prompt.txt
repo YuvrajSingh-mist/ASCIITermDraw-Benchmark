@@ -1,0 +1,1 @@
+Draw three boxes in a row at the top: "Web", "Mobile", "CLI". Below them, draw one box "GraphQL Gateway". Connect each of the three top boxes to the Gateway with downward arrows.

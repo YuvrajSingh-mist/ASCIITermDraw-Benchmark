@@ -1,0 +1,10 @@
+TASK: Client-server-database chain (Task 2.1)
+
+CHECKLIST: browser_box, webserver_box, postgres_box, browser_to_server_arrow, server_to_db_arrow.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

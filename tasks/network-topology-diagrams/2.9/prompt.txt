@@ -1,0 +1,1 @@
+Draw a BitTorrent swarm. One "Tracker" connects to 5 peers: "Peer-A", "Peer-B", "Peer-C", "Peer-D", "Peer-E". Additionally show peer-to-peer connections: A-B, B-C, C-D, D-E, and A-E.

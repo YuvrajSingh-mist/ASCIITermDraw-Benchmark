@@ -1,0 +1,10 @@
+TASK: Parameter server (Task 2.13)
+
+CHECKLIST: parameter_server, four_workers, push_gradients_labels, pull_params_labels, bidirectional_ps_worker_links.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

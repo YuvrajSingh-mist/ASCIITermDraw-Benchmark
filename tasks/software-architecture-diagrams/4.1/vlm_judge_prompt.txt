@@ -1,0 +1,10 @@
+TASK: 3-tier web architecture (Task 4.1)
+
+CHECKLIST: client_box, lb_box, three_app_servers, postgres_box, client_to_lb, lb_to_all_three, all_apps_to_postgres, correct_left_to_right_flow.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

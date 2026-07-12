@@ -1,0 +1,10 @@
+TASK: Add version annotations (Task 3.19)
+
+CHECKLIST: all_three_service_boxes, correct_version_strings_inside_boxes.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

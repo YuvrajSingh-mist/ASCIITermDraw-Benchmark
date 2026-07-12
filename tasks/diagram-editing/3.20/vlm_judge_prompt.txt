@@ -1,0 +1,10 @@
+TASK: Split database node (Task 3.20)
+
+CHECKLIST: database_absent, two_new_boxes, replication_arrow_and_label.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

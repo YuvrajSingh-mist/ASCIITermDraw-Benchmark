@@ -1,0 +1,1 @@
+Insert an "API Server" between Browser and Database. Remove the direct Browser-to-Database arrow. Add Browser→API Server and API Server→Database arrows.

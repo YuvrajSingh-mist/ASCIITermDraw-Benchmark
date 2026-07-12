@@ -1,0 +1,51 @@
+{
+  "required_labels": [
+    "User",
+    "Upload Service",
+    "Raw Storage (S3)",
+    "Transcoding Queue (Kafka)",
+    "Transcoder Worker",
+    "Processed Storage (S3)",
+    "CDN",
+    "Metadata Service",
+    "Video DB"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 10,
+  "required_edges": [
+    {
+      "from": "User",
+      "to": "Upload Service"
+    },
+    {
+      "from": "Upload Service",
+      "to": "Raw Storage (S3)"
+    },
+    {
+      "from": "Upload Service",
+      "to": "Transcoding Queue (Kafka)"
+    },
+    {
+      "from": "Transcoding Queue (Kafka)",
+      "to": "Transcoder Worker"
+    },
+    {
+      "from": "Transcoder Worker",
+      "to": "Processed Storage (S3)"
+    },
+    {
+      "from": "Processed Storage (S3)",
+      "to": "CDN"
+    },
+    {
+      "from": "CDN",
+      "to": "User"
+    },
+    {
+      "from": "Metadata Service",
+      "to": "Video DB"
+    }
+  ],
+  "required_edge_labels": [],
+  "preserved_elements": []
+}

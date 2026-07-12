@@ -1,0 +1,64 @@
+{
+  "required_labels": [
+    "Rider App",
+    "Driver App",
+    "API Gateway",
+    "Location Service",
+    "Location Cache (Redis)",
+    "Matching Service",
+    "Trips DB",
+    "Payment Service",
+    "Payments DB",
+    "Stripe",
+    "Notification Service",
+    "geohash"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 11,
+  "required_edges": [
+    {
+      "from": "Rider App",
+      "to": "API Gateway"
+    },
+    {
+      "from": "Driver App",
+      "to": "API Gateway"
+    },
+    {
+      "from": "Driver App",
+      "to": "Location Service"
+    },
+    {
+      "from": "Location Service",
+      "to": "Location Cache (Redis)"
+    },
+    {
+      "from": "Matching Service",
+      "to": "Location Cache (Redis)"
+    },
+    {
+      "from": "Matching Service",
+      "to": "Trips DB"
+    },
+    {
+      "from": "Payment Service",
+      "to": "Payments DB"
+    },
+    {
+      "from": "Payment Service",
+      "to": "Stripe"
+    },
+    {
+      "from": "Notification Service",
+      "to": "Rider App"
+    },
+    {
+      "from": "Notification Service",
+      "to": "Driver App"
+    }
+  ],
+  "required_edge_labels": [
+    "geohash"
+  ],
+  "preserved_elements": []
+}

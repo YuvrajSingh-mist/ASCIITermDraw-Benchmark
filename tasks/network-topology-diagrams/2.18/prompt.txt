@@ -1,0 +1,1 @@
+Draw a VPN tunnel. "Client" on the left connects through an "[Encrypted Tunnel]" annotation to "VPN Server" in the middle. VPN Server connects to "Internet" on the right.

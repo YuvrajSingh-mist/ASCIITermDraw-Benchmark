@@ -1,0 +1,17 @@
+TASK: Labeled bidirectional arrow (Task 1.14)
+
+Client and Server with two labeled arrows: "request" going right, "response" going left.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+CHECKLIST:
+1. client_box: "Client" exists
+2. server_box: "Server" exists
+3. request_label: "request" label on rightward arrow
+4. response_label: "response" label on leftward arrow
+5. both_directions: arrows going both ways
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

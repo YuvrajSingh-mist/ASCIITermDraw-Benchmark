@@ -1,0 +1,18 @@
+TASK: Fan-out (Task 1.7)
+
+API Server at top fans out to three DB boxes at the same level below it.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+CHECKLIST:
+1. api_server: "API Server" box exists
+2. users_db: "Users DB" box exists
+3. products_db: "Products DB" box exists
+4. orders_db: "Orders DB" box exists
+5. all_three_connections: API Server connects to all three DB boxes (not just one or two)
+6. db_same_level: all three DB boxes are at approximately the same vertical position
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

@@ -1,0 +1,10 @@
+TASK: FSDP sharding (Task 2.25)
+
+CHECKLIST: four_gpu_shards, allgather_labels, dense_all_to_all_connectivity_indicated.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

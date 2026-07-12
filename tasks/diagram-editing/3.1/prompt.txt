@@ -1,0 +1,1 @@
+Add a "Database" box to the right of the Server box. Connect Server to Database with a right-pointing arrow. Do not change anything else.

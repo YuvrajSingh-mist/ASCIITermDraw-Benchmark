@@ -1,0 +1,10 @@
+TASK: Add sidecars (Task 3.16)
+
+CHECKLIST: three_proxies, app_to_proxy_links, proxies_to_control_plane.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

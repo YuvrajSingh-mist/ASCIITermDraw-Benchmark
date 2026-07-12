@@ -1,0 +1,10 @@
+TASK: Bidirectional conversion (Task 3.17)
+
+CHECKLIST: all_three_connectors_bidirectional.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

@@ -1,0 +1,10 @@
+TASK: Add follower to Raft cluster (Task 3.11)
+
+CHECKLIST: original_cluster_preserved, follower5_added, leader_to_follower5.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

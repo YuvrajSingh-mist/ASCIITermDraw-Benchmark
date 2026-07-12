@@ -1,0 +1,1 @@
+Draw a CDN architecture. One "Origin Server" on the right. Two edge cache nodes: "Edge-US" and "Edge-EU". "Users (Global)" on the left connecting to both edge nodes. Edge nodes connect to Origin on cache miss. Label edge-to-origin arrows "cache miss".

@@ -1,0 +1,10 @@
+TASK: Primary-replica DB (Task 2.14)
+
+CHECKLIST: primary_db, three_replicas, primary_to_all_replicas, async_sync_labels.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

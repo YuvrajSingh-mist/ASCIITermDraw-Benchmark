@@ -1,0 +1,10 @@
+TASK: Mark failure node (Task 3.9)
+
+CHECKLIST: client_plus_corners, db_plus_corners, server_star_corners, failed_label, connections_preserved.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

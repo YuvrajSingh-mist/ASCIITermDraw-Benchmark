@@ -1,0 +1,15 @@
+{
+  "required_labels": [
+    "Mac Mini M4 (Trainer)",
+    "Jetson Orin Nano",
+    "Raspberry Pi",
+    "P2P sync"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 7,
+  "required_edges": [],
+  "required_edge_labels": [
+    "P2P sync"
+  ],
+  "preserved_elements": []
+}

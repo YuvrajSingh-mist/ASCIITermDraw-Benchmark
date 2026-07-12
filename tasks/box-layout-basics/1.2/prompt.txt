@@ -1,0 +1,1 @@
+Draw three boxes labeled "Input", "Process", "Output" connected left-to-right with arrows.

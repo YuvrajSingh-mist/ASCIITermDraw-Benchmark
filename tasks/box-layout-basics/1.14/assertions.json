@@ -1,0 +1,25 @@
+{
+  "required_labels": [
+    "Client",
+    "Server",
+    "request",
+    "response"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 2,
+  "required_edges": [
+    {
+      "from": "Client",
+      "to": "Server"
+    },
+    {
+      "from": "Server",
+      "to": "Client"
+    }
+  ],
+  "required_edge_labels": [
+    "request",
+    "response"
+  ],
+  "preserved_elements": []
+}

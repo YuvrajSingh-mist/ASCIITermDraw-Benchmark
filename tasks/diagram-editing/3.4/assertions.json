@@ -1,0 +1,26 @@
+{
+  "required_labels": [
+    "Service",
+    "Monitor",
+    "metrics"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 2,
+  "required_edges": [
+    {
+      "from": "Service",
+      "to": "Monitor"
+    },
+    {
+      "from": "Monitor",
+      "to": "Service"
+    }
+  ],
+  "required_edge_labels": [
+    "metrics"
+  ],
+  "preserved_elements": [
+    "Service",
+    "Monitor"
+  ]
+}

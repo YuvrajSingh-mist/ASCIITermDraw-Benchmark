@@ -1,0 +1,10 @@
+TASK: CDN architecture (Task 4.4)
+
+CHECKLIST: users_box, edge_us, edge_eu, origin, users_to_both_edges, edges_to_origin, cached_response_label, cache_miss_label, no_direct_users_to_origin.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

@@ -1,0 +1,10 @@
+TASK: Lambda architecture (Task 4.15)
+
+CHECKLIST: three_sources, kafka, flink, spark, timeseries_db, bigquery, dashboard, data_catalog, speed_layer_label, batch_layer_label, kafka_forks_both, both_to_dashboard.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

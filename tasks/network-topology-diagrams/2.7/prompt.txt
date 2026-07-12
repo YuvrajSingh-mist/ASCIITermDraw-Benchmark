@@ -1,0 +1,1 @@
+Draw a home ML lab cluster. One "Mac Mini M4 (Orchestrator)" at the top connected via "Thunderbolt" to three workers: "Mac Mini M4 Worker-1", "Mac Mini M4 Worker-2", "Mac Mini M4 Worker-3". Also show a "NAS" box connected only to the Orchestrator.

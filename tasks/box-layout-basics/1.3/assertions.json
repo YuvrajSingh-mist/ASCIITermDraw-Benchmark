@@ -1,0 +1,26 @@
+{
+  "required_labels": [
+    "Load Balancer",
+    "App Server",
+    "Cache",
+    "Database"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 4,
+  "required_edges": [
+    {
+      "from": "Load Balancer",
+      "to": "App Server"
+    },
+    {
+      "from": "App Server",
+      "to": "Cache"
+    },
+    {
+      "from": "Cache",
+      "to": "Database"
+    }
+  ],
+  "required_edge_labels": [],
+  "preserved_elements": []
+}

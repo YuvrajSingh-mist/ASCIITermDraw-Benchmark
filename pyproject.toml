@@ -1,0 +1,15 @@
+[project]
+name = "termdraw-bench"
+version = "0.1.0"
+description = "Benchmark for structured ASCII diagram generation and editing."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "requests>=2.32.0",
+  "pydantic>=2.8.0",
+  "openai>=1.35.0",
+  "instructor>=1.3.0",
+]
+
+[tool.uv]
+package = false

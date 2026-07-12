@@ -1,0 +1,10 @@
+TASK: Dropbox-style file storage (Task 4.9)
+
+CHECKLIST: client, upload_service, s3, metadata_db, download_service, sync_service, kafka, upload_to_s3, upload_to_metadata, download_reads_both.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

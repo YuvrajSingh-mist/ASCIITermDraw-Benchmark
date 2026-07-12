@@ -1,0 +1,1 @@
+Draw a ring allreduce topology. Four GPU nodes in a directed ring: "GPU-0" → "GPU-1" → "GPU-2" → "GPU-3" → "GPU-0". All arrows go clockwise. Label each arrow "gradient".

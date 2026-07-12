@@ -1,0 +1,10 @@
+TASK: Paxos cluster (Task 2.29)
+
+CHECKLIST: proposer, three_acceptors, prepare_phase, promise_phase, accept_phase.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

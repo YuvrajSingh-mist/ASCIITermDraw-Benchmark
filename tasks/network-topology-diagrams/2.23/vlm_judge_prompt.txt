@@ -1,0 +1,10 @@
+TASK: Speculative decoding (Task 2.23)
+
+CHECKLIST: draft_model, verifier_model, output, accept_path, reject_loopback.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

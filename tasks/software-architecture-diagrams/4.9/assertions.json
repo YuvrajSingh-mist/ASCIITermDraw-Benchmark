@@ -1,0 +1,49 @@
+{
+  "required_labels": [
+    "Client (Desktop)",
+    "Upload Service",
+    "S3 (Block Store)",
+    "Metadata DB (PostgreSQL)",
+    "Download Service",
+    "Sync Service",
+    "Notification Queue (Kafka)"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 7,
+  "required_edges": [
+    {
+      "from": "Client (Desktop)",
+      "to": "Upload Service"
+    },
+    {
+      "from": "Upload Service",
+      "to": "S3 (Block Store)"
+    },
+    {
+      "from": "Upload Service",
+      "to": "Metadata DB (PostgreSQL)"
+    },
+    {
+      "from": "Download Service",
+      "to": "S3 (Block Store)"
+    },
+    {
+      "from": "Download Service",
+      "to": "Metadata DB (PostgreSQL)"
+    },
+    {
+      "from": "Download Service",
+      "to": "Client (Desktop)"
+    },
+    {
+      "from": "Sync Service",
+      "to": "Notification Queue (Kafka)"
+    },
+    {
+      "from": "Notification Queue (Kafka)",
+      "to": "Client (Desktop)"
+    }
+  ],
+  "required_edge_labels": [],
+  "preserved_elements": []
+}

@@ -1,0 +1,1 @@
+Draw a primary-replica database setup. One "Primary DB" on the left. Three replicas to the right: "Replica-1", "Replica-2", "Replica-3". Show arrows from Primary to each Replica labeled "async sync".

@@ -1,0 +1,10 @@
+TASK: CI/CD chain (Task 2.26)
+
+CHECKLIST: six_stages, correct_order, adjacent_arrows.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

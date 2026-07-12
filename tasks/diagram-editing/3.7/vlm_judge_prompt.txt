@@ -1,0 +1,10 @@
+TASK: Insert intermediary (Task 3.7)
+
+CHECKLIST: browser_present, database_present, api_server_added, browser_to_api, api_to_database, no_direct_browser_db.
+
+MODEL OUTPUT:
+---
+{model_output}
+---
+
+RESPOND: {"scores": {...}, "total": 0, "pass": false, "reason": "string"}

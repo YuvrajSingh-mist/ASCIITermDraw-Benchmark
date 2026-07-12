@@ -1,0 +1,6 @@
+Draw a ride-sharing backend (Uber-style):
+- "Rider App" and "Driver App" both connect to "API Gateway"
+- "Location Service" receives GPS pings from Driver App via WebSocket, stores in "Location Cache (Redis)" with geohash label
+- "Matching Service" reads from Location Cache to find nearby drivers, creates trips in "Trips DB"
+- "Payment Service" processes payments, writes to "Payments DB" and external "Stripe"
+- "Notification Service" sends status updates to both apps

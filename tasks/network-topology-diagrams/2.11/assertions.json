@@ -1,0 +1,33 @@
+{
+  "required_labels": [
+    "GPU-0",
+    "GPU-1",
+    "GPU-2",
+    "GPU-3",
+    "gradient"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 4,
+  "required_edges": [
+    {
+      "from": "GPU-0",
+      "to": "GPU-1"
+    },
+    {
+      "from": "GPU-1",
+      "to": "GPU-2"
+    },
+    {
+      "from": "GPU-2",
+      "to": "GPU-3"
+    },
+    {
+      "from": "GPU-3",
+      "to": "GPU-0"
+    }
+  ],
+  "required_edge_labels": [
+    "gradient"
+  ],
+  "preserved_elements": []
+}

@@ -1,0 +1,16 @@
+{
+  "required_labels": [
+    "GPU-0 (Shard 0)",
+    "GPU-1 (Shard 1)",
+    "GPU-2 (Shard 2)",
+    "GPU-3 (Shard 3)",
+    "allgather"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 4,
+  "required_edges": [],
+  "required_edge_labels": [
+    "allgather"
+  ],
+  "preserved_elements": []
+}

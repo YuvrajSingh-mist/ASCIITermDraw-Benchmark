@@ -1,0 +1,66 @@
+{
+  "required_labels": [
+    "Order Service",
+    "Payment Service",
+    "Shipping Service",
+    "Kafka",
+    "Notification Service",
+    "User Preferences DB",
+    "Email Service",
+    "SMS Service",
+    "Push Service",
+    "SendGrid",
+    "Twilio",
+    "FCM"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 12,
+  "required_edges": [
+    {
+      "from": "Order Service",
+      "to": "Kafka"
+    },
+    {
+      "from": "Payment Service",
+      "to": "Kafka"
+    },
+    {
+      "from": "Shipping Service",
+      "to": "Kafka"
+    },
+    {
+      "from": "Kafka",
+      "to": "Notification Service"
+    },
+    {
+      "from": "Notification Service",
+      "to": "User Preferences DB"
+    },
+    {
+      "from": "Notification Service",
+      "to": "Email Service"
+    },
+    {
+      "from": "Notification Service",
+      "to": "SMS Service"
+    },
+    {
+      "from": "Notification Service",
+      "to": "Push Service"
+    },
+    {
+      "from": "Email Service",
+      "to": "SendGrid"
+    },
+    {
+      "from": "SMS Service",
+      "to": "Twilio"
+    },
+    {
+      "from": "Push Service",
+      "to": "FCM"
+    }
+  ],
+  "required_edge_labels": [],
+  "preserved_elements": []
+}

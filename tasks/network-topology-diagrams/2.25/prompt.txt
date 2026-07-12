@@ -1,0 +1,1 @@
+Draw FSDP sharding. Four GPU boxes: "GPU-0 (Shard 0)", "GPU-1 (Shard 1)", "GPU-2 (Shard 2)", "GPU-3 (Shard 3)". Show AllGather arrows between all GPUs (each to each) labeled "allgather".
