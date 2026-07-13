@@ -1,1 +1,0 @@
-Draw a Raspberry Pi PoE cluster. "Internet" at top connects to "Router". Router connects to "TP-Link Switch". Switch connects to four Pi nodes: "Pi-1", "Pi-2", "Pi-3", "Pi-4".

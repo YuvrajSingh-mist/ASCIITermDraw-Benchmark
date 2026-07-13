@@ -1,0 +1,688 @@
+{
+  "title": "TermDraw-Bench",
+  "summary": "Benchmark for ASCII diagram generation and editing.",
+  "stats": {
+    "task_count": 80,
+    "category_count": 4,
+    "edit_task_count": 20,
+    "rendered_reference_count": 80
+  },
+  "categories": [
+    {
+      "id": "1",
+      "slug": "box-layout-basics",
+      "name": "Box Layout Basics",
+      "description": "Single boxes, rows, columns, arrows, lanes, and spacing-sensitive ASCII layout tasks.",
+      "count": 20,
+      "tasks": [
+        {
+          "task_id": "1.1",
+          "title": "1.1",
+          "prompt": "Draw a single ASCII box with the label \"API Gateway\" centered inside it.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/box-layout-basics/easy/1.1",
+          "has_source": false,
+          "preview": "+---------------+\n|  API Gateway  |\n+---------------+\n"
+        },
+        {
+          "task_id": "1.2",
+          "title": "1.2",
+          "prompt": "Draw three boxes labeled \"Input\", \"Process\", \"Output\" connected left-to-right with arrows.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/box-layout-basics/easy/1.2",
+          "has_source": false,
+          "preview": "+---------+     +-----------+     +----------+\n|  Input  |---->|  Process  |---->|  Output  |\n+---------+     +-----------+     +----------+\n"
+        },
+        {
+          "task_id": "1.3",
+          "title": "1.3",
+          "prompt": "Draw four boxes stacked vertically: \"Load Balancer\", \"App Server\", \"Cache\", \"Database\". Connect them top-to-bottom with downward arrows.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/box-layout-basics/easy/1.3",
+          "has_source": false,
+          "preview": "+-----------------+\n|  Load Balancer  |\n+-----------------+\n         |\n         v\n+-----------------+"
+        },
+        {
+          "task_id": "1.4",
+          "title": "1.4",
+          "prompt": "Draw a two-column layout. Left column: one box labeled \"Client\". Right column: two stacked boxes labeled \"Primary DB\" on top and \"Replica DB\" below. Connect the Client to both DB boxes with arrows pointing right.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/box-layout-basics/easy/1.4",
+          "has_source": false,
+          "preview": "+----------+        +------------+\n|  Client  |------->| Primary DB |\n+----------+        +------------+\n      |\n      +------------>| Replica DB |\n                     +------------+"
+        },
+        {
+          "task_id": "1.5",
+          "title": "1.5",
+          "prompt": "Draw two boxes \"Service A\" and \"Service B\" side by side with a bidirectional arrow between them showing data flows both ways.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/box-layout-basics/easy/1.5",
+          "has_source": false,
+          "preview": "+-----------+     +-----------+\n| Service A |<--->| Service B |\n+-----------+     +-----------+\n"
+        },
+        {
+          "task_id": "1.6",
+          "title": "1.6",
+          "prompt": "Draw two boxes \"Producer\" and \"Consumer\" connected by a right-pointing arrow. Place the label \"events\" above the arrow line between the two boxes.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/box-layout-basics/easy/1.6",
+          "has_source": false,
+          "preview": "                 events\n+----------+  ----------->  +----------+\n| Producer |                | Consumer |\n+----------+                +----------+\n"
+        },
+        {
+          "task_id": "1.7",
+          "title": "1.7",
+          "prompt": "Draw one box \"API Server\" at the top. Below it, draw three boxes in a row: \"Users DB\", \"Products DB\", \"Orders DB\". Connect the API Server to each of the three boxes with downward arrows.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/box-layout-basics/easy/1.7",
+          "has_source": false,
+          "preview": "                 +------------+\n                 | API Server |\n                 +------------+\n                   |    |    |\n                   v    v    v\n+----------+   +-------------+   +-----------+"
+        },
+        {
+          "task_id": "1.8",
+          "title": "1.8",
+          "prompt": "Draw three boxes in a row at the top: \"Web\", \"Mobile\", \"CLI\". Below them, draw one box \"GraphQL Gateway\". Connect each of the three top boxes to the Gateway with downward arrows.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/box-layout-basics/easy/1.8",
+          "has_source": false,
+          "preview": "+-------+    +--------+    +-------+\n|  Web  |    | Mobile |    |  CLI  |\n+-------+    +--------+    +-------+\n     \\           |           /\n      \\          |          /\n       v         v         v"
+        },
+        {
+          "task_id": "1.9",
+          "title": "1.9",
+          "prompt": "Draw an ASCII box representing a database table called \"users\". Use a horizontal divider line inside the box to separate the table name (top section) from three fields listed below it: \"id (PK)\", \"email\", \"created_at\".Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/box-layout-basics/easy/1.9",
+          "has_source": false,
+          "preview": "+--------------+\n|    users     |\n+--------------+\n| id (PK)      |\n| email        |\n| created_at   |"
+        },
+        {
+          "task_id": "1.10",
+          "title": "1.10",
+          "prompt": "Draw a flowchart decision diamond labeled \"Is auth?\" with two exit paths: a \"Yes\" path going right to a box labeled \"Dashboard\", and a \"No\" path going down to a box labeled \"Login Page\". Use / and \\ characters to form the diamond shape.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/box-layout-basics/easy/1.10",
+          "has_source": false,
+          "preview": " /---------\\\n/ Is auth? \\\n\\           /---- Yes ---->+-----------+\n \\---------/                | Dashboard |\n      |                     +-----------+\n      | No"
+        },
+        {
+          "task_id": "1.11",
+          "title": "1.11",
+          "prompt": "Draw a single ASCII box labeled \"Config\" containing two lines of content: \"host: localhost\" on the first line and \"port: 8080\" on the second line.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/box-layout-basics/medium/1.11",
+          "has_source": false,
+          "preview": "+-------------------+\n|      Config       |\n| host: localhost   |\n| port: 8080        |\n+-------------------+\n"
+        },
+        {
+          "task_id": "1.12",
+          "title": "1.12",
+          "prompt": "Draw three boxes in an L-shape: \"Node A\" on the top-left, \"Node B\" to the right of Node A, and \"Node C\" below Node B. Connect A to B with a right arrow, and B to C with a downward arrow.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/box-layout-basics/medium/1.12",
+          "has_source": false,
+          "preview": "+--------+     +--------+\n| Node A |---->| Node B |\n+--------+     +--------+\n                    |\n                    v\n               +--------+"
+        },
+        {
+          "task_id": "1.13",
+          "title": "1.13",
+          "prompt": "Draw an ASCII box with a title bar. Use \"=\" as the divider between the title and content. Title: \"Server Status\". Content: \"Running\".Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/box-layout-basics/medium/1.13",
+          "has_source": false,
+          "preview": "+---------------+\n| Server Status |\n|===============|\n|    Running    |\n+---------------+\n"
+        },
+        {
+          "task_id": "1.14",
+          "title": "1.14",
+          "prompt": "Draw two boxes \"Client\" and \"Server\" side by side. Between them show two arrows: one going right labeled \"request\" and one going left labeled \"response\".Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/box-layout-basics/medium/1.14",
+          "has_source": false,
+          "preview": "          request\n+--------+------->+--------+\n| Client |        | Server |\n+--------+<-------+--------+\n          response\n"
+        },
+        {
+          "task_id": "1.15",
+          "title": "1.15",
+          "prompt": "Draw a circle node labeled \"Start\" using ( ) notation, connected with a right arrow to a rectangular box labeled \"Process\".Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/box-layout-basics/medium/1.15",
+          "has_source": false,
+          "preview": "( Start )---->+---------+\n              | Process |\n              +---------+\n"
+        },
+        {
+          "task_id": "1.16",
+          "title": "1.16",
+          "prompt": "Draw one outer ASCII box labeled \"Pod\". Inside it, place two inner boxes side by side labeled \"App Container\" and \"Log Sidecar\". Center the text \"shared volume\" below the two inner boxes but still inside the Pod box.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/box-layout-basics/hard/1.16",
+          "has_source": false,
+          "preview": "+--------------------------------------+\n|                 Pod                  |\n|  +---------------+ +--------------+  |\n|  | App Container | | Log Sidecar  |  |\n|  +---------------+ +--------------+  |\n|            shared volume             |"
+        },
+        {
+          "task_id": "1.17",
+          "title": "1.17",
+          "prompt": "Draw a two-column service card. Left column has two stacked boxes: \"Frontend\" above \"BFF\". Right column has one outer box labeled \"Backend Cluster\" containing two stacked inner boxes: \"API-1\" and \"API-2\". Connect Frontend downward to BFF. Connect BFF to both API boxes with arrows.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/box-layout-basics/hard/1.17",
+          "has_source": false,
+          "preview": "+----------+      +------------------+\n| Frontend |      | Backend Cluster  |\n+----------+      | +--------------+ |\n     |            | |    API-1     | |\n     v            | +--------------+ |\n+----------+----->| +--------------+ |"
+        },
+        {
+          "task_id": "1.18",
+          "title": "1.18",
+          "prompt": "Draw a two-lane sequence diagram. Left lane labeled \"Client\", right lane labeled \"Server\". Show three messages from top to bottom: \"connect\" from Client to Server, \"ack\" from Server to Client, and \"payload\" from Client to Server.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/box-layout-basics/hard/1.18",
+          "has_source": false,
+          "preview": "Client               Server\n  |                    |\n  |---- connect -----> |\n  | <----- ack ------- |\n  |---- payload -----> |\n  |                    |"
+        },
+        {
+          "task_id": "1.19",
+          "title": "1.19",
+          "prompt": "Draw a table-style box for \"users table\" with a title row, a divider, and four rows: \"id (PK)\", \"org_id\", \"email\", and \"created_at\". To the right of it place a separate note box labeled \"index: email\".Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/box-layout-basics/hard/1.19",
+          "has_source": false,
+          "preview": "+-----------------+      +--------------+\n|   users table   |      | index: email |\n+-----------------+      +--------------+\n| id (PK)         |\n| org_id          |\n| email           |"
+        },
+        {
+          "task_id": "1.20",
+          "title": "1.20",
+          "prompt": "Draw a mini deployment map. One top box labeled \"Router\". Below it, draw two outer boxes side by side: \"AZ-A\" and \"AZ-B\". Inside \"AZ-A\" place one box labeled \"App-A\". Inside \"AZ-B\" place one box labeled \"App-B\". Connect Router to both inner app boxes while keeping each app inside its availability zone boundary.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/box-layout-basics/hard/1.20",
+          "has_source": false,
+          "preview": "                 +--------+\n                 | Router |\n                 +--------+\n                    |   |\n                    v   v\n+---------------+     +---------------+"
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "slug": "network-topology-diagrams",
+      "name": "Network Topology Diagrams",
+      "description": "Distributed systems, clusters, buses, data flows, and topology-heavy connection diagrams.",
+      "count": 20,
+      "tasks": [
+        {
+          "task_id": "2.1",
+          "title": "2.1",
+          "prompt": "Draw a client-server-database chain: \"Browser\" → \"Web Server\" → \"PostgreSQL\". Show arrows between each.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/network-topology-diagrams/easy/2.1",
+          "has_source": false,
+          "preview": "+-----------+    +------------+    +------------+\n|  Browser  |--->| Web Server |--->| PostgreSQL |\n+-----------+    +------------+    +------------+\n"
+        },
+        {
+          "task_id": "2.2",
+          "title": "2.2",
+          "prompt": "Draw a ring network with 4 nodes: \"Node-A\", \"Node-B\", \"Node-C\", \"Node-D\". Connect them in a ring: A→B→C→D→A.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/network-topology-diagrams/easy/2.2",
+          "has_source": false,
+          "preview": "+--------+ ----> +--------+\n| Node-A |       | Node-B |\n+--------+ <---- +--------+\n    ^                |\n    |                v\n+--------+ <---- +--------+"
+        },
+        {
+          "task_id": "2.3",
+          "title": "2.3",
+          "prompt": "Draw a VPN tunnel. \"Client\" on the left connects through an \"[Encrypted Tunnel]\" annotation to \"VPN Server\" in the middle. VPN Server connects to \"Internet\" on the right.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/network-topology-diagrams/easy/2.3",
+          "has_source": false,
+          "preview": "+--------+   [Encrypted Tunnel]   +------------+   +----------+\n| Client |----------------------->| VPN Server |-->| Internet |\n+--------+                        +------------+   +----------+\n"
+        },
+        {
+          "task_id": "2.4",
+          "title": "2.4",
+          "prompt": "Draw DNS resolution. \"Browser\" → \"Local Resolver\" → \"Root NS\" → \"TLD NS (.com)\" → \"Auth NS (example.com)\" → \"IP Address returned\". Linear chain left to right.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/network-topology-diagrams/easy/2.4",
+          "has_source": false,
+          "preview": "+---------+ -> +----------------+ -> +---------+ -> +---------------+ -> +-----------------------+ -> +---------------------+\n| Browser |    | Local Resolver |    | Root NS |    | TLD NS (.com) |    | Auth NS (example.com) |    | IP Address returned |\n+---------+    +----------------+    +---------+    +---------------+    +-----------------------+    +---------------------+\n"
+        },
+        {
+          "task_id": "2.5",
+          "title": "2.5",
+          "prompt": "Draw a TCP three-way handshake between \"Client\" and \"Server\" using a sequence diagram (vertical lanes). Show: Client sends SYN →, Server replies ← SYN-ACK, Client sends ACK →.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/network-topology-diagrams/easy/2.5",
+          "has_source": false,
+          "preview": "Client                      Server\n  |                           |\n  |-------- SYN ------------->|\n  |<----- SYN-ACK ------------|\n  |-------- ACK ------------->|\n  |                           |"
+        },
+        {
+          "task_id": "2.6",
+          "title": "2.6",
+          "prompt": "Draw a Raspberry Pi PoE cluster. \"Internet\" at top connects to \"Router\". Router connects to \"TP-Link Switch\". Switch connects to four Pi nodes: \"Pi-1\", \"Pi-2\", \"Pi-3\", \"Pi-4\".Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/network-topology-diagrams/easy/2.6",
+          "has_source": false,
+          "preview": "+----------+\n| Internet |\n+----------+\n     |\n     v\n+--------+"
+        },
+        {
+          "task_id": "2.7",
+          "title": "2.7",
+          "prompt": "Draw a pub/sub diagram. \"Order Service\" publishes to \"Kafka\". \"Inventory Service\" and \"Notification Service\" both subscribe from Kafka. Label the arrow from Order Service to Kafka \"publish\". Label arrows from Kafka to subscribers \"subscribe\".Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/network-topology-diagrams/easy/2.7",
+          "has_source": false,
+          "preview": " Order Service\n+---------------+\n| Order Service |\n+---------------+\n     | publish\n     v"
+        },
+        {
+          "task_id": "2.8",
+          "title": "2.8",
+          "prompt": "Draw a load balancer \"NGINX\" receiving traffic from \"Client\" and distributing to three backends: \"App-1\", \"App-2\", \"App-3\".Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/network-topology-diagrams/easy/2.8",
+          "has_source": false,
+          "preview": "      +---------+\n      |  NGINX  |\n      +---------+\n      ^    |    ^\n      |    |    |\n +--------+ | +--------+"
+        },
+        {
+          "task_id": "2.9",
+          "title": "2.9",
+          "prompt": "Draw a primary-replica database setup. One \"Primary DB\" on the left. Three replicas to the right: \"Replica-1\", \"Replica-2\", \"Replica-3\". Show arrows from Primary to each Replica labeled \"async sync\".Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/network-topology-diagrams/easy/2.9",
+          "has_source": false,
+          "preview": "+------------+    async sync    +-----------+\n| Primary DB |----------------->| Replica-1 |\n+------------+                  +-----------+\n      | async sync                   +-----------+\n      +----------------------------->| Replica-2 |\n      |                              +-----------+"
+        },
+        {
+          "task_id": "2.10",
+          "title": "2.10",
+          "prompt": "Draw a Raft consensus cluster with 5 nodes. One is labeled \"Leader\". The others are \"Follower-1\", \"Follower-2\", \"Follower-3\", \"Follower-4\". Show heartbeat arrows from Leader to each Follower only (not the reverse).Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/network-topology-diagrams/easy/2.10",
+          "has_source": false,
+          "preview": "           +--------+\n           | Leader |\n           +--------+\n            /  |  \\\n           v   v   v\n+------------+ +------------+ +------------+"
+        },
+        {
+          "task_id": "2.11",
+          "title": "2.11",
+          "prompt": "Draw a Kubernetes cluster. One outer box labeled \"Control Plane\" contains three sub-components: \"API Server\", \"etcd\", \"Scheduler\". Below the Control Plane, three worker boxes: \"Worker-1\", \"Worker-2\", \"Worker-3\". Connect Control Plane to each Worker.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/network-topology-diagrams/medium/2.11",
+          "has_source": false,
+          "preview": "+--------------------------------------+\n|            Control Plane             |\n|  +------------+ +------+ +---------+ |\n|  | API Server | | etcd | |Scheduler| |\n|  +------------+ +------+ +---------+ |\n+--------------------------------------+"
+        },
+        {
+          "task_id": "2.12",
+          "title": "2.12",
+          "prompt": "Draw a ring allreduce topology. Four GPU nodes in a directed ring: \"GPU-0\" → \"GPU-1\" → \"GPU-2\" → \"GPU-3\" → \"GPU-0\". All arrows go clockwise. Label each arrow \"gradient\".Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/network-topology-diagrams/medium/2.12",
+          "has_source": false,
+          "preview": "          gradient                gradient\n+-------+ --------> +-------+ --------> +-------+\n| GPU-0 |           | GPU-1 |           | GPU-2 |\n+-------+ <-------- +-------+ <-------- +-------+\n    ^                   gradient             |\n    |                                        | gradient"
+        },
+        {
+          "task_id": "2.13",
+          "title": "2.13",
+          "prompt": "Draw a service mesh with sidecars. Three services in a row: \"Service A\", \"Service B\", \"Service C\". Each has a small sidecar box directly below it labeled \"Proxy\". All Proxy boxes connect to a central \"Control Plane\" box below.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/network-topology-diagrams/medium/2.13",
+          "has_source": false,
+          "preview": "+-----------+   +-----------+   +-----------+\n| Service A |   | Service B |   | Service C |\n+-----------+   +-----------+   +-----------+\n      |               |               |\n      v               v               v\n+-------+         +-------+       +-------+"
+        },
+        {
+          "task_id": "2.14",
+          "title": "2.14",
+          "prompt": "Draw a home ML lab cluster. Put \"Mac Mini M4 (Orchestrator)\" at the top and connect it via \"Thunderbolt\" to three workers: \"Mac Mini M4 Worker-1\", \"Mac Mini M4 Worker-2\", and \"Mac Mini M4 Worker-3\". Also show a \"NAS\" box connected only to the orchestrator, not to the workers.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/network-topology-diagrams/medium/2.14",
+          "has_source": false,
+          "preview": "               +-----------------------------+\n               | Mac Mini M4 (Orchestrator) |\n               +-----------------------------+\n                      Thunderbolt\n                 /         |         \\\n                /          |          \\"
+        },
+        {
+          "task_id": "2.15",
+          "title": "2.15",
+          "prompt": "Draw a federated learning setup. One \"Central Aggregator\" in the middle. Four local trainers around it: \"Trainer-1\", \"Trainer-2\", \"Trainer-3\", \"Trainer-4\". Bidirectional arrows between Aggregator and each Trainer labeled \"model update\".Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/network-topology-diagrams/medium/2.15",
+          "has_source": false,
+          "preview": "       +--------------------+\n       | Central Aggregator |\n       +--------------------+\n    <-->    <-->    <-->    <-->\n+-----------+ +-----------+ +-----------+ +-----------+\n| Trainer-1 | | Trainer-2 | | Trainer-3 | | Trainer-4 |"
+        },
+        {
+          "task_id": "2.16",
+          "title": "2.16",
+          "prompt": "Draw a hybrid home inference cluster. Show \"MacBook M1 (Orchestrator)\" connected to \"Mac Mini M4 Worker-1\". Then connect \"Mac Mini M4 Worker-2\" and \"Mac Mini M4 Worker-3\" to \"Mac Mini M4 Worker-1\" via \"Thunderbolt\". Also show a \"Switch\" connected to the orchestrator via \"Network Cable\". Four inference nodes, \"Jetson Orin Nano-1\", \"Jetson Orin Nano-2\", \"Jetson Orin Nano-3\", and \"Jetson Orin Nano-4\", should connect to the switch via \"CAT5\". Keep the Mac Mini worker cluster and the Jetson switch fabric clearly separated.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/network-topology-diagrams/hard/2.16",
+          "has_source": false,
+          "preview": "+--------------------------+------ Network Cable ---->+----------------+\n| MacBook M1 (Orchestrator)|                          |     Switch     |\n+--------------------------+                          +----------------+\n             |                                                CAT5\n             v                                           /    |    |    \\\n   +------------------------+                           v     v    v     v"
+        },
+        {
+          "task_id": "2.17",
+          "title": "2.17",
+          "prompt": "Draw a BitTorrent swarm. One \"Tracker\" connects to 5 peers: \"Peer-A\", \"Peer-B\", \"Peer-C\", \"Peer-D\", \"Peer-E\". Additionally show peer-to-peer connections: A-B, B-C, C-D, D-E, and A-E.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/network-topology-diagrams/hard/2.17",
+          "has_source": false,
+          "preview": "                          +---------+\n                          | Tracker |\n                          +---------+\n                        /  |  |  |   \\\n                       v   v  v  v    v\n+--------+<-------->+--------+<-------->+--------+<-------->+--------+"
+        },
+        {
+          "task_id": "2.18",
+          "title": "2.18",
+          "prompt": "Draw a DiLoCo training diagram. Four \"Worker\" boxes in a row, each connected downward to a local \"Inner Optimizer\" box. One \"Outer Optimizer\" box above all workers, connected to each worker with dashed arrows (- - >). Label the dashed arrows \"outer loop sync\".Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/network-topology-diagrams/hard/2.18",
+          "has_source": false,
+          "preview": "                           +-----------------+\n                           | Outer Optimizer |\n                           +-----------------+\n                 outer loop sync - - > to all workers\n        - - >          - - >          - - >          - - >\n+--------+      +--------+      +--------+      +--------+"
+        },
+        {
+          "task_id": "2.19",
+          "title": "2.19",
+          "prompt": "Draw a peer discovery diagram. Six Pi nodes in two rows of three: top row \"Pi-1\", \"Pi-2\", \"Pi-3\"; bottom row \"Pi-4\", \"Pi-5\", \"Pi-6\". Show dotted broadcast lines (using ...) between all Pi nodes representing mDNS multicast. One \"Tracker\" node to the side connected only to Pi-1.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/network-topology-diagrams/hard/2.19",
+          "has_source": false,
+          "preview": "+------+ ... +------+ ... +------+\n| Pi-1 | ... | Pi-2 | ... | Pi-3 |\n+------+ ... +------+ ... +------+\n   |                    ...   |\n   |                          |\n+------+ ... +------+ ... +------+"
+        },
+        {
+          "task_id": "2.20",
+          "title": "2.20",
+          "prompt": "Draw a parameter server architecture. One \"Parameter Server\" at the top. Four \"Worker\" boxes below it. Show bidirectional arrows between PS and each worker labeled \"push gradients\" (Worker→PS) and \"pull params\" (PS→Worker).Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/network-topology-diagrams/hard/2.20",
+          "has_source": false,
+          "preview": "                         +------------------+\n                         | Parameter Server |\n                         +------------------+\n                    pull params to all workers\n               /             |             |             \\\n              v              v             v              v"
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "slug": "diagram-editing",
+      "name": "Diagram Editing",
+      "description": "Image-to-text edit tasks where a model must transform an existing ASCII diagram correctly.",
+      "count": 20,
+      "tasks": [
+        {
+          "task_id": "3.1",
+          "title": "3.1",
+          "prompt": "Add a \"Database\" box to the right of the Server box. Connect Server to Database with a right-pointing arrow. Do not change anything else.Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/diagram-editing/easy/3.1",
+          "has_source": true,
+          "preview": "+----------+     +----------+     +------------+\n|  Client  |---->|  Server  |---->|  Database  |\n+----------+     +----------+     +------------+\n"
+        },
+        {
+          "task_id": "3.2",
+          "title": "3.2",
+          "prompt": "Remove the Cache box and its connections. Connect Web directly to DB with an arrow.Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/diagram-editing/easy/3.2",
+          "has_source": true,
+          "preview": "+-------+     +------+\n|  Web  |---->|  DB  |\n+-------+     +------+\n"
+        },
+        {
+          "task_id": "3.3",
+          "title": "3.3",
+          "prompt": "Rename \"App Srv\" to \"FastAPI\". Resize the box to fit the new label. Keep everything else exactly the same.Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/diagram-editing/easy/3.3",
+          "has_source": true,
+          "preview": "+--------+     +---------+\n|  Nginx |---->| FastAPI |\n+--------+     +---------+\n"
+        },
+        {
+          "task_id": "3.4",
+          "title": "3.4",
+          "prompt": "Reverse the arrow direction. It should now point from NodeB to NodeA.Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/diagram-editing/easy/3.4",
+          "has_source": true,
+          "preview": "+---------+<----+---------+\n|  NodeA  |     |  NodeB  |\n+---------+     +---------+\n"
+        },
+        {
+          "task_id": "3.5",
+          "title": "3.5",
+          "prompt": "Add a bidirectional arrow between Service and Monitor labeled \"metrics\" above the arrow line.Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/diagram-editing/easy/3.5",
+          "has_source": true,
+          "preview": "             metrics\n+---------+<------->+---------+\n| Service |         | Monitor |\n+---------+         +---------+\n"
+        },
+        {
+          "task_id": "3.6",
+          "title": "3.6",
+          "prompt": "Add an internal section below the title. Use a horizontal divider (+-...+) to separate. Add two endpoints below the divider: \"/login\" and \"/refresh\".Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/diagram-editing/easy/3.6",
+          "has_source": true,
+          "preview": "+------------------+\n|   Auth Service   |\n+------------------+\n| /login           |\n| /refresh         |\n+------------------+"
+        },
+        {
+          "task_id": "3.7",
+          "title": "3.7",
+          "prompt": "Mark the Server as a failure point: change its corner characters from + to * and add the label \"FAILED\" directly below the Server box.Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/diagram-editing/easy/3.7",
+          "has_source": true,
+          "preview": "+--------+     *--------*     +------+\n| Client |---->* Server *---->|  DB  |\n+--------+     *--------*     +------+\n               FAILED\n"
+        },
+        {
+          "task_id": "3.8",
+          "title": "3.8",
+          "prompt": "Insert an \"API Server\" between Browser and Database. Remove the direct Browser-to-Database arrow. Add Browser→API Server and API Server→Database arrows.Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/diagram-editing/easy/3.8",
+          "has_source": true,
+          "preview": "+---------+     +------------+     +----------+\n| Browser |---->| API Server |---->| Database |\n+---------+     +------------+     +----------+\n"
+        },
+        {
+          "task_id": "3.9",
+          "title": "3.9",
+          "prompt": "Add protocol labels to the existing arrows only: \"HTTP\" on Browser→API, \"gRPC\" on API→Worker, \"SQL\" on Worker→DB, and \"cache\" on Worker→Redis.Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/diagram-editing/easy/3.9",
+          "has_source": true,
+          "preview": "+-----------+ HTTP +-----------+\n|  Browser  |----->|    API    |\n+-----------+      +-----------+\n                        | gRPC\n                        v\n                   +-----------+"
+        },
+        {
+          "task_id": "3.10",
+          "title": "3.10",
+          "prompt": "Remove \"Follower-3\" and its connection from the cluster, while preserving the remaining follower layout.Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/diagram-editing/easy/3.10",
+          "has_source": true,
+          "preview": "            +--------+\n            | Leader |\n            +--------+\n         /    |    |    \\\n        v     v    v     v\n+------------+ +------------+ +------------+ +------------+"
+        },
+        {
+          "task_id": "3.11",
+          "title": "3.11",
+          "prompt": "Scale the app layer to 3 instances. Add \"App-2\" and \"App-3\" alongside App-1. Connect NGINX to all three with arrows while keeping the app layer evenly aligned below NGINX.Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/diagram-editing/medium/3.11",
+          "has_source": true,
+          "preview": "        +----------+\n        |  NGINX   |\n        +----------+\n       /    |    \\\n      /     |     \\\n     v      v      v"
+        },
+        {
+          "task_id": "3.12",
+          "title": "3.12",
+          "prompt": "Add a \"Follower-5\" node to the follower layer and connect it from the Leader. Do not disturb the lower follower row.Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/diagram-editing/medium/3.12",
+          "has_source": true,
+          "preview": "          +--------+\n          | Leader |\n          +--------+\n        /    |    |    \\\n       /     |    |     \\\n      v      v    v      v"
+        },
+        {
+          "task_id": "3.13",
+          "title": "3.13",
+          "prompt": "Change the three service-to-database connections to bidirectional links without changing the node layout.Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/diagram-editing/medium/3.13",
+          "has_source": true,
+          "preview": "+-----------+  +-----------+  +-----------+\n| Service A |  | Service B |  | Service C |\n+-----------+  +-----------+  +-----------+\n    ^   |         ^   |         ^   |\n    |   v         |   v         |   v\n+------+        +------+        +------+"
+        },
+        {
+          "task_id": "3.14",
+          "title": "3.14",
+          "prompt": "Draw one outer grouping box around both the frontend row and the backend row, and label the grouping box \"Region: EU\". Do not modify the inner service boxes or their connections.Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/diagram-editing/medium/3.14",
+          "has_source": true,
+          "preview": "+----------------------------------+\n|            Region: EU            |\n| +-----------+   +-----------+    |\n| | Frontend  |-->| API Layer |    |\n| +-----------+   +-----------+    |\n|                      |           |"
+        },
+        {
+          "task_id": "3.15",
+          "title": "3.15",
+          "prompt": "Add version annotations inside the three service boxes on new lines: \"v2.1\" for Auth Service, \"v1.8\" for User Service, and \"v3.0\" for Order Service. Do not change the gateway or arrows.Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/diagram-editing/medium/3.15",
+          "has_source": true,
+          "preview": "+-----------+\n|  Gateway  |\n+-----------+\n  /   |   \\\n v    v    v\n+--------------+  +--------------+  +---------------+"
+        },
+        {
+          "task_id": "3.16",
+          "title": "3.16",
+          "prompt": "Merge the \"Auth\" and \"Session\" boxes into one box labeled \"Auth+Session Service\". Update all connections so the merged box connects to both \"Users DB\" and \"Sessions DB\".Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/diagram-editing/hard/3.16",
+          "has_source": true,
+          "preview": " +----------------------+\n | Auth+Session Service |\n +----------------------+\n      |          |\n      v          v\n+----------+  +-------------+"
+        },
+        {
+          "task_id": "3.17",
+          "title": "3.17",
+          "prompt": "Swap the positions of \"Service A\" and \"Service B\" in the middle layer. Update the arrows from Gateway and the arrows to the databases accordingly, but do not change the top or bottom layers otherwise.Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/diagram-editing/hard/3.17",
+          "has_source": true,
+          "preview": "+-----------+\n|  Gateway  |\n+-----------+\n    /   \\\n   v     v\n+-----------+   +-----------+"
+        },
+        {
+          "task_id": "3.18",
+          "title": "3.18",
+          "prompt": "Add a sidecar \"Proxy\" box directly below each app box. Connect each Proxy to \"Mesh Control Plane\" below.Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/diagram-editing/hard/3.18",
+          "has_source": true,
+          "preview": "+-------+   +-------+   +-------+\n| App A |   | App B |   | App C |\n+-------+   +-------+   +-------+\n    |           |           |\n    v           v           v\n+-------+   +-------+   +-------+"
+        },
+        {
+          "task_id": "3.19",
+          "title": "3.19",
+          "prompt": "Swap the positions of \"Cache\" and \"Queue\" in the middle layer. Update the arrows from API and to the workers accordingly, but do not alter the top API box or the worker layer.Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/diagram-editing/hard/3.19",
+          "has_source": true,
+          "preview": "+---------+\n|   API   |\n+---------+\n  /     \\\n v       v\n+-------+ +-------+"
+        },
+        {
+          "task_id": "3.20",
+          "title": "3.20",
+          "prompt": "Replace the single \"Database\" box with two boxes side by side: \"Write Primary\" on the left and \"Read Replica\" on the right. Keep \"API App\" connected to both, keep the \"Billing\" and \"Analytics\" nodes below, and add an arrow from Write Primary to Read Replica labeled \"replication\".Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/diagram-editing/hard/3.20",
+          "has_source": true,
+          "preview": "           +----------+\n           | API App  |\n           +----------+\n             /      \\\n            v        v\n+---------------+ replication +--------------+"
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "slug": "software-architecture-diagrams",
+      "name": "Software Architecture Diagrams",
+      "description": "Canonical architecture sketches such as gateways, pipelines, feeds, rate limiters, and storage systems.",
+      "count": 20,
+      "tasks": [
+        {
+          "task_id": "4.1",
+          "title": "4.1",
+          "prompt": "Draw the classic 3-tier web architecture:\n- \"Client (Browser)\" on the left\n- \"Load Balancer (NGINX)\" in the middle receiving traffic from Client\n- Three app servers in a column: \"App-1\", \"App-2\", \"App-3\" receiving traffic from LB\n- \"PostgreSQL\" database on the right receiving queries from all app servers\nShow arrows between each tier.\nReturn only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/software-architecture-diagrams/easy/4.1",
+          "has_source": false,
+          "preview": "+------------------+     +-----------------------+\n| Client (Browser) |---->| Load Balancer (NGINX) |\n+------------------+     +-----------------------+\n                                  |\n                 +----------------+----------------+\n                 |                |                |"
+        },
+        {
+          "task_id": "4.2",
+          "title": "4.2",
+          "prompt": "Draw a database read replica pattern:\n- \"App Server\" on the left\n- \"Primary DB\" in the middle — App Server writes to it (label arrow \"write\")\n- \"Read Replica-1\" and \"Read Replica-2\" to the right — App Server reads from both (label arrows \"read\")\n- Primary DB replicates to both replicas with dashed arrows labeled \"async replication\"\nReturn only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/software-architecture-diagrams/easy/4.2",
+          "has_source": false,
+          "preview": "+------------+      write      +------------+   async replication   +----------------+\n| App Server |---------------->| Primary DB |----------------------->| Read Replica-1 |\n+------------+                 +------------+                        +----------------+\n      | read                          |\n      |                               +----------------------------->+----------------+\n      +------------------------------------------------------------->| Read Replica-2 |"
+        },
+        {
+          "task_id": "4.3",
+          "title": "4.3",
+          "prompt": "Draw a CI/CD pipeline as a left-to-right chain with these stages in order:\n\"Code Push\" → \"Build\" → \"Unit Tests\" → \"Integration Tests\" → \"Staging Deploy\" → \"Prod Deploy\"\nAlso show a dashed \"rollback\" arrow from \"Prod Deploy\" back to \"Staging Deploy\" labeled \"on failure\".\nReturn only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/software-architecture-diagrams/easy/4.3",
+          "has_source": false,
+          "preview": "+-----------+  +-------+  +------------+  +-------------------+  +----------------+  +-------------+\n| Code Push |->| Build |->| Unit Tests |->| Integration Tests |->| Staging Deploy |->| Prod Deploy |\n+-----------+  +-------+  +------------+  +-------------------+  +----------------+  +-------------+\n                                                                   ^                 |\n                                                                   |--- on failure ---+\n"
+        },
+        {
+          "task_id": "4.4",
+          "title": "4.4",
+          "prompt": "Draw a CDN architecture:\n- \"Users (Global)\" on the left\n- Two edge cache nodes in the middle: \"Edge Cache (US)\" and \"Edge Cache (EU)\"\n- \"Origin Server\" on the right\n- Users connect to both edge nodes (label \"cached response\")\n- Both edge nodes connect to Origin Server (label \"cache miss\")\nReturn only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/software-architecture-diagrams/easy/4.4",
+          "has_source": false,
+          "preview": "cached response                    cache miss\n+----------------+                +-----------------+                +---------------+\n| Users (Global) |--------------->| Edge Cache (US) |--------------->| Origin Server |\n+----------------+                +-----------------+                +---------------+\n        |\n        | cached response"
+        },
+        {
+          "task_id": "4.5",
+          "title": "4.5",
+          "prompt": "Draw a URL shortener system architecture:\n- \"Client\" → \"Load Balancer\" → two \"App Server\" boxes\n- App Servers check \"Redis Cache\" first (label arrow \"cache hit / O(1)\")\n- On cache miss, App Servers query \"Cassandra DB\" (label arrow \"cache miss\")\n- App Servers write click events to \"Kafka\"\n- \"Analytics Service\" consumes from Kafka\nReturn only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/software-architecture-diagrams/easy/4.5",
+          "has_source": false,
+          "preview": "+--------+     +---------------+\n| Client |---->| Load Balancer |\n+--------+     +---------------+\n                    |      |\n                    v      v\n            +-------------+  +-------------+"
+        },
+        {
+          "task_id": "4.6",
+          "title": "4.6",
+          "prompt": "Draw a rate limiter architecture:\n- \"Client\" → \"Rate Limiter\" service\n- Rate Limiter checks \"Redis (token bucket counters)\"\n- Allowed requests: Rate Limiter → \"App Server\"\n- Rejected requests: Rate Limiter → Client with dashed arrow labeled \"429 Too Many Requests\"\nReturn only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/software-architecture-diagrams/easy/4.6",
+          "has_source": false,
+          "preview": "+--------+     +--------------+     +------------+\n| Client |---->| Rate Limiter |---->| App Server |\n+--------+     +--------------+     +------------+\n     ^               |\n     |               v\n     |     +-------------------------------+"
+        },
+        {
+          "task_id": "4.7",
+          "title": "4.7",
+          "prompt": "Draw a notification system:\n- Three event sources publish to \"Kafka\": \"Order Service\", \"Payment Service\", \"Shipping Service\"\n- \"Notification Service\" consumes from Kafka and checks \"User Preferences DB\"\n- Notification Service delivers to three channels: \"Email Service\", \"SMS Service\", \"Push Service\"\n- Each channel connects to its provider: Email → \"SendGrid\", SMS → \"Twilio\", Push → \"FCM\"\nReturn only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/software-architecture-diagrams/easy/4.7",
+          "has_source": false,
+          "preview": "+---------------+ +-----------------+ +------------------+\n| Order Service | | Payment Service | | Shipping Service |\n+---------------+ +-----------------+ +------------------+\n        \\               |                /\n         \\              |               /\n          v             v              v"
+        },
+        {
+          "task_id": "4.8",
+          "title": "4.8",
+          "prompt": "Draw a microservices API gateway pattern for a post-migration system where direct client access to backend services has been removed:\n- \"Mobile Client\" and \"Web Client\" both connect to \"API Gateway\"\n- Inside the API Gateway box, show two sub-components: \"Auth Middleware\" and \"Rate Limiter\"\n- Gateway routes to three backend services, each with its own DB:\n  - \"User Service\" with \"Users DB\"\n  - \"Product Service\" with \"Products DB\"\n  - \"Order Service\" with \"Orders DB\"\n- Do not show any direct client-to-service or client-to-database links\nReturn only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/software-architecture-diagrams/easy/4.8",
+          "has_source": false,
+          "preview": "+---------------+      +-------------------------------+      +--------------+      +----------+\n| Mobile Client |----->|          API Gateway          |----->| User Service |----->| Users DB |\n+---------------+      |  +-------------------------+  |      +--------------+      +----------+\n                       |  | Auth Middleware         |  |\n+------------+-------->|  | Rate Limiter           |  |----->+----------------+     +-------------+\n| Web Client |         |  +-------------------------+  |      | Product Service |---->| Products DB |"
+        },
+        {
+          "task_id": "4.9",
+          "title": "4.9",
+          "prompt": "Draw a Dropbox-style file storage system after direct storage access has been removed from the client apps:\n- \"Client (Desktop)\" uploads to \"Upload Service\"\n- Upload Service stores file chunks in \"S3 (Block Store)\" and metadata in \"Metadata DB (PostgreSQL)\"\n- \"Download Service\" reads from both S3 and Metadata DB to serve files to Client\n- \"Sync Service\" connects to \"Notification Queue (Kafka)\" to send change notifications to Client\n- Do not show the client talking directly to S3 or Metadata DB\nReturn only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/software-architecture-diagrams/easy/4.9",
+          "has_source": false,
+          "preview": "+------------------+     +----------------+     +------------------+\n| Client (Desktop) |---->| Upload Service |---->| S3 (Block Store) |\n+------------------+     +----------------+     +------------------+\n                                 |\n                                 v\n                       +--------------------------+"
+        },
+        {
+          "task_id": "4.10",
+          "title": "4.10",
+          "prompt": "Draw a search autocomplete system:\n- \"User\" types into \"Search API\"\n- Search API checks \"Trie Cache (In-Memory)\" first\n- On miss, Search API queries \"Prefix Index (Elasticsearch)\"\n- \"Data Aggregation Service\" reads \"Query Logs DB\" and rebuilds both the Trie Cache and Prefix Index periodically\n- Results flow back from Search API to User\nReturn only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/software-architecture-diagrams/easy/4.10",
+          "has_source": false,
+          "preview": "+------+<----+------------+\n| User |---->| Search API |\n+------+     +------------+\n               |      |\n               v      v\n  +-----------------------+   +-----------------------------+"
+        },
+        {
+          "task_id": "4.11",
+          "title": "4.11",
+          "prompt": "Draw the Twitter news feed architecture with hybrid fan-out, where old direct bypasses from the user to storage or Kafka have been removed:\n- \"User\" posts via \"Tweet Service\" which writes to \"Tweets DB (Cassandra)\"\n- Tweet Service publishes to \"Fan-out Service\" via \"Kafka\"\n- Fan-out Service reads \"Social Graph DB\" to find followers\n- Fan-out Service writes to \"Feed Cache (Redis)\" for normal users — label this path \"fan-out on write\"\n- For celebrity accounts: \"Feed Service\" reads directly from Tweets DB — label this path \"fan-out on read\"\n- User reads their timeline via \"Feed Service\" which checks Feed Cache first\n- Do not show any direct User→Kafka or User→Tweets DB links\nReturn only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/software-architecture-diagrams/medium/4.11",
+          "has_source": false,
+          "preview": "+------+     +---------------+     +------------------------+\n| User |---->| Tweet Service |---->| Tweets DB (Cassandra)  |\n+------+     +---------------+     +------------------------+\n                  |\n                  v\n               +-------+     +-----------------+     +--------------------+"
+        },
+        {
+          "task_id": "4.12",
+          "title": "4.12",
+          "prompt": "Draw a video upload and streaming pipeline for a production system where direct end-user access to storage has been removed:\n- \"User\" uploads raw video to \"Upload Service\"\n- Upload Service stores in \"Raw Storage (S3)\" and queues a job in \"Transcoding Queue (Kafka)\"\n- Three \"Transcoder Worker\" boxes consume from Kafka and write output to \"Processed Storage (S3)\"\n- \"CDN\" pulls from Processed Storage and serves video to User\n- \"Metadata Service\" updates \"Video DB\" at each processing stage\n- Do not show the user talking directly to S3 or bypassing the upload / streaming services\nReturn only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/software-architecture-diagrams/medium/4.12",
+          "has_source": false,
+          "preview": "+------+     +----------------+     +------------------+\n| User |---->| Upload Service |---->| Raw Storage (S3) |\n+------+     +----------------+     +------------------+\n                 |\n                 v\n      +----------------------------+"
+        },
+        {
+          "task_id": "4.13",
+          "title": "4.13",
+          "prompt": "Draw a real-time chat system:\n- \"User A\" and \"User B\" each connected to \"Chat Server\" via WebSocket (label connections \"WebSocket\")\n- Chat Server publishes to \"Message Queue (Kafka)\"\n- \"Message Service\" consumes from Kafka and writes to \"Messages DB (Cassandra)\"\n- \"Presence Service\" tracks online status in \"Presence Cache (Redis)\"\n- Chat Server checks Presence Service before routing\n- For offline users: \"Push Notification Service\" sends via \"APNs / FCM\"\nReturn only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/software-architecture-diagrams/medium/4.13",
+          "has_source": false,
+          "preview": "WebSocket                  WebSocket                  WebSocket\n+--------+<-------------->+-------------+<-------------->+--------+\n| User A |                | Chat Server |                | User B |\n+--------+                +-------------+                +--------+\n                               |     \\\n                               |      \\"
+        },
+        {
+          "task_id": "4.14",
+          "title": "4.14",
+          "prompt": "Draw a ride-sharing backend (Uber-style):\n- \"Rider App\" and \"Driver App\" both connect to \"API Gateway\"\n- \"Location Service\" receives GPS pings from Driver App via WebSocket, stores in \"Location Cache (Redis)\" with geohash label\n- \"Matching Service\" reads from Location Cache to find nearby drivers, creates trips in \"Trips DB\"\n- \"Payment Service\" processes payments, writes to \"Payments DB\" and external \"Stripe\"\n- \"Notification Service\" sends status updates to both apps\nReturn only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/software-architecture-diagrams/medium/4.14",
+          "has_source": false,
+          "preview": "+-----------+      +-------------+      +------------+\n| Rider App |----->| API Gateway |<-----| Driver App |\n+-----------+      +-------------+      +------------+\n                                               |\n                                               | WebSocket / geohash\n                                               v"
+        },
+        {
+          "task_id": "4.15",
+          "title": "4.15",
+          "prompt": "Draw a Lambda architecture data pipeline:\n- Three data sources publish to \"Kafka (Event Stream)\": \"App Events\", \"DB Change Stream\", \"IoT Sensors\"\n- Speed layer: Kafka → \"Stream Processor (Flink)\" → \"Time-Series DB\" — label \"speed layer\"\n- Batch layer: Kafka → \"Batch Processor (Spark)\" → \"Data Warehouse (BigQuery)\" — label \"batch layer\"\n- Both outputs feed \"Analytics Dashboard\"\n- \"Data Catalog\" connects to both storage layers\nReturn only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/software-architecture-diagrams/medium/4.15",
+          "has_source": false,
+          "preview": "+------------+  +------------------+  +-------------+\n| App Events |  | DB Change Stream |  | IoT Sensors |\n+------------+  +------------------+  +-------------+\n      \\                 |                  /\n       \\                |                 /\n        v               v                v"
+        },
+        {
+          "task_id": "4.16",
+          "title": "4.16",
+          "prompt": "Draw a multi-region active-active API architecture: put \"Global Traffic Manager\" at the top routing to two regional gateways, \"API Gateway A\" and \"API Gateway B\". Each gateway connects to its own cache and database: Region A has \"Redis Cache A\" and \"PostgreSQL A\"; Region B has \"Redis Cache B\" and \"PostgreSQL B\". Show bidirectional replication between the two PostgreSQL databases labeled \"async replication\".Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/software-architecture-diagrams/hard/4.16",
+          "has_source": false,
+          "preview": "       +------------------------+\n       | Global Traffic Manager |\n       +------------------------+\n             /            \\\n            v              v\n+----------------+   +----------------+"
+        },
+        {
+          "task_id": "4.17",
+          "title": "4.17",
+          "prompt": "Draw a production RAG serving system: \"User\" talks to \"Chat API\". Chat API calls \"Retriever\" and \"Prompt Builder\". Retriever queries \"Vector DB\". Prompt Builder sends requests to \"LLM Serving\" and receives results back through Chat API to the User. Show an ingestion pipeline where \"Document Store\" feeds \"Embedding Worker\", and Embedding Worker updates Vector DB.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/software-architecture-diagrams/hard/4.17",
+          "has_source": false,
+          "preview": "+------+<----+----------+<-----------------+\n| User |---->| Chat API |                  |\n+------+     +----------+                  |\n                |      \\                  |\n                |       \\                 |\n                v        v                 |"
+        },
+        {
+          "task_id": "4.18",
+          "title": "4.18",
+          "prompt": "Draw a checkout and fraud-detection architecture: \"Web Client\" calls \"Checkout API\". Checkout API calls both \"Order Service\" and \"Payment Service\". Order Service writes to \"Orders DB\". Payment Service checks \"Fraud Service\", charges \"Stripe\", and publishes to \"Event Bus\". \"Notification Service\" consumes from Event Bus.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/software-architecture-diagrams/hard/4.18",
+          "has_source": false,
+          "preview": "+------------+     +--------------+\n| Web Client |---->| Checkout API |\n+------------+     +--------------+\n                      |        |\n                      v        v\n             +---------------+ +----------------+"
+        },
+        {
+          "task_id": "4.19",
+          "title": "4.19",
+          "prompt": "Draw an ML feature serving architecture: \"User\" calls \"Online Prediction API\". The API queries both \"Model Server\" and \"Online Feature Cache\". \"Feature Pipeline\" syncs features into Online Feature Cache. \"Offline Warehouse\" feeds both Feature Pipeline and \"Training Jobs\". Training Jobs publish models to \"Model Registry\", and Model Server loads models from Model Registry.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/software-architecture-diagrams/hard/4.19",
+          "has_source": false,
+          "preview": "+------+     +-----------------------+\n| User |---->| Online Prediction API |\n+------+     +-----------------------+\n                    |           |\n                    v           v\n             +-------------+  +----------------------+"
+        },
+        {
+          "task_id": "4.20",
+          "title": "4.20",
+          "prompt": "Draw a multi-signal observability pipeline: three services, \"Service A\", \"Service B\", and \"Service C\", all send telemetry to \"OTel Collector\". Collector routes traces to \"Tempo\", metrics to \"Prometheus\", and logs to \"Loki\". \"Grafana\" reads from all three backends.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+          "path": "tasks/software-architecture-diagrams/hard/4.20",
+          "has_source": false,
+          "preview": "+-----------+  +-----------+  +-----------+\n| Service A |  | Service B |  | Service C |\n+-----------+  +-----------+  +-----------+\n      \\             |             /\n       \\            |            /\n        v           v           v"
+        }
+      ]
+    }
+  ]
+}

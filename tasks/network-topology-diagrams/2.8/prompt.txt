@@ -1,1 +1,0 @@
-Draw a diagram with "Mac Mini M4 (Training)" at the top connected via "SSH / TCP" to four inference nodes in a row: "Jetson Orin Nano-1", "Jetson Orin Nano-2", "Jetson Orin Nano-3", "Jetson Orin Nano-4".

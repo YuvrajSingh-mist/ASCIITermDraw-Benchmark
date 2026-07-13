@@ -1,0 +1,54 @@
+{
+  "required_labels": [
+    "Service A",
+    "Service B",
+    "Service C",
+    "OTel Collector",
+    "Tempo",
+    "Prometheus",
+    "Loki",
+    "Grafana"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 8,
+  "required_edges": [
+    {
+      "from": "Service A",
+      "to": "OTel Collector"
+    },
+    {
+      "from": "Service B",
+      "to": "OTel Collector"
+    },
+    {
+      "from": "Service C",
+      "to": "OTel Collector"
+    },
+    {
+      "from": "OTel Collector",
+      "to": "Tempo"
+    },
+    {
+      "from": "OTel Collector",
+      "to": "Prometheus"
+    },
+    {
+      "from": "OTel Collector",
+      "to": "Loki"
+    },
+    {
+      "from": "Tempo",
+      "to": "Grafana"
+    },
+    {
+      "from": "Prometheus",
+      "to": "Grafana"
+    },
+    {
+      "from": "Loki",
+      "to": "Grafana"
+    }
+  ],
+  "required_edge_labels": [],
+  "preserved_elements": []
+}

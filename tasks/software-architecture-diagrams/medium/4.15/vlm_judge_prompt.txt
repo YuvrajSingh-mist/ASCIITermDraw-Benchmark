@@ -1,0 +1,121 @@
+        TASK: 4.15
+
+        USER PROMPT:
+        Draw a Lambda architecture data pipeline:
+- Three data sources publish to "Kafka (Event Stream)": "App Events", "DB Change Stream", "IoT Sensors"
+- Speed layer: Kafka → "Stream Processor (Flink)" → "Time-Series DB" — label "speed layer"
+- Batch layer: Kafka → "Batch Processor (Spark)" → "Data Warehouse (BigQuery)" — label "batch layer"
+- Both outputs feed "Analytics Dashboard"
+- "Data Catalog" connects to both storage layers
+Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.
+
+        ASSERTIONS JSON:
+        {
+  "required_labels": [
+    "App Events",
+    "DB Change Stream",
+    "IoT Sensors",
+    "Kafka (Event Stream)",
+    "Stream Processor (Flink)",
+    "Time-Series DB",
+    "Batch Processor (Spark)",
+    "Data Warehouse (BigQuery)",
+    "Analytics Dashboard",
+    "Data Catalog",
+    "speed layer",
+    "batch layer"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 10,
+  "required_edges": [
+    {
+      "from": "App Events",
+      "to": "Kafka (Event Stream)"
+    },
+    {
+      "from": "DB Change Stream",
+      "to": "Kafka (Event Stream)"
+    },
+    {
+      "from": "IoT Sensors",
+      "to": "Kafka (Event Stream)"
+    },
+    {
+      "from": "Kafka (Event Stream)",
+      "to": "Stream Processor (Flink)"
+    },
+    {
+      "from": "Kafka (Event Stream)",
+      "to": "Batch Processor (Spark)"
+    },
+    {
+      "from": "Stream Processor (Flink)",
+      "to": "Time-Series DB"
+    },
+    {
+      "from": "Batch Processor (Spark)",
+      "to": "Data Warehouse (BigQuery)"
+    },
+    {
+      "from": "Time-Series DB",
+      "to": "Analytics Dashboard"
+    },
+    {
+      "from": "Data Warehouse (BigQuery)",
+      "to": "Analytics Dashboard"
+    },
+    {
+      "from": "Data Catalog",
+      "to": "Time-Series DB"
+    },
+    {
+      "from": "Data Catalog",
+      "to": "Data Warehouse (BigQuery)"
+    }
+  ],
+  "required_edge_labels": [
+    "speed layer",
+    "batch layer"
+  ],
+  "preserved_elements": []
+}
+
+        MODEL OUTPUT:
+        ---
+        {model_output}
+        ---
+
+
+
+        Evaluate this task with the same rubric used for every benchmark task.
+
+        structural evidence:
+        - required_labels_present: list of labels from `required_labels` that are clearly present in the model output
+- entity_count_observed: integer count of entities/nodes/boxes observed in the model output
+- required_edges_present: list of edges from `required_edges` that are clearly present in the model output, using the same `{from, to}` strings as the assertions JSON
+        - Do not compute the structural score yourself from intuition.
+        - Report only the structural evidence requested above so the harness can compare it against the assertions JSON.
+
+        semantics rubric:
+        - `connections_correct`: 1 if the connections are made properly, else 0.
+        - `text_inside_nodes_correct`: 1 if all text inside nodes, including multiline node text if any, is correctly present, else 0.
+        - `layout_matches_prompt`: 1 if the layout follows the prompt strictly, else 0.
+
+        Rules:
+        - Use this exact rubric only. Do not invent a task-specific checklist.
+        - Keep reason short and concrete.
+
+        RESPOND WITH JSON ONLY:
+        {
+          "structural_observations": {
+            "required_labels_present": [],
+            "entity_count_observed": 0,
+            "required_edges_present": []
+          },
+          "semantics": {
+            "connections_correct": 0,
+            "text_inside_nodes_correct": 0,
+            "layout_matches_prompt": 0
+          },
+          "reason": "string"
+        }

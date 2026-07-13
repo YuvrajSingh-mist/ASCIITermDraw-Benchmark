@@ -1,1 +1,0 @@
-Swap the positions of B and C. Update arrows accordingly: A→C→B→D.

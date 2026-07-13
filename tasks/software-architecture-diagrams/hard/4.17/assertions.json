@@ -1,0 +1,58 @@
+{
+  "required_labels": [
+    "User",
+    "Chat API",
+    "Retriever",
+    "Prompt Builder",
+    "LLM Serving",
+    "Vector DB",
+    "Embedding Worker",
+    "Document Store"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 8,
+  "required_edges": [
+    {
+      "from": "User",
+      "to": "Chat API"
+    },
+    {
+      "from": "Chat API",
+      "to": "User"
+    },
+    {
+      "from": "Chat API",
+      "to": "Retriever"
+    },
+    {
+      "from": "Chat API",
+      "to": "Prompt Builder"
+    },
+    {
+      "from": "Retriever",
+      "to": "Vector DB"
+    },
+    {
+      "from": "Retriever",
+      "to": "Prompt Builder"
+    },
+    {
+      "from": "Prompt Builder",
+      "to": "LLM Serving"
+    },
+    {
+      "from": "LLM Serving",
+      "to": "Chat API"
+    },
+    {
+      "from": "Document Store",
+      "to": "Embedding Worker"
+    },
+    {
+      "from": "Embedding Worker",
+      "to": "Vector DB"
+    }
+  ],
+  "required_edge_labels": [],
+  "preserved_elements": []
+}

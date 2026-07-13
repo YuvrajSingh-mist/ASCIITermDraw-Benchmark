@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TermDraw-Bench  -  Quick Start</title>
+  <meta name="description" content="Quick start guide for setting up, rendering, generating, and judging TermDraw-Bench.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<nav aria-label="Main navigation">
+  <span class="nav-title">TermDraw-Bench</span>
+  <div class="nav-links">
+    <a href="../index.html">Overview</a>
+    <a href="#setup">Quick Start</a>
+  </div>
+</nav>
+
+<main>
+  <div class="hero">
+    <div class="container">
+      <h1>Quick Start</h1>
+      <p class="hero-subtitle">Setup, Rendering, Generation, and Judging</p>
+      <p class="hero-desc">
+        This page mirrors the benchmark workflow in the repository: create the environment, render PNG references,
+        run a smoke test, launch batch generation, run the assertion cross-check, and then run structured VLM judging.
+      </p>
+      <div class="hero-btns">
+        <a href="#setup" class="btn btn-primary">Setup</a>
+        <a href="../index.html" class="btn btn-outline">Back to Overview</a>
+      </div>
+    </div>
+  </div>
+
+  <section id="setup" aria-labelledby="heading-setup">
+    <div class="container">
+      <h2 class="section-title" id="heading-setup">Environment Setup</h2>
+      <div class="prose">
+        <p>Install Python and Node dependencies, then create a local credential file. Scripts auto-load <code>.env.local</code> and <code>.env</code>.</p>
+      </div>
+      <pre><code class="language-bash">python3.10 -m venv .venv
+.venv/bin/python -m pip install --upgrade pip
+.venv/bin/python -m pip install requests pydantic openai instructor
+npm install
+npx playwright install chromium
+cp .env.example .env.local</code></pre>
+      <pre><code class="language-bash">FIREWORKS_API_KEY=...
+FIREWORKS_ACCOUNT_ID=...</code></pre>
+    </div>
+  </section>
+
+  <section id="render" aria-labelledby="heading-render">
+    <div class="container">
+      <h2 class="section-title" id="heading-render">Render Reference PNGs</h2>
+      <div class="prose">
+        <p>Render every <code>.ascii</code> artifact into a diagram-only PNG so image-conditioned edit tasks have consistent source images.</p>
+      </div>
+      <pre><code class="language-bash">.venv/bin/python scripts/rendered/render_all.py</code></pre>
+    </div>
+  </section>
+
+  <section id="smoke" aria-labelledby="heading-smoke">
+    <div class="container">
+      <h2 class="section-title" id="heading-smoke">Smoke Test</h2>
+      <div class="prose">
+        <p>Run a synchronous shared-module spot check before spending time on full-benchmark batch inference.</p>
+      </div>
+      <pre><code class="language-bash">.venv/bin/python scripts/smoke_generate.py \
+  --model accounts/fireworks/models/qwen3p7-plus \
+  --tasks tasks \
+  --oneshot oneshot \
+  --outputs outputs/smoke-qwen3p7-plus \
+  --sample-count 5 \
+  --seed 7 \
+  --reasoning-effort none \
+  --network-retries 5</code></pre>
+    </div>
+  </section>
+
+  <section id="batch" aria-labelledby="heading-batch">
+    <div class="container">
+      <h2 class="section-title" id="heading-batch">Batch Generation</h2>
+      <div class="prose">
+        <p>Run the full benchmark with Fireworks batch inference. Category 3 tasks automatically attach source images.</p>
+      </div>
+      <pre><code class="language-bash">.venv/bin/python scripts/run_model.py \
+  --model accounts/fireworks/models/your-vision-model \
+  --tasks tasks \
+  --outputs outputs/your-run \
+  --oneshot oneshot \
+  --reasoning-effort none \
+  --network-retries 5</code></pre>
+    </div>
+  </section>
+
+  <section id="score" aria-labelledby="heading-score">
+    <div class="container">
+      <h2 class="section-title" id="heading-score">Scoring</h2>
+      <div class="prose">
+        <p>Run the assertion-based structural cross-check first, then VLM judging with structured JSON output where the main score is <code>structural_score + semantics_score</code>.</p>
+      </div>
+      <pre><code class="language-bash">.venv/bin/python scripts/eval.py \
+  --outputs outputs/your-run \
+  --tasks tasks \
+  --results results_your_run.csv</code></pre>
+      <pre><code class="language-bash">.venv/bin/python scripts/judge/run_vlm_judge.py \
+  --model accounts/fireworks/models/your-judge-model \
+  --tasks tasks \
+  --outputs outputs/your-run \
+  --results results_your_run.csv</code></pre>
+    </div>
+  </section>
+
+  <section id="site" aria-labelledby="heading-site">
+    <div class="container">
+      <h2 class="section-title" id="heading-site">Website Build</h2>
+      <div class="prose">
+        <p>The published site is generated from the repository tree. Rebuild its data and preview locally before publishing.</p>
+      </div>
+      <pre><code class="language-bash">node website/tools/build_site_data.mjs
+.venv/bin/python -m http.server 8000 -d website</code></pre>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-links">
+      <a href="../index.html">Overview</a>
+      <a href="#setup">Quick Start</a>
+    </div>
+    <p><strong>TermDraw-Bench</strong> &nbsp;&middot;&nbsp; Quick start workflow &nbsp;&middot;&nbsp; Fireworks-ready benchmark</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
+</body>
+</html>

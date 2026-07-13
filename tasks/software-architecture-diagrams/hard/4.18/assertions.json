@@ -1,0 +1,51 @@
+{
+  "required_labels": [
+    "Web Client",
+    "Checkout API",
+    "Order Service",
+    "Payment Service",
+    "Orders DB",
+    "Fraud Svc",
+    "Stripe",
+    "Event Bus",
+    "Notification Service"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 9,
+  "required_edges": [
+    {
+      "from": "Web Client",
+      "to": "Checkout API"
+    },
+    {
+      "from": "Checkout API",
+      "to": "Order Service"
+    },
+    {
+      "from": "Checkout API",
+      "to": "Payment Service"
+    },
+    {
+      "from": "Order Service",
+      "to": "Orders DB"
+    },
+    {
+      "from": "Payment Service",
+      "to": "Fraud Svc"
+    },
+    {
+      "from": "Payment Service",
+      "to": "Stripe"
+    },
+    {
+      "from": "Payment Service",
+      "to": "Event Bus"
+    },
+    {
+      "from": "Event Bus",
+      "to": "Notification Service"
+    }
+  ],
+  "required_edge_labels": [],
+  "preserved_elements": []
+}

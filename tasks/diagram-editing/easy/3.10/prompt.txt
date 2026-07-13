@@ -1,0 +1,1 @@
+Remove "Follower-3" and its connection from the cluster, while preserving the remaining follower layout.Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

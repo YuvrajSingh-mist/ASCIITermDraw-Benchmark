@@ -1,7 +1,0 @@
-Draw a microservices API gateway pattern:
-- "Mobile Client" and "Web Client" both connect to "API Gateway"
-- Inside the API Gateway box, show two sub-components: "Auth Middleware" and "Rate Limiter"
-- Gateway routes to three backend services, each with its own DB:
-  - "User Service" with "Users DB"
-  - "Product Service" with "Products DB"
-  - "Order Service" with "Orders DB"

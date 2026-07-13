@@ -1,0 +1,1 @@
+Draw a ring network with 4 nodes: "Node-A", "Node-B", "Node-C", "Node-D". Connect them in a ring: A→B→C→D→A.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

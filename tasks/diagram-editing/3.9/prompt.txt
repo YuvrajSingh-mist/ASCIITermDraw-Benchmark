@@ -1,1 +1,0 @@
-Mark the Server as a failure point: change its corner characters from + to * and add the label "FAILED" directly below the Server box.

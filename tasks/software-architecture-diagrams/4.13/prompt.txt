@@ -1,7 +1,0 @@
-Draw a real-time chat system:
-- "User A" and "User B" each connected to "Chat Server" via WebSocket (label connections "WebSocket")
-- Chat Server publishes to "Message Queue (Kafka)"
-- "Message Service" consumes from Kafka and writes to "Messages DB (Cassandra)"
-- "Presence Service" tracks online status in "Presence Cache (Redis)"
-- Chat Server checks Presence Service before routing
-- For offline users: "Push Notification Service" sends via "APNs / FCM"

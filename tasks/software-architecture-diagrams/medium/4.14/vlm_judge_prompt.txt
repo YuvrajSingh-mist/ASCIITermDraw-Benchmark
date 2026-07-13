@@ -1,0 +1,116 @@
+        TASK: 4.14
+
+        USER PROMPT:
+        Draw a ride-sharing backend (Uber-style):
+- "Rider App" and "Driver App" both connect to "API Gateway"
+- "Location Service" receives GPS pings from Driver App via WebSocket, stores in "Location Cache (Redis)" with geohash label
+- "Matching Service" reads from Location Cache to find nearby drivers, creates trips in "Trips DB"
+- "Payment Service" processes payments, writes to "Payments DB" and external "Stripe"
+- "Notification Service" sends status updates to both apps
+Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.
+
+        ASSERTIONS JSON:
+        {
+  "required_labels": [
+    "Rider App",
+    "Driver App",
+    "API Gateway",
+    "Location Service",
+    "Location Cache (Redis)",
+    "Matching Service",
+    "Trips DB",
+    "Payment Service",
+    "Payments DB",
+    "Stripe",
+    "Notification Service",
+    "geohash"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 11,
+  "required_edges": [
+    {
+      "from": "Rider App",
+      "to": "API Gateway"
+    },
+    {
+      "from": "Driver App",
+      "to": "API Gateway"
+    },
+    {
+      "from": "Driver App",
+      "to": "Location Service"
+    },
+    {
+      "from": "Location Service",
+      "to": "Location Cache (Redis)"
+    },
+    {
+      "from": "Matching Service",
+      "to": "Location Cache (Redis)"
+    },
+    {
+      "from": "Matching Service",
+      "to": "Trips DB"
+    },
+    {
+      "from": "Payment Service",
+      "to": "Payments DB"
+    },
+    {
+      "from": "Payment Service",
+      "to": "Stripe"
+    },
+    {
+      "from": "Notification Service",
+      "to": "Rider App"
+    },
+    {
+      "from": "Notification Service",
+      "to": "Driver App"
+    }
+  ],
+  "required_edge_labels": [
+    "geohash"
+  ],
+  "preserved_elements": []
+}
+
+        MODEL OUTPUT:
+        ---
+        {model_output}
+        ---
+
+
+
+        Evaluate this task with the same rubric used for every benchmark task.
+
+        structural evidence:
+        - required_labels_present: list of labels from `required_labels` that are clearly present in the model output
+- entity_count_observed: integer count of entities/nodes/boxes observed in the model output
+- required_edges_present: list of edges from `required_edges` that are clearly present in the model output, using the same `{from, to}` strings as the assertions JSON
+        - Do not compute the structural score yourself from intuition.
+        - Report only the structural evidence requested above so the harness can compare it against the assertions JSON.
+
+        semantics rubric:
+        - `connections_correct`: 1 if the connections are made properly, else 0.
+        - `text_inside_nodes_correct`: 1 if all text inside nodes, including multiline node text if any, is correctly present, else 0.
+        - `layout_matches_prompt`: 1 if the layout follows the prompt strictly, else 0.
+
+        Rules:
+        - Use this exact rubric only. Do not invent a task-specific checklist.
+        - Keep reason short and concrete.
+
+        RESPOND WITH JSON ONLY:
+        {
+          "structural_observations": {
+            "required_labels_present": [],
+            "entity_count_observed": 0,
+            "required_edges_present": []
+          },
+          "semantics": {
+            "connections_correct": 0,
+            "text_inside_nodes_correct": 0,
+            "layout_matches_prompt": 0
+          },
+          "reason": "string"
+        }

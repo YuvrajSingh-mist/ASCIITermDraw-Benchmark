@@ -1,1 +1,0 @@
-Draw a DiLoCo training diagram. Four "Worker" boxes in a row, each connected downward to a local "Inner Optimizer" box. One "Outer Optimizer" box above all workers, connected to each worker with dashed arrows (- - >). Label the dashed arrows "outer loop sync".

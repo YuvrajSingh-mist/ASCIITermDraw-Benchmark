@@ -1,0 +1,52 @@
+{
+  "required_labels": [
+    "Global Traffic Manager",
+    "API Gateway A",
+    "API Gateway B",
+    "Redis Cache A",
+    "Redis Cache B",
+    "PostgreSQL A",
+    "PostgreSQL B",
+    "async replication"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 7,
+  "required_edges": [
+    {
+      "from": "Global Traffic Manager",
+      "to": "API Gateway A"
+    },
+    {
+      "from": "Global Traffic Manager",
+      "to": "API Gateway B"
+    },
+    {
+      "from": "API Gateway A",
+      "to": "Redis Cache A"
+    },
+    {
+      "from": "API Gateway B",
+      "to": "Redis Cache B"
+    },
+    {
+      "from": "Redis Cache A",
+      "to": "PostgreSQL A"
+    },
+    {
+      "from": "Redis Cache B",
+      "to": "PostgreSQL B"
+    },
+    {
+      "from": "PostgreSQL A",
+      "to": "PostgreSQL B"
+    },
+    {
+      "from": "PostgreSQL B",
+      "to": "PostgreSQL A"
+    }
+  ],
+  "required_edge_labels": [
+    "async replication"
+  ],
+  "preserved_elements": []
+}

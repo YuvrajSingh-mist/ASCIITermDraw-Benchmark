@@ -1,241 +1,103 @@
 # TermDraw-Bench
 
 TermDraw-Bench is a benchmark for evaluating whether language models can
-generate and edit structured ASCII diagrams. It contains 80 tasks across
-four categories:
+generate and edit structured ASCII diagrams.
 
-- Category 1: Box drawing and ASCII layout basics
-- Category 2: Network, systems, and cluster topology diagrams
-- Category 3: Diagram editing tasks with source and target diagrams
-- Category 4: Canonical software architecture diagrams
+It ships as a normal GitHub-style repository with:
 
-Each task directory includes machine-readable assertions, a reference ASCII
-diagram, and a task-specific VLM judge prompt. Category 3 tasks also include
-the source diagram the model is expected to modify.
+- `80` tasks across `4` categories
+- checked-in `tasks/` and `oneshot/` assets
+- Fireworks-based generation scripts
+- assertion scoring plus a VLM judge
+- a website under `website/`
+
+## Quick Start
+
+The benchmark already ships prebuilt in this repository. You do not need to
+generate the tasks yourself.
+
+To run models against it locally:
+
+```bash
+uv sync
+cp .env.example .env
+# put your Fireworks key in .env
+```
+
+Then use one of these:
+
+```bash
+uv run smoke --model accounts/fireworks/models/qwen3p7-plus --outputs outputs/smoke
+uv run run-model --model accounts/fireworks/models/your-model --outputs outputs/my-run
+uv run eval --outputs outputs/my-run --results results.csv
+uv run judge --model accounts/fireworks/models/your-judge-model --outputs outputs/my-run --results judge_results.csv
+```
+
+That is the intended user-facing surface. The lower-level Python scripts still
+exist, but most people should not need to call them directly.
+
+## What Is In The Benchmark
+
+- Category 1: box drawing and ASCII layout basics
+- Category 2: network, systems, and cluster topology diagrams
+- Category 3: diagram editing tasks with source and target diagrams
+- Category 4: canonical software architecture diagrams
+
+Each task directory contains:
+
+- `prompt.txt`
+- `reference.ascii`
+- `reference.png`
+- `assertions.json`
+- `vlm_judge_prompt.txt`
+
+Category 3 tasks also contain:
+
+- `source.ascii`
+- `source.png`
 
 ## Repository Layout
 
 ```text
 .
-├── .github/
-│   └── workflows/
-│       └── deploy-pages.yml
-├── generate_benchmark.py
 ├── oneshot/
-│   ├── c1_example.txt
-│   ├── c2_example.txt
-│   ├── c3_example.txt
-│   └── c4_example.txt
-├── scripts/
-│   ├── eval.py
-│   ├── examples/
-│   ├── lib/
-│   ├── render.py
-│   ├── render_all.py
-│   ├── renderers/
-│   ├── run_model.py
-│   ├── run_vlm_judge_instructor.py
-│   ├── smoke_generate.py
-│   └── run_vlm_judge.py
 ├── tasks/
 │   ├── box-layout-basics/
-│   │   ├── 1.1/
-│   │   └── ...
-│   ├── diagram-editing/
+│   │   ├── easy/
+│   │   ├── medium/
+│   │   └── hard/
 │   ├── network-topology-diagrams/
-│   ├── ...
+│   │   ├── easy/
+│   │   ├── medium/
+│   │   └── hard/
+│   ├── diagram-editing/
+│   │   ├── easy/
+│   │   ├── medium/
+│   │   └── hard/
 │   └── software-architecture-diagrams/
-│       └── 4.15/
+│       ├── easy/
+│       ├── medium/
+│       └── hard/
+├── scripts/
+│   ├── benchmark/      # internal maintainer tooling + canonical source data
+│   ├── judge/          # VLM judge entrypoint
+│   ├── rendered/       # ASCII -> PNG renderer
+│   ├── lib/            # shared helpers
+│   ├── run_model.py
+│   ├── smoke_generate.py
+│   └── eval.py
 ├── website/
-│   ├── app.js
-│   ├── build_site_data.mjs
-│   ├── build_site_data.py
-│   ├── index.html
-│   └── style.css
-└── termdraw_benchmark_spec.md
+├── pyproject.toml
+├── uv.lock
+└── README.md
 ```
-
-## Task Format
-
-Every task contains:
-
-- `prompt.txt`: the instruction shown to the model
-- `reference.ascii`: the target ASCII diagram
-- `assertions.json`: structural checks for L1 scoring
-- `vlm_judge_prompt.txt`: task-specific prompt for L2 judging
-
-Category 3 tasks also contain:
-
-- `source.ascii`: the starting diagram before editing
-
-After rendering, `.png` companions are produced for each `.ascii` file.
-These PNGs should contain the diagram only, not the surrounding task prompt.
-
-## Quick Start
-
-1. Install dependencies:
-
-```bash
-uv venv
-uv sync
-npm install
-npx playwright install chromium
-cp .env.example .env.local
-```
-
-2. Configure Fireworks credentials:
-
-```bash
-cp .env.example .env
-# Then edit .env with your real Fireworks values.
-```
-
-All scripts auto-load `.env.local` first and then `.env`, so you do not need
-to `export` credentials in every shell. Keep real credentials in ignored local
-files; do not commit them to a public repository.
-
-3. Regenerate repository assets:
-
-```bash
-.venv/bin/python generate_benchmark.py
-```
-
-4. Render PNGs:
-
-```bash
-.venv/bin/python scripts/render_all.py
-```
-
-5. Verify expected counts:
-
-```bash
-make verify
-```
-
-## Working Commands
-
-The commands below are the intended published workflow for the repository.
-
-Setup:
-
-```bash
-uv venv
-uv sync
-npm install
-npx playwright install chromium
-cp .env.example .env.local
-```
-
-Then put your Fireworks credentials in `.env.local` or `.env`:
-
-```bash
-FIREWORKS_API_KEY=...
-FIREWORKS_ACCOUNT_ID=...
-```
-
-Render all task diagrams to PNG with Playwright:
-
-```bash
-.venv/bin/python scripts/render_all.py
-```
-
-Regenerate the benchmark tree from source:
-
-```bash
-.venv/bin/python generate_benchmark.py
-```
-
-Verified Fireworks smoke test with reasoning disabled:
-
-```bash
-python3 scripts/smoke_generate.py \
-  --model accounts/fireworks/models/qwen3p7-plus \
-  --tasks tasks/ \
-  --outputs outputs/smoke-qwen3p7-plus/ \
-  --oneshot oneshot/ \
-  --sample-count 5 \
-  --seed 7 \
-  --reasoning-effort none \
-  --network-retries 5
-```
-
-Full batch generation run:
-
-```bash
-python3 scripts/run_model.py \
-  --model accounts/fireworks/models/your-vision-model \
-  --tasks tasks/ \
-  --outputs outputs/your-run/ \
-  --oneshot oneshot/ \
-  --reasoning-effort none \
-  --network-retries 5
-```
-
-L1 structural scoring:
-
-```bash
-python3 scripts/eval.py \
-  --outputs outputs/your-run/ \
-  --tasks tasks/ \
-  --results results_your_run.csv
-```
-
-Fireworks structured judge run:
-
-```bash
-python3 scripts/run_vlm_judge.py \
-  --model accounts/fireworks/models/your-judge-model \
-  --tasks tasks/ \
-  --outputs outputs/your-run/ \
-  --results results_your_run.csv \
-  --network-retries 5
-```
-
-Instructor/Pydantic judge variant:
-
-```bash
-python3 scripts/run_vlm_judge_instructor.py \
-  --model accounts/fireworks/models/your-judge-model \
-  --tasks tasks/ \
-  --outputs outputs/your-run/ \
-  --results results_your_run.csv
-```
-
-Build website task metadata:
-
-```bash
-node website/build_site_data.mjs
-```
-
-Preview the website locally:
-
-```bash
-python3 -m http.server 8000 -d website
-```
-
-Then open `http://localhost:8000`.
-
-Push to GitHub and publish with GitHub Pages:
-
-```bash
-git init
-git branch -M main
-git add .
-git commit -m "Initial benchmark release"
-git remote add origin git@github.com:YOUR_ORG/ASCIITermDraw-Benchmark.git
-git push -u origin main
-```
-
-After push, enable GitHub Pages for GitHub Actions in repository settings. The
-included workflow at `.github/workflows/deploy-pages.yml` will publish the
-`website/` directory.
 
 ## Running Evaluation
 
-Run generation batch inference:
+Run full generation:
 
 ```bash
-python3 scripts/run_model.py \
+uv run run-model \
   --model accounts/fireworks/models/your-vision-model \
   --tasks tasks/ \
   --outputs outputs/qwen2.5-7b/ \
@@ -248,10 +110,16 @@ Category 3 requests attach `source.png` as multimodal image input. The other
 categories remain text-only. Thinking/reasoning is disabled by default during
 generation with `reasoning_effort=none`.
 
+Within each category folder, tasks are organized by difficulty:
+
+- `easy/`: tasks `.1` to `.10`
+- `medium/`: tasks `.11` to `.15`
+- `hard/`: tasks `.16` to `.20`
+
 For a quick smoke test instead of all 80 tasks:
 
 ```bash
-python3 scripts/smoke_generate.py \
+uv run smoke \
   --model accounts/fireworks/models/your-vision-model \
   --tasks tasks/ \
   --outputs outputs/smoke/ \
@@ -267,44 +135,25 @@ plus `outputs/smoke/manifest.json`.
 Run L1 scoring:
 
 ```bash
-python3 scripts/eval.py \
+uv run eval \
   --outputs outputs/qwen2.5-7b/ \
   --tasks tasks/ \
   --results results_qwen2.5-7b.csv
 ```
 
-Run Fireworks structured-output judging:
+Run structured-output judging:
 
 ```bash
-python3 scripts/run_vlm_judge.py \
-  --model accounts/fireworks/models/your-judge-model \
-  --tasks tasks/ \
-  --outputs outputs/qwen2.5-7b/ \
-  --results results_qwen2.5-7b.csv \
-  --network-retries 5
-```
-
-This reads each task's `vlm_judge_prompt.txt`, submits a Fireworks Batch API
-job, and stores parsed JSON judgments in `outputs/.../judge_json/`.
-
-For smaller non-batch judging runs, there is also an Instructor-based option:
-
-```bash
-python3 scripts/run_vlm_judge_instructor.py \
+uv run judge \
   --model accounts/fireworks/models/your-judge-model \
   --tasks tasks/ \
   --outputs outputs/qwen2.5-7b/ \
   --results results_qwen2.5-7b.csv
 ```
 
-## Reproducibility
-
-`generate_benchmark.py` is the canonical source for regenerating the task
-directories and support scripts in this repository. If you modify the benchmark
-content, rerun the generator and re-render the PNG assets before publishing
-changes. Rendering is Playwright-based and is intended to capture only the
-ASCII diagram artifact. Inference is Fireworks-based: generation uses the
-Batch API and L2 judging uses structured JSON outputs.
+This uses the Pydantic / Instructor path and stores parsed JSON judgments in
+`outputs/.../judge_json/`. The judge now returns `structural_score`,
+`semantics_score`, and `score`, where `score = structural_score + semantics_score`.
 
 ## Contributing
 

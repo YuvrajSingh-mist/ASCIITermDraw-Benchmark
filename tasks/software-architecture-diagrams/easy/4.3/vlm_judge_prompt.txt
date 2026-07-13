@@ -1,0 +1,92 @@
+        TASK: 4.3
+
+        USER PROMPT:
+        Draw a CI/CD pipeline as a left-to-right chain with these stages in order:
+"Code Push" → "Build" → "Unit Tests" → "Integration Tests" → "Staging Deploy" → "Prod Deploy"
+Also show a dashed "rollback" arrow from "Prod Deploy" back to "Staging Deploy" labeled "on failure".
+Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.
+
+        ASSERTIONS JSON:
+        {
+  "required_labels": [
+    "Code Push",
+    "Build",
+    "Unit Tests",
+    "Integration Tests",
+    "Staging Deploy",
+    "Prod Deploy",
+    "on failure"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 6,
+  "required_edges": [
+    {
+      "from": "Code Push",
+      "to": "Build"
+    },
+    {
+      "from": "Build",
+      "to": "Unit Tests"
+    },
+    {
+      "from": "Unit Tests",
+      "to": "Integration Tests"
+    },
+    {
+      "from": "Integration Tests",
+      "to": "Staging Deploy"
+    },
+    {
+      "from": "Staging Deploy",
+      "to": "Prod Deploy"
+    },
+    {
+      "from": "Prod Deploy",
+      "to": "Staging Deploy"
+    }
+  ],
+  "required_edge_labels": [
+    "on failure"
+  ],
+  "preserved_elements": []
+}
+
+        MODEL OUTPUT:
+        ---
+        {model_output}
+        ---
+
+
+
+        Evaluate this task with the same rubric used for every benchmark task.
+
+        structural evidence:
+        - required_labels_present: list of labels from `required_labels` that are clearly present in the model output
+- entity_count_observed: integer count of entities/nodes/boxes observed in the model output
+- required_edges_present: list of edges from `required_edges` that are clearly present in the model output, using the same `{from, to}` strings as the assertions JSON
+        - Do not compute the structural score yourself from intuition.
+        - Report only the structural evidence requested above so the harness can compare it against the assertions JSON.
+
+        semantics rubric:
+        - `connections_correct`: 1 if the connections are made properly, else 0.
+        - `text_inside_nodes_correct`: 1 if all text inside nodes, including multiline node text if any, is correctly present, else 0.
+        - `layout_matches_prompt`: 1 if the layout follows the prompt strictly, else 0.
+
+        Rules:
+        - Use this exact rubric only. Do not invent a task-specific checklist.
+        - Keep reason short and concrete.
+
+        RESPOND WITH JSON ONLY:
+        {
+          "structural_observations": {
+            "required_labels_present": [],
+            "entity_count_observed": 0,
+            "required_edges_present": []
+          },
+          "semantics": {
+            "connections_correct": 0,
+            "text_inside_nodes_correct": 0,
+            "layout_matches_prompt": 0
+          },
+          "reason": "string"
+        }

@@ -1,0 +1,6 @@
+Client               Server
+  |                    |
+  |---- connect -----> |
+  | <----- ack ------- |
+  |---- payload -----> |
+  |                    |

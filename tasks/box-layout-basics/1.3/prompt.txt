@@ -1,1 +1,0 @@
-Draw four boxes stacked vertically: "Load Balancer", "App Server", "Cache", "Database". Connect them top-to-bottom with downward arrows.

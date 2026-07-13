@@ -1,1 +1,0 @@
-Add a sidecar "Proxy" box directly below each app box. Connect each Proxy to "Mesh Control Plane" below.

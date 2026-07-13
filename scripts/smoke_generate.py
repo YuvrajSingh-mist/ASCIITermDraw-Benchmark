@@ -12,8 +12,12 @@ import argparse
 import json
 from pathlib import Path
 
-from lib.fireworks_api import chat_completion_with_retries, require_env
-from run_model import (
+from scripts.lib.fireworks_api import (
+    chat_completion_with_retries,
+    extract_chat_content,
+    require_env,
+)
+from scripts.run_model import (
     SYSTEM_PROMPT,
     build_user_content,
     select_task_dirs,
@@ -68,7 +72,7 @@ def run(
     for task_dir in selected_task_dirs:
         task_id = task_dir.name
         user_content = build_user_content(task_id, task_dir, oneshot)
-        payload = chat_completion_with_retries(
+        response = chat_completion_with_retries(
             api_key,
             model=model,
             messages=[
@@ -80,9 +84,9 @@ def run(
             top_p=top_p,
             reasoning_effort=reasoning_effort,
             network_retries=network_retries,
-            request_label=f"smoke task {task_id}",
+            request_label=f"smoke test {task_id}",
         )
-        text = (payload["choices"][0]["message"].get("content") or "").strip()
+        text = extract_chat_content(response)
 
         output_path = outputs / f"{task_id}.txt"
         output_path.write_text(text + "\n")
@@ -96,7 +100,7 @@ def run(
                 "task_id": task_id,
                 "output_file": str(output_path),
                 "preview": preview,
-                "usage": payload.get("usage"),
+                "transport": "fireworks-chat-completions",
             }
         )
 
@@ -104,7 +108,7 @@ def run(
     print(f"Wrote {len(selected_task_dirs)} smoke-test outputs to {outputs}")
 
 
-if __name__ == "__main__":
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", required=True, help="Fireworks model path")
     parser.add_argument("--tasks", default="tasks")
@@ -136,3 +140,7 @@ if __name__ == "__main__":
         reasoning_effort=args.reasoning_effort,
         network_retries=args.network_retries,
     )
+
+
+if __name__ == "__main__":
+    main()

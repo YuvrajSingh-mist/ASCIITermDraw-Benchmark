@@ -1,0 +1,16 @@
+{
+  "required_labels": [
+    "Start",
+    "Process"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 2,
+  "required_edges": [
+    {
+      "from": "Start",
+      "to": "Process"
+    }
+  ],
+  "required_edge_labels": [],
+  "preserved_elements": []
+}

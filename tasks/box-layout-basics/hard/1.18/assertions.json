@@ -1,0 +1,27 @@
+{
+  "required_labels": [
+    "Client",
+    "Server",
+    "connect",
+    "ack",
+    "payload"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 2,
+  "required_edges": [
+    {
+      "from": "Client",
+      "to": "Server"
+    },
+    {
+      "from": "Server",
+      "to": "Client"
+    }
+  ],
+  "required_edge_labels": [
+    "connect",
+    "ack",
+    "payload"
+  ],
+  "preserved_elements": []
+}

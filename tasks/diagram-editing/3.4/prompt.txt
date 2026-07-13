@@ -1,1 +1,0 @@
-Add a bidirectional arrow between Service and Monitor labeled "metrics" above the arrow line.

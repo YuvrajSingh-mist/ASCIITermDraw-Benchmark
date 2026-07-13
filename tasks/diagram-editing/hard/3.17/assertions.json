@@ -1,0 +1,37 @@
+{
+  "required_labels": [
+    "Gateway",
+    "Service A",
+    "Service B",
+    "DB-A",
+    "DB-B"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 5,
+  "required_edges": [
+    {
+      "from": "Gateway",
+      "to": "Service B"
+    },
+    {
+      "from": "Gateway",
+      "to": "Service A"
+    },
+    {
+      "from": "Service B",
+      "to": "DB-B"
+    },
+    {
+      "from": "Service A",
+      "to": "DB-A"
+    }
+  ],
+  "editing": {
+    "required_edge_labels": [],
+    "preserved_elements": [
+      "Gateway",
+      "DB-A",
+      "DB-B"
+    ]
+  }
+}

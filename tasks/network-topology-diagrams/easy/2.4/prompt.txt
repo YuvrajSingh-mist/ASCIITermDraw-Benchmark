@@ -1,0 +1,1 @@
+Draw DNS resolution. "Browser" → "Local Resolver" → "Root NS" → "TLD NS (.com)" → "Auth NS (example.com)" → "IP Address returned". Linear chain left to right.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

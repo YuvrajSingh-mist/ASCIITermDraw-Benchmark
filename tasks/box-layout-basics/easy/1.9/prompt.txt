@@ -1,0 +1,1 @@
+Draw an ASCII box representing a database table called "users". Use a horizontal divider line inside the box to separate the table name (top section) from three fields listed below it: "id (PK)", "email", "created_at".Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

@@ -1,0 +1,40 @@
+{
+  "required_labels": [
+    "Leader",
+    "Follower-1",
+    "Follower-2",
+    "Follower-3",
+    "Follower-4",
+    "Follower-5"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 6,
+  "required_edges": [
+    {
+      "from": "Leader",
+      "to": "Follower-1"
+    },
+    {
+      "from": "Leader",
+      "to": "Follower-2"
+    },
+    {
+      "from": "Leader",
+      "to": "Follower-3"
+    },
+    {
+      "from": "Leader",
+      "to": "Follower-5"
+    }
+  ],
+  "editing": {
+    "required_edge_labels": [],
+    "preserved_elements": [
+      "Leader",
+      "Follower-1",
+      "Follower-2",
+      "Follower-3",
+      "Follower-4"
+    ]
+  }
+}

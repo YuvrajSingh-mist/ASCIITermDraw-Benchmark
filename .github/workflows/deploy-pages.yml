@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: "20"
       - name: Build site data
-        run: node website/build_site_data.mjs
+        run: node website/tools/build_site_data.mjs
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

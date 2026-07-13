@@ -1,0 +1,1 @@
+Draw a load balancer "NGINX" receiving traffic from "Client" and distributing to three backends: "App-1", "App-2", "App-3".Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

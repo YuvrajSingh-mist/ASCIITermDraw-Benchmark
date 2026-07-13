@@ -4,7 +4,6 @@ L1 Structural Checker for TermDraw-Bench.
 Scores a model's ASCII output against task assertions.
 Returns a score 0.0-1.0.
 """
-import re
 import json
 from pathlib import Path
 from dataclasses import dataclass, field
@@ -17,8 +16,7 @@ class Assertions:
     forbidden_labels: List[str] = field(default_factory=list)
     entity_count: int = 0
     required_edges: list = field(default_factory=list)
-    required_edge_labels: List[str] = field(default_factory=list)
-    preserved_elements: List[str] = field(default_factory=list)
+    editing: dict = field(default_factory=dict)
 
 
 def load_assertions(path: str) -> Assertions:
@@ -41,7 +39,6 @@ def box_integrity(lines: List[str]) -> float:
         col_set.setdefault(c, []).append(r)
     # For each pair of corner columns, check if there are matching row pairs
     cols = sorted(col_set.keys())
-    found_box = False
     for i, c1 in enumerate(cols):
         for c2 in cols[i+1:]:
             shared_rows = set(col_set[c1]) & set(col_set[c2])
@@ -68,7 +65,6 @@ def box_integrity(lines: List[str]) -> float:
                     width_ok = (max(widths) - min(widths)) <= 1 if widths else False
                     score = (top_ok + bot_ok + walls_ok + width_ok) / 4
                     scores.append(score)
-                    found_box = True
     return sum(scores) / len(scores) if scores else 0.0
 
 
@@ -139,12 +135,13 @@ def format_compliance(output: str) -> float:
 
 def score(output: str, assertions: Assertions) -> dict:
     lines = output.splitlines()
+    editing = assertions.editing or {}
     b  = box_integrity(lines)
     l  = label_recall(output, assertions.required_labels)
     fl = label_absent(output, assertions.forbidden_labels)
     e  = entity_count_score(lines, assertions.entity_count)
     r  = edge_presence(output, assertions.required_edges)
-    el = edge_label_presence(output, assertions.required_edge_labels)
+    el = edge_label_presence(output, editing.get("required_edge_labels", []))
     f  = format_compliance(output)
     # Weights
     total = (b  * 0.25 +

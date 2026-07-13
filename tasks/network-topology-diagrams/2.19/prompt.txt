@@ -1,1 +1,0 @@
-Draw DNS resolution. "Browser" → "Local Resolver" → "Root NS" → "TLD NS (.com)" → "Auth NS (example.com)" → "IP Address returned". Linear chain left to right.

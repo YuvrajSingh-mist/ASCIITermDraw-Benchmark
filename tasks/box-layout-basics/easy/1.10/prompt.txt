@@ -1,0 +1,1 @@
+Draw a flowchart decision diamond labeled "Is auth?" with two exit paths: a "Yes" path going right to a box labeled "Dashboard", and a "No" path going down to a box labeled "Login Page". Use / and \ characters to form the diamond shape.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

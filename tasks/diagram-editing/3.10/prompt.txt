@@ -1,1 +1,0 @@
-Merge the "Auth" and "Session" boxes into one box labeled "Auth+Session Service". Update all connections so the merged box connects to both "Users DB" and "Sessions DB".

@@ -1,6 +1,0 @@
-Draw a video upload and streaming pipeline:
-- "User" uploads raw video to "Upload Service"
-- Upload Service stores in "Raw Storage (S3)" and queues a job in "Transcoding Queue (Kafka)"
-- Three "Transcoder Worker" boxes consume from Kafka and write output to "Processed Storage (S3)"
-- "CDN" pulls from Processed Storage and serves video to User
-- "Metadata Service" updates "Video DB" at each processing stage

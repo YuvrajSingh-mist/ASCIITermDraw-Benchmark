@@ -2,6 +2,8 @@ __pycache__/
 *.pyc
 .DS_Store
 .venv/
+.venv*_backup/
+.bench_io_probe/
 .env
 .env.*
 !.env.example

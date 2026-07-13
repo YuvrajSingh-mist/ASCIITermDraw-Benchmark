@@ -1,0 +1,1 @@
+Swap the positions of "Cache" and "Queue" in the middle layer. Update the arrows from API and to the workers accordingly, but do not alter the top API box or the worker layer.Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

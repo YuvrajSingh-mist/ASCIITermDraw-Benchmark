@@ -1,1 +1,0 @@
-Draw speculative decoding. "Draft Model (small)" generates tokens passed to "Verifier Model (large)". Show two output paths: "accept" going to "Output" and "reject" looping back to Draft Model.

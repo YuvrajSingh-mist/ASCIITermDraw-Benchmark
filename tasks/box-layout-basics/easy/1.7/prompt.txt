@@ -1,0 +1,1 @@
+Draw one box "API Server" at the top. Below it, draw three boxes in a row: "Users DB", "Products DB", "Orders DB". Connect the API Server to each of the three boxes with downward arrows.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

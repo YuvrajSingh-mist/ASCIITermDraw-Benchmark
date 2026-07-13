@@ -1,0 +1,1 @@
+Draw one outer grouping box around both the frontend row and the backend row, and label the grouping box "Region: EU". Do not modify the inner service boxes or their connections.Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

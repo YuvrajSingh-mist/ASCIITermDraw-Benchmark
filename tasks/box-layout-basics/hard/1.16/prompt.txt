@@ -1,0 +1,1 @@
+Draw one outer ASCII box labeled "Pod". Inside it, place two inner boxes side by side labeled "App Container" and "Log Sidecar". Center the text "shared volume" below the two inner boxes but still inside the Pod box.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

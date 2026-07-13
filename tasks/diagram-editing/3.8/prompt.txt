@@ -1,1 +1,0 @@
-Reverse the arrow direction. It should now point from NodeB to NodeA.

@@ -1,1 +1,0 @@
-Draw an event-driven system. Three producers: "Service A", "Service B", "Service C". All publish to "Event Bus". Two consumers subscribe from Event Bus: "Analytics Service", "Audit Service".

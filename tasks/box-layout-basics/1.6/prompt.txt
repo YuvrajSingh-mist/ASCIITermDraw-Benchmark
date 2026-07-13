@@ -1,1 +1,0 @@
-Draw two boxes "Producer" and "Consumer" connected by a right-pointing arrow. Place the label "events" above the arrow line between the two boxes.

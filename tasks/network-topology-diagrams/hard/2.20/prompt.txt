@@ -1,0 +1,1 @@
+Draw a parameter server architecture. One "Parameter Server" at the top. Four "Worker" boxes below it. Show bidirectional arrows between PS and each worker labeled "push gradients" (Worker→PS) and "pull params" (PS→Worker).Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

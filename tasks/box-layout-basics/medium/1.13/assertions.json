@@ -1,0 +1,26 @@
+{
+  "required_labels": [
+    "Leader",
+    "Worker A",
+    "Worker B",
+    "Worker C"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 4,
+  "required_edges": [
+    {
+      "from": "Leader",
+      "to": "Worker A"
+    },
+    {
+      "from": "Leader",
+      "to": "Worker B"
+    },
+    {
+      "from": "Leader",
+      "to": "Worker C"
+    }
+  ],
+  "required_edge_labels": [],
+  "preserved_elements": []
+}

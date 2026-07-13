@@ -1,1 +1,0 @@
-Scale the app layer to 3 instances. Add "App-2" and "App-3" alongside App-1. Connect NGINX to all three with arrows.

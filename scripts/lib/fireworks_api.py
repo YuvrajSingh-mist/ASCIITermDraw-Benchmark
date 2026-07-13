@@ -13,6 +13,8 @@ from typing import TYPE_CHECKING, Any
 from urllib.parse import urlparse
 
 if TYPE_CHECKING:
+    import instructor
+    from openai import OpenAI
     import requests
 
 
@@ -27,11 +29,25 @@ TASK_CATEGORY_DIRS = {
     "4": "software-architecture-diagrams",
 }
 ROOT = Path(__file__).resolve().parents[2]
-ENV_FILES = (ROOT / ".env.local", ROOT / ".env")
+
+
+def _candidate_env_files() -> list[Path]:
+    files: list[Path] = []
+    seen: set[Path] = set()
+
+    search_roots = [Path.cwd(), *Path.cwd().parents, ROOT, *ROOT.parents[:2]]
+    for base in search_roots:
+        for name in (".env.local", ".env"):
+            path = (base / name).resolve()
+            if path in seen:
+                continue
+            seen.add(path)
+            files.append(path)
+    return files
 
 
 def load_local_env() -> None:
-    for env_file in ENV_FILES:
+    for env_file in _candidate_env_files():
         if not env_file.exists():
             continue
         for raw_line in env_file.read_text().splitlines():
@@ -54,7 +70,7 @@ def _requests_module():
     except ModuleNotFoundError as exc:
         raise RuntimeError(
             "Missing Python dependency `requests`. "
-            "Install it with `.venv/bin/python -m pip install -r requirements.txt`."
+            "Install project dependencies with `uv sync`."
         ) from exc
     return requests
 
@@ -64,6 +80,24 @@ def require_env(name: str) -> str:
     if not value:
         raise RuntimeError(f"Missing required environment variable: {name}")
     return value
+
+
+def create_instructor_client(api_key: str) -> "instructor.Instructor":
+    try:
+        import instructor
+        from openai import OpenAI
+    except ModuleNotFoundError as exc:
+        raise RuntimeError(
+            "Missing Instructor/OpenAI dependencies. "
+            "Install project dependencies with `uv sync`."
+        ) from exc
+
+    return instructor.from_openai(
+        OpenAI(
+            base_url=f"{API_ROOT}/inference/v1",
+            api_key=api_key,
+        )
+    )
 
 
 def _retry_sleep_seconds(response=None, attempt: int = 0) -> float:
@@ -304,11 +338,6 @@ def iter_task_dirs(tasks_dir: Path) -> list[Path]:
         ],
         key=lambda path: task_sort_key(path.name),
     )
-
-
-def task_dir_path(tasks_dir: Path, task_id: str) -> Path:
-    category = task_id.split(".", 1)[0]
-    return tasks_dir / TASK_CATEGORY_DIRS.get(category, category) / task_id
 
 
 def create_dataset(
@@ -565,8 +594,9 @@ def _coerce_content(value: Any) -> str:
     return ""
 
 
-def extract_batch_content(row: dict[str, Any]) -> str:
+def extract_chat_content(row: dict[str, Any]) -> str:
     candidates = [
+        row.get("choices"),
         row.get("response", {}).get("body", {}).get("choices"),
         row.get("body", {}).get("choices"),
         row.get("result", {}).get("response", {}).get("body", {}).get("choices"),
@@ -586,6 +616,10 @@ def extract_batch_content(row: dict[str, Any]) -> str:
             return content.strip()
 
     raise RuntimeError(
-        "Could not find assistant content in batch result row: "
+        "Could not find assistant content in response row: "
         f"{json.dumps(row)[:500]}"
     )
+
+
+def extract_batch_content(row: dict[str, Any]) -> str:
+    return extract_chat_content(row)

@@ -1,0 +1,7 @@
+Draw the classic 3-tier web architecture:
+- "Client (Browser)" on the left
+- "Load Balancer (NGINX)" in the middle receiving traffic from Client
+- Three app servers in a column: "App-1", "App-2", "App-3" receiving traffic from LB
+- "PostgreSQL" database on the right receiving queries from all app servers
+Show arrows between each tier.
+Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

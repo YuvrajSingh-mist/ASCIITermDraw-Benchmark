@@ -1,0 +1,1 @@
+Draw a pub/sub diagram. "Order Service" publishes to "Kafka". "Inventory Service" and "Notification Service" both subscribe from Kafka. Label the arrow from Order Service to Kafka "publish". Label arrows from Kafka to subscribers "subscribe".Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

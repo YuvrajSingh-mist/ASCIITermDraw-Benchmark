@@ -1,0 +1,49 @@
+{
+  "required_labels": [
+    "Service A",
+    "Service B",
+    "Service C",
+    "DB-A",
+    "DB-B",
+    "DB-C"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 6,
+  "required_edges": [
+    {
+      "from": "Service A",
+      "to": "DB-A"
+    },
+    {
+      "from": "DB-A",
+      "to": "Service A"
+    },
+    {
+      "from": "Service B",
+      "to": "DB-B"
+    },
+    {
+      "from": "DB-B",
+      "to": "Service B"
+    },
+    {
+      "from": "Service C",
+      "to": "DB-C"
+    },
+    {
+      "from": "DB-C",
+      "to": "Service C"
+    }
+  ],
+  "editing": {
+    "required_edge_labels": [],
+    "preserved_elements": [
+      "Service A",
+      "Service B",
+      "Service C",
+      "DB-A",
+      "DB-B",
+      "DB-C"
+    ]
+  }
+}

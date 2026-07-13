@@ -1,0 +1,7 @@
+Draw a search autocomplete system:
+- "User" types into "Search API"
+- Search API checks "Trie Cache (In-Memory)" first
+- On miss, Search API queries "Prefix Index (Elasticsearch)"
+- "Data Aggregation Service" reads "Query Logs DB" and rebuilds both the Trie Cache and Prefix Index periodically
+- Results flow back from Search API to User
+Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

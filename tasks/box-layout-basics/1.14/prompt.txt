@@ -1,1 +1,0 @@
-Draw two boxes "Client" and "Server" side by side. Between them show two arrows: one going right labeled "request" and one going left labeled "response".

@@ -1,0 +1,1 @@
+Mark the Server as a failure point: change its corner characters from + to * and add the label "FAILED" directly below the Server box.Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

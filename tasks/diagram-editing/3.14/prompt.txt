@@ -1,1 +1,0 @@
-Draw an outer grouping box around all three labeled "Region: EU". Do not modify the inner boxes.

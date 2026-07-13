@@ -1,1 +1,0 @@
-Rename "App Srv" to "FastAPI". Resize the box to fit the new label. Keep everything else exactly the same.

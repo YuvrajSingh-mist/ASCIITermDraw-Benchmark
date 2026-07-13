@@ -1,1 +1,0 @@
-Draw a Kubernetes sidecar pattern. One "Pod" box containing two sub-boxes side by side: "App Container" and "Proxy Sidecar". The proxy connects to "Service Mesh" outside the pod.

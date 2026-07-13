@@ -1,0 +1,50 @@
+{
+  "required_labels": [
+    "User",
+    "Online Prediction API",
+    "Model Server",
+    "Online Feature Cache",
+    "Feature Pipeline",
+    "Offline Warehouse",
+    "Training Jobs",
+    "Model Registry"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 8,
+  "required_edges": [
+    {
+      "from": "User",
+      "to": "Online Prediction API"
+    },
+    {
+      "from": "Online Prediction API",
+      "to": "Model Server"
+    },
+    {
+      "from": "Online Prediction API",
+      "to": "Online Feature Cache"
+    },
+    {
+      "from": "Offline Warehouse",
+      "to": "Feature Pipeline"
+    },
+    {
+      "from": "Feature Pipeline",
+      "to": "Online Feature Cache"
+    },
+    {
+      "from": "Offline Warehouse",
+      "to": "Training Jobs"
+    },
+    {
+      "from": "Training Jobs",
+      "to": "Model Registry"
+    },
+    {
+      "from": "Model Registry",
+      "to": "Model Server"
+    }
+  ],
+  "required_edge_labels": [],
+  "preserved_elements": []
+}

@@ -1,0 +1,48 @@
+{
+  "required_labels": [
+    "Browser",
+    "API",
+    "Worker",
+    "DB",
+    "Redis",
+    "HTTP",
+    "gRPC",
+    "SQL",
+    "cache"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 5,
+  "required_edges": [
+    {
+      "from": "Browser",
+      "to": "API"
+    },
+    {
+      "from": "API",
+      "to": "Worker"
+    },
+    {
+      "from": "Worker",
+      "to": "DB"
+    },
+    {
+      "from": "Worker",
+      "to": "Redis"
+    }
+  ],
+  "editing": {
+    "required_edge_labels": [
+      "HTTP",
+      "gRPC",
+      "SQL",
+      "cache"
+    ],
+    "preserved_elements": [
+      "Browser",
+      "API",
+      "Worker",
+      "DB",
+      "Redis"
+    ]
+  }
+}

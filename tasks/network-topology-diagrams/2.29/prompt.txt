@@ -1,1 +1,0 @@
-Draw a 3-node Paxos cluster. Show "Proposer" sending "Prepare(n)" to three "Acceptor" boxes. Acceptors reply "Promise(n)" back to Proposer. Then Proposer sends "Accept(n,v)" to Acceptors.

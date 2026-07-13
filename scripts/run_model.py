@@ -12,11 +12,11 @@ import base64
 import json
 import mimetypes
 import random
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from lib.fireworks_api import (
+from scripts.lib.fireworks_api import (
     create_batch_job,
     create_dataset,
     create_session,
@@ -43,7 +43,7 @@ SYSTEM_PROMPT = (
 
 
 def timestamp() -> str:
-    return datetime.now(UTC).strftime("%Y%m%d-%H%M%S")
+    return datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
 
 
 def encode_image_data_url(image_path: Path) -> str:
@@ -273,7 +273,7 @@ def run(
     (metadata_dir / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     print(f"Wrote {written} outputs to {outputs}")
 
-if __name__ == "__main__":
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", required=True, help="Fireworks model path")
     parser.add_argument("--tasks", default="tasks")
@@ -330,3 +330,7 @@ if __name__ == "__main__":
         args.seed,
         args.reasoning_effort,
     )
+
+
+if __name__ == "__main__":
+    main()

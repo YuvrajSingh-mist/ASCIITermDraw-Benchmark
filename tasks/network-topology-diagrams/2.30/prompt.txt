@@ -1,1 +1,0 @@
-Draw a full smolhive topology. One "Mac Mini M4 (Trainer)" at the top. Below it, four "Jetson Orin Nano" boxes and two "Raspberry Pi" boxes. Trainer connects to all six. Jetsons and Pis connect to each other with dashed "P2P sync" arrows.

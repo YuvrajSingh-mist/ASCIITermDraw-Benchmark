@@ -1,0 +1,58 @@
+{
+  "required_labels": [
+    "MacBook M1 (Orchestrator)",
+    "Mac Mini M4 Worker-1",
+    "Mac Mini M4 Worker-2",
+    "Mac Mini M4 Worker-3",
+    "Switch",
+    "Jetson Orin Nano-1",
+    "Jetson Orin Nano-2",
+    "Jetson Orin Nano-3",
+    "Jetson Orin Nano-4",
+    "Thunderbolt",
+    "Network Cable",
+    "CAT5"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 9,
+  "required_edges": [
+    {
+      "from": "MacBook M1 (Orchestrator)",
+      "to": "Mac Mini M4 Worker-1"
+    },
+    {
+      "from": "Mac Mini M4 Worker-2",
+      "to": "Mac Mini M4 Worker-1"
+    },
+    {
+      "from": "Mac Mini M4 Worker-3",
+      "to": "Mac Mini M4 Worker-1"
+    },
+    {
+      "from": "MacBook M1 (Orchestrator)",
+      "to": "Switch"
+    },
+    {
+      "from": "Switch",
+      "to": "Jetson Orin Nano-1"
+    },
+    {
+      "from": "Switch",
+      "to": "Jetson Orin Nano-2"
+    },
+    {
+      "from": "Switch",
+      "to": "Jetson Orin Nano-3"
+    },
+    {
+      "from": "Switch",
+      "to": "Jetson Orin Nano-4"
+    }
+  ],
+  "required_edge_labels": [
+    "Thunderbolt",
+    "Network Cable",
+    "CAT5"
+  ],
+  "preserved_elements": []
+}

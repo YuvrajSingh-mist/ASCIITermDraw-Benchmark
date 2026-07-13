@@ -1,0 +1,14 @@
+{
+  "required_labels": [
+    "Is auth?",
+    "Yes",
+    "No",
+    "Dashboard",
+    "Login Page"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 3,
+  "required_edges": [],
+  "required_edge_labels": [],
+  "preserved_elements": []
+}

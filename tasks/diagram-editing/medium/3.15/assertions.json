@@ -1,0 +1,36 @@
+{
+  "required_labels": [
+    "Gateway",
+    "Auth Service",
+    "User Service",
+    "Order Service",
+    "v2.1",
+    "v1.8",
+    "v3.0"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 4,
+  "required_edges": [
+    {
+      "from": "Gateway",
+      "to": "Auth Service"
+    },
+    {
+      "from": "Gateway",
+      "to": "User Service"
+    },
+    {
+      "from": "Gateway",
+      "to": "Order Service"
+    }
+  ],
+  "editing": {
+    "required_edge_labels": [],
+    "preserved_elements": [
+      "Gateway",
+      "Auth Service",
+      "User Service",
+      "Order Service"
+    ]
+  }
+}

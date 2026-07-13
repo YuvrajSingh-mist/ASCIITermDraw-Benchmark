@@ -1,0 +1,1 @@
+Draw a Raft consensus cluster with 5 nodes. One is labeled "Leader". The others are "Follower-1", "Follower-2", "Follower-3", "Follower-4". Show heartbeat arrows from Leader to each Follower only (not the reverse).Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

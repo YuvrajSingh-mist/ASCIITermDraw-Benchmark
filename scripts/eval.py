@@ -14,8 +14,8 @@ The image was the input; the output is always text.
 import csv
 import argparse
 from pathlib import Path
-from lib.checker import score, load_assertions
-from lib.fireworks_api import iter_task_dirs
+from scripts.lib.checker import score, load_assertions
+from scripts.lib.fireworks_api import iter_task_dirs
 
 def run_eval(outputs_dir: str, tasks_dir: str, results_path: str):
     outputs = Path(outputs_dir)
@@ -53,10 +53,14 @@ def run_eval(outputs_dir: str, tasks_dir: str, results_path: str):
         avg = sum(r["L1_total"] for r in rows) / len(rows)
         print(f"Mean L1: {avg:.3f} across {len(rows)} tasks")
 
-if __name__ == "__main__":
+def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--outputs", required=True)
     p.add_argument("--tasks",   default="tasks")
     p.add_argument("--results", default="results.csv")
     args = p.parse_args()
     run_eval(args.outputs, args.tasks, args.results)
+
+
+if __name__ == "__main__":
+    main()

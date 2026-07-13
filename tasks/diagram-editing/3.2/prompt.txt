@@ -1,1 +1,0 @@
-Remove the Cache box and its connections. Connect Web directly to DB with an arrow.

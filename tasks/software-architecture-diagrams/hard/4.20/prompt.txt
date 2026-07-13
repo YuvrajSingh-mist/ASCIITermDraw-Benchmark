@@ -1,0 +1,1 @@
+Draw a multi-signal observability pipeline: three services, "Service A", "Service B", and "Service C", all send telemetry to "OTel Collector". Collector routes traces to "Tempo", metrics to "Prometheus", and logs to "Loki". "Grafana" reads from all three backends.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

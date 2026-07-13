@@ -1,6 +1,0 @@
-Draw a URL shortener system architecture:
-- "Client" → "Load Balancer" → two "App Server" boxes
-- App Servers check "Redis Cache" first (label arrow "cache hit / O(1)")
-- On cache miss, App Servers query "Cassandra DB" (label arrow "cache miss")
-- App Servers write click events to "Kafka"
-- "Analytics Service" consumes from Kafka

@@ -1,0 +1,660 @@
+{
+  "2.1": {
+    "prompt": "Draw a client-server-database chain: \"Browser\" \u2192 \"Web Server\" \u2192 \"PostgreSQL\". Show arrows between each.",
+    "reference": "+-----------+    +------------+    +------------+\n|  Browser  |--->| Web Server |--->| PostgreSQL |\n+-----------+    +------------+    +------------+",
+    "assertions": {
+      "forbidden_labels": [],
+      "required_edge_labels": [],
+      "preserved_elements": [],
+      "required_labels": [
+        "Browser",
+        "Web Server",
+        "PostgreSQL"
+      ],
+      "entity_count": 3,
+      "required_edges": [
+        {
+          "from": "Browser",
+          "to": "Web Server"
+        },
+        {
+          "from": "Web Server",
+          "to": "PostgreSQL"
+        }
+      ]
+    }
+  },
+  "2.2": {
+    "prompt": "Draw a ring network with 4 nodes: \"Node-A\", \"Node-B\", \"Node-C\", \"Node-D\". Connect them in a ring: A\u2192B\u2192C\u2192D\u2192A.",
+    "reference": "+--------+ ----> +--------+\n| Node-A |       | Node-B |\n+--------+ <---- +--------+\n    ^                |\n    |                v\n+--------+ <---- +--------+\n| Node-D |       | Node-C |\n+--------+ ----> +--------+",
+    "assertions": {
+      "forbidden_labels": [],
+      "required_edge_labels": [],
+      "preserved_elements": [],
+      "required_labels": [
+        "Node-A",
+        "Node-B",
+        "Node-C",
+        "Node-D"
+      ],
+      "entity_count": 4,
+      "required_edges": [
+        {
+          "from": "Node-A",
+          "to": "Node-B"
+        },
+        {
+          "from": "Node-B",
+          "to": "Node-C"
+        },
+        {
+          "from": "Node-C",
+          "to": "Node-D"
+        },
+        {
+          "from": "Node-D",
+          "to": "Node-A"
+        }
+      ]
+    }
+  },
+  "2.3": {
+    "prompt": "Draw a VPN tunnel. \"Client\" on the left connects through an \"[Encrypted Tunnel]\" annotation to \"VPN Server\" in the middle. VPN Server connects to \"Internet\" on the right.",
+    "reference": "+--------+   [Encrypted Tunnel]   +------------+   +----------+\n| Client |----------------------->| VPN Server |-->| Internet |\n+--------+                        +------------+   +----------+",
+    "assertions": {
+      "required_labels": [
+        "Client",
+        "VPN Server",
+        "Internet",
+        "[Encrypted Tunnel]"
+      ],
+      "forbidden_labels": [],
+      "entity_count": 3,
+      "required_edges": [
+        {
+          "from": "Client",
+          "to": "VPN Server"
+        },
+        {
+          "from": "VPN Server",
+          "to": "Internet"
+        }
+      ],
+      "required_edge_labels": [],
+      "preserved_elements": []
+    }
+  },
+  "2.4": {
+    "prompt": "Draw DNS resolution. \"Browser\" \u2192 \"Local Resolver\" \u2192 \"Root NS\" \u2192 \"TLD NS (.com)\" \u2192 \"Auth NS (example.com)\" \u2192 \"IP Address returned\". Linear chain left to right.",
+    "reference": "+---------+ -> +----------------+ -> +---------+ -> +---------------+ -> +-----------------------+ -> +---------------------+\n| Browser |    | Local Resolver |    | Root NS |    | TLD NS (.com) |    | Auth NS (example.com) |    | IP Address returned |\n+---------+    +----------------+    +---------+    +---------------+    +-----------------------+    +---------------------+",
+    "assertions": {
+      "required_labels": [
+        "Browser",
+        "Local Resolver",
+        "Root NS",
+        "TLD NS (.com)",
+        "Auth NS (example.com)",
+        "IP Address returned"
+      ],
+      "forbidden_labels": [],
+      "entity_count": 6,
+      "required_edges": [
+        {
+          "from": "Browser",
+          "to": "Local Resolver"
+        },
+        {
+          "from": "Local Resolver",
+          "to": "Root NS"
+        },
+        {
+          "from": "Root NS",
+          "to": "TLD NS (.com)"
+        },
+        {
+          "from": "TLD NS (.com)",
+          "to": "Auth NS (example.com)"
+        },
+        {
+          "from": "Auth NS (example.com)",
+          "to": "IP Address returned"
+        }
+      ],
+      "required_edge_labels": [],
+      "preserved_elements": []
+    }
+  },
+  "2.5": {
+    "prompt": "Draw a TCP three-way handshake between \"Client\" and \"Server\" using a sequence diagram (vertical lanes). Show: Client sends SYN \u2192, Server replies \u2190 SYN-ACK, Client sends ACK \u2192.",
+    "reference": "Client                      Server\n  |                           |\n  |-------- SYN ------------->|\n  |<----- SYN-ACK ------------|\n  |-------- ACK ------------->|\n  |                           |",
+    "assertions": {
+      "required_labels": [
+        "Client",
+        "Server",
+        "SYN",
+        "SYN-ACK",
+        "ACK"
+      ],
+      "forbidden_labels": [],
+      "entity_count": 0,
+      "required_edges": [],
+      "required_edge_labels": [
+        "SYN",
+        "SYN-ACK",
+        "ACK"
+      ],
+      "preserved_elements": []
+    }
+  },
+  "2.6": {
+    "prompt": "Draw a Raspberry Pi PoE cluster. \"Internet\" at top connects to \"Router\". Router connects to \"TP-Link Switch\". Switch connects to four Pi nodes: \"Pi-1\", \"Pi-2\", \"Pi-3\", \"Pi-4\".",
+    "reference": "+----------+\n| Internet |\n+----------+\n     |\n     v\n+--------+\n| Router |\n+--------+\n     |\n     v\n+----------------+\n| TP-Link Switch |\n+----------------+\n  |      |      |      |\n  v      v      v      v\n+------+ +------+ +------+ +------+\n| Pi-1 | | Pi-2 | | Pi-3 | | Pi-4 |\n+------+ +------+ +------+ +------+",
+    "assertions": {
+      "required_labels": [
+        "Internet",
+        "Router",
+        "TP-Link Switch",
+        "Pi-1",
+        "Pi-2",
+        "Pi-3",
+        "Pi-4"
+      ],
+      "forbidden_labels": [],
+      "entity_count": 7,
+      "required_edges": [
+        {
+          "from": "Internet",
+          "to": "Router"
+        },
+        {
+          "from": "Router",
+          "to": "TP-Link Switch"
+        },
+        {
+          "from": "TP-Link Switch",
+          "to": "Pi-1"
+        },
+        {
+          "from": "TP-Link Switch",
+          "to": "Pi-2"
+        },
+        {
+          "from": "TP-Link Switch",
+          "to": "Pi-3"
+        },
+        {
+          "from": "TP-Link Switch",
+          "to": "Pi-4"
+        }
+      ],
+      "required_edge_labels": [],
+      "preserved_elements": []
+    }
+  },
+  "2.7": {
+    "prompt": "Draw a pub/sub diagram. \"Order Service\" publishes to \"Kafka\". \"Inventory Service\" and \"Notification Service\" both subscribe from Kafka. Label the arrow from Order Service to Kafka \"publish\". Label arrows from Kafka to subscribers \"subscribe\".",
+    "reference": " Order Service\n+---------------+\n| Order Service |\n+---------------+\n     | publish\n     v\n+-------+\n| Kafka |\n+-------+\n  | subscribe        | subscribe\n  v                  v\n+-------------------+  +----------------------+\n| Inventory Service |  | Notification Service |\n+-------------------+  +----------------------+",
+    "assertions": {
+      "forbidden_labels": [],
+      "required_edge_labels": [
+        "publish",
+        "subscribe"
+      ],
+      "preserved_elements": [],
+      "required_labels": [
+        "Order Service",
+        "Kafka",
+        "Inventory Service",
+        "Notification Service",
+        "publish",
+        "subscribe"
+      ],
+      "entity_count": 4,
+      "required_edges": [
+        {
+          "from": "Order Service",
+          "to": "Kafka"
+        },
+        {
+          "from": "Kafka",
+          "to": "Inventory Service"
+        },
+        {
+          "from": "Kafka",
+          "to": "Notification Service"
+        }
+      ]
+    }
+  },
+  "2.8": {
+    "prompt": "Draw a load balancer \"NGINX\" receiving traffic from \"Client\" and distributing to three backends: \"App-1\", \"App-2\", \"App-3\".",
+    "reference": "      +---------+\n      |  NGINX  |\n      +---------+\n      ^    |    ^\n      |    |    |\n +--------+ | +--------+\n | Client | | | App-3  |\n +--------+ | +--------+\n           v\n+--------+   +--------+\n| App-1  |   | App-2  |\n+--------+   +--------+",
+    "assertions": {
+      "forbidden_labels": [],
+      "required_edge_labels": [],
+      "preserved_elements": [],
+      "required_labels": [
+        "Client",
+        "NGINX",
+        "App-1",
+        "App-2",
+        "App-3"
+      ],
+      "entity_count": 5,
+      "required_edges": [
+        {
+          "from": "Client",
+          "to": "NGINX"
+        },
+        {
+          "from": "NGINX",
+          "to": "App-1"
+        },
+        {
+          "from": "NGINX",
+          "to": "App-2"
+        },
+        {
+          "from": "NGINX",
+          "to": "App-3"
+        }
+      ]
+    }
+  },
+  "2.9": {
+    "prompt": "Draw a primary-replica database setup. One \"Primary DB\" on the left. Three replicas to the right: \"Replica-1\", \"Replica-2\", \"Replica-3\". Show arrows from Primary to each Replica labeled \"async sync\".",
+    "reference": "+------------+    async sync    +-----------+\n| Primary DB |----------------->| Replica-1 |\n+------------+                  +-----------+\n      | async sync                   +-----------+\n      +----------------------------->| Replica-2 |\n      |                              +-----------+\n      | async sync                   +-----------+\n      +----------------------------->| Replica-3 |\n                                     +-----------+",
+    "assertions": {
+      "required_labels": [
+        "Primary DB",
+        "Replica-1",
+        "Replica-2",
+        "Replica-3",
+        "async sync"
+      ],
+      "forbidden_labels": [],
+      "entity_count": 4,
+      "required_edges": [
+        {
+          "from": "Primary DB",
+          "to": "Replica-1"
+        },
+        {
+          "from": "Primary DB",
+          "to": "Replica-2"
+        },
+        {
+          "from": "Primary DB",
+          "to": "Replica-3"
+        }
+      ],
+      "required_edge_labels": [
+        "async sync"
+      ],
+      "preserved_elements": []
+    }
+  },
+  "2.10": {
+    "prompt": "Draw a Raft consensus cluster with 5 nodes. One is labeled \"Leader\". The others are \"Follower-1\", \"Follower-2\", \"Follower-3\", \"Follower-4\". Show heartbeat arrows from Leader to each Follower only (not the reverse).",
+    "reference": "           +--------+\n           | Leader |\n           +--------+\n            /  |  \\\n           v   v   v\n+------------+ +------------+ +------------+\n| Follower-1 | | Follower-2 | | Follower-3 |\n+------------+ +------------+ +------------+\n                  |\n                  v\n             +------------+\n             | Follower-4 |\n             +------------+",
+    "assertions": {
+      "forbidden_labels": [],
+      "required_edge_labels": [],
+      "preserved_elements": [],
+      "required_labels": [
+        "Leader",
+        "Follower-1",
+        "Follower-2",
+        "Follower-3",
+        "Follower-4"
+      ],
+      "entity_count": 5,
+      "required_edges": [
+        {
+          "from": "Leader",
+          "to": "Follower-1"
+        },
+        {
+          "from": "Leader",
+          "to": "Follower-2"
+        },
+        {
+          "from": "Leader",
+          "to": "Follower-3"
+        },
+        {
+          "from": "Leader",
+          "to": "Follower-4"
+        }
+      ]
+    }
+  },
+  "2.11": {
+    "prompt": "Draw a Kubernetes cluster. One outer box labeled \"Control Plane\" contains three sub-components: \"API Server\", \"etcd\", \"Scheduler\". Below the Control Plane, three worker boxes: \"Worker-1\", \"Worker-2\", \"Worker-3\". Connect Control Plane to each Worker.",
+    "reference": "+--------------------------------------+\n|            Control Plane             |\n|  +------------+ +------+ +---------+ |\n|  | API Server | | etcd | |Scheduler| |\n|  +------------+ +------+ +---------+ |\n+--------------------------------------+\n         |              |              |\n         v              v              v\n   +----------+   +----------+   +----------+\n   | Worker-1 |   | Worker-2 |   | Worker-3 |\n   +----------+   +----------+   +----------+",
+    "assertions": {
+      "forbidden_labels": [],
+      "required_edge_labels": [],
+      "preserved_elements": [],
+      "required_labels": [
+        "Control Plane",
+        "API Server",
+        "etcd",
+        "Scheduler",
+        "Worker-1",
+        "Worker-2",
+        "Worker-3"
+      ],
+      "entity_count": 7,
+      "required_edges": [
+        {
+          "from": "Control Plane",
+          "to": "Worker-1"
+        },
+        {
+          "from": "Control Plane",
+          "to": "Worker-2"
+        },
+        {
+          "from": "Control Plane",
+          "to": "Worker-3"
+        }
+      ]
+    }
+  },
+  "2.12": {
+    "prompt": "Draw a ring allreduce topology. Four GPU nodes in a directed ring: \"GPU-0\" \u2192 \"GPU-1\" \u2192 \"GPU-2\" \u2192 \"GPU-3\" \u2192 \"GPU-0\". All arrows go clockwise. Label each arrow \"gradient\".",
+    "reference": "          gradient                gradient\n+-------+ --------> +-------+ --------> +-------+\n| GPU-0 |           | GPU-1 |           | GPU-2 |\n+-------+ <-------- +-------+ <-------- +-------+\n    ^                   gradient             |\n    |                                        | gradient\n    +--------------------- +-------+ <-------+\n                          | GPU-3 |\n                          +-------+",
+    "assertions": {
+      "required_labels": [
+        "GPU-0",
+        "GPU-1",
+        "GPU-2",
+        "GPU-3",
+        "gradient"
+      ],
+      "forbidden_labels": [],
+      "entity_count": 4,
+      "required_edges": [
+        {
+          "from": "GPU-0",
+          "to": "GPU-1"
+        },
+        {
+          "from": "GPU-1",
+          "to": "GPU-2"
+        },
+        {
+          "from": "GPU-2",
+          "to": "GPU-3"
+        },
+        {
+          "from": "GPU-3",
+          "to": "GPU-0"
+        }
+      ],
+      "required_edge_labels": [
+        "gradient"
+      ],
+      "preserved_elements": []
+    }
+  },
+  "2.13": {
+    "prompt": "Draw a service mesh with sidecars. Three services in a row: \"Service A\", \"Service B\", \"Service C\". Each has a small sidecar box directly below it labeled \"Proxy\". All Proxy boxes connect to a central \"Control Plane\" box below.",
+    "reference": "+-----------+   +-----------+   +-----------+\n| Service A |   | Service B |   | Service C |\n+-----------+   +-----------+   +-----------+\n      |               |               |\n      v               v               v\n+-------+         +-------+       +-------+\n| Proxy |         | Proxy |       | Proxy |\n+-------+         +-------+       +-------+\n      \\               |               /\n       \\              |              /\n        v             v             v\n           +---------------+\n           | Control Plane |\n           +---------------+",
+    "assertions": {
+      "required_labels": [
+        "Service A",
+        "Service B",
+        "Service C",
+        "Proxy",
+        "Control Plane"
+      ],
+      "forbidden_labels": [],
+      "entity_count": 7,
+      "required_edges": [],
+      "required_edge_labels": [],
+      "preserved_elements": []
+    }
+  },
+  "2.14": {
+    "prompt": "Draw a home ML lab cluster. Put \"Mac Mini M4 (Orchestrator)\" at the top and connect it via \"Thunderbolt\" to three workers: \"Mac Mini M4 Worker-1\", \"Mac Mini M4 Worker-2\", and \"Mac Mini M4 Worker-3\". Also show a \"NAS\" box connected only to the orchestrator, not to the workers.",
+    "reference": "                        +-----------------------------+\n                        | Mac Mini M4 (Orchestrator) |\n                        +-----------------------------+\n                               Thunderbolt\n                          /         |         \\\n                         /          |          \\\n                        v           v           v\n         +------------------------+ +------------------------+ +------------------------+\n         | Mac Mini M4 Worker-1   | | Mac Mini M4 Worker-2   | | Mac Mini M4 Worker-3   |\n         +------------------------+ +------------------------+ +------------------------+\n                        ^\n                        |\n                   +--------+\n                   |  NAS   |\n                   +--------+",
+    "assertions": {
+      "required_labels": [
+        "Mac Mini M4 (Orchestrator)",
+        "Mac Mini M4 Worker-1",
+        "Mac Mini M4 Worker-2",
+        "Mac Mini M4 Worker-3",
+        "NAS",
+        "Thunderbolt"
+      ],
+      "forbidden_labels": [],
+      "entity_count": 5,
+      "required_edges": [
+        {
+          "from": "Mac Mini M4 (Orchestrator)",
+          "to": "Mac Mini M4 Worker-1"
+        },
+        {
+          "from": "Mac Mini M4 (Orchestrator)",
+          "to": "Mac Mini M4 Worker-2"
+        },
+        {
+          "from": "Mac Mini M4 (Orchestrator)",
+          "to": "Mac Mini M4 Worker-3"
+        },
+        {
+          "from": "NAS",
+          "to": "Mac Mini M4 (Orchestrator)"
+        }
+      ],
+      "required_edge_labels": [
+        "Thunderbolt"
+      ],
+      "preserved_elements": []
+    }
+  },
+  "2.15": {
+    "prompt": "Draw a federated learning setup. One \"Central Aggregator\" in the middle. Four local trainers around it: \"Trainer-1\", \"Trainer-2\", \"Trainer-3\", \"Trainer-4\". Bidirectional arrows between Aggregator and each Trainer labeled \"model update\".",
+    "reference": "       +--------------------+\n       | Central Aggregator |\n       +--------------------+\n    <-->    <-->    <-->    <-->\n+-----------+ +-----------+ +-----------+ +-----------+\n| Trainer-1 | | Trainer-2 | | Trainer-3 | | Trainer-4 |\n+-----------+ +-----------+ +-----------+ +-----------+\n           model update on each link",
+    "assertions": {
+      "required_labels": [
+        "Central Aggregator",
+        "Trainer-1",
+        "Trainer-2",
+        "Trainer-3",
+        "Trainer-4",
+        "model update"
+      ],
+      "forbidden_labels": [],
+      "entity_count": 5,
+      "required_edges": [],
+      "required_edge_labels": [
+        "model update"
+      ],
+      "preserved_elements": []
+    }
+  },
+  "2.16": {
+    "prompt": "Draw a hybrid home inference cluster. Show \"MacBook M1 (Orchestrator)\" connected to \"Mac Mini M4 Worker-1\". Then connect \"Mac Mini M4 Worker-2\" and \"Mac Mini M4 Worker-3\" to \"Mac Mini M4 Worker-1\" via \"Thunderbolt\". Also show a \"Switch\" connected to the orchestrator via \"Network Cable\". Four inference nodes, \"Jetson Orin Nano-1\", \"Jetson Orin Nano-2\", \"Jetson Orin Nano-3\", and \"Jetson Orin Nano-4\", should connect to the switch via \"CAT5\". Keep the Mac Mini worker cluster and the Jetson switch fabric clearly separated.",
+    "reference": "+--------------------------+------ Network Cable ---->+----------------+\n| MacBook M1 (Orchestrator)|                          |     Switch     |\n+--------------------------+                          +----------------+\n             |                                                CAT5\n             v                                           /    |    |    \\\n   +------------------------+                           v     v    v     v\n   | Mac Mini M4 Worker-1   |            +--------------------+ +--------------------+ +--------------------+ +--------------------+\n   +------------------------+            | Jetson Orin Nano-1 | | Jetson Orin Nano-2 | | Jetson Orin Nano-3 | | Jetson Orin Nano-4 |\n    ^                      ^             +--------------------+ +--------------------+ +--------------------+ +--------------------+\n    |                      |\nThunderbolt         Thunderbolt\n    |                      |\n+------------------------+ +------------------------+\n| Mac Mini M4 Worker-2   | | Mac Mini M4 Worker-3   |\n+------------------------+ +------------------------+",
+    "assertions": {
+      "required_labels": [
+        "MacBook M1 (Orchestrator)",
+        "Mac Mini M4 Worker-1",
+        "Mac Mini M4 Worker-2",
+        "Mac Mini M4 Worker-3",
+        "Switch",
+        "Jetson Orin Nano-1",
+        "Jetson Orin Nano-2",
+        "Jetson Orin Nano-3",
+        "Jetson Orin Nano-4",
+        "Thunderbolt",
+        "Network Cable",
+        "CAT5"
+      ],
+      "forbidden_labels": [],
+      "entity_count": 9,
+      "required_edges": [
+        {
+          "from": "MacBook M1 (Orchestrator)",
+          "to": "Mac Mini M4 Worker-1"
+        },
+        {
+          "from": "Mac Mini M4 Worker-2",
+          "to": "Mac Mini M4 Worker-1"
+        },
+        {
+          "from": "Mac Mini M4 Worker-3",
+          "to": "Mac Mini M4 Worker-1"
+        },
+        {
+          "from": "MacBook M1 (Orchestrator)",
+          "to": "Switch"
+        },
+        {
+          "from": "Switch",
+          "to": "Jetson Orin Nano-1"
+        },
+        {
+          "from": "Switch",
+          "to": "Jetson Orin Nano-2"
+        },
+        {
+          "from": "Switch",
+          "to": "Jetson Orin Nano-3"
+        },
+        {
+          "from": "Switch",
+          "to": "Jetson Orin Nano-4"
+        }
+      ],
+      "required_edge_labels": [
+        "Thunderbolt",
+        "Network Cable",
+        "CAT5"
+      ],
+      "preserved_elements": []
+    }
+  },
+  "2.17": {
+    "prompt": "Draw a BitTorrent swarm. One \"Tracker\" connects to 5 peers: \"Peer-A\", \"Peer-B\", \"Peer-C\", \"Peer-D\", \"Peer-E\". Additionally show peer-to-peer connections: A-B, B-C, C-D, D-E, and A-E.",
+    "reference": "                          +---------+\n                          | Tracker |\n                          +---------+\n                        /  |  |  |   \\\n                       v   v  v  v    v\n+--------+<-------->+--------+<-------->+--------+<-------->+--------+\n| Peer-A |          | Peer-B |          | Peer-C |          | Peer-D |\n+--------+          +--------+          +--------+          +--------+\n    ^                                                        |\n    |                                                        v\n    +----------------------------<-------->+--------+<------+\n                                           | Peer-E |\n                                           +--------+",
+    "assertions": {
+      "required_labels": [
+        "Tracker",
+        "Peer-A",
+        "Peer-B",
+        "Peer-C",
+        "Peer-D",
+        "Peer-E"
+      ],
+      "forbidden_labels": [],
+      "entity_count": 6,
+      "required_edges": [
+        {
+          "from": "Tracker",
+          "to": "Peer-A"
+        },
+        {
+          "from": "Tracker",
+          "to": "Peer-B"
+        },
+        {
+          "from": "Tracker",
+          "to": "Peer-C"
+        },
+        {
+          "from": "Tracker",
+          "to": "Peer-D"
+        },
+        {
+          "from": "Tracker",
+          "to": "Peer-E"
+        },
+        {
+          "from": "Peer-A",
+          "to": "Peer-B"
+        },
+        {
+          "from": "Peer-B",
+          "to": "Peer-C"
+        },
+        {
+          "from": "Peer-C",
+          "to": "Peer-D"
+        },
+        {
+          "from": "Peer-D",
+          "to": "Peer-E"
+        },
+        {
+          "from": "Peer-A",
+          "to": "Peer-E"
+        }
+      ],
+      "required_edge_labels": [],
+      "preserved_elements": []
+    }
+  },
+  "2.18": {
+    "prompt": "Draw a DiLoCo training diagram. Four \"Worker\" boxes in a row, each connected downward to a local \"Inner Optimizer\" box. One \"Outer Optimizer\" box above all workers, connected to each worker with dashed arrows (- - >). Label the dashed arrows \"outer loop sync\".",
+    "reference": "                           +-----------------+\n                           | Outer Optimizer |\n                           +-----------------+\n                 outer loop sync - - > to all workers\n        - - >          - - >          - - >          - - >\n+--------+      +--------+      +--------+      +--------+\n|Worker-1|      |Worker-2|      |Worker-3|      |Worker-4|\n+--------+      +--------+      +--------+      +--------+\n    |               |               |               |\n    v               v               v               v\n+---------------++---------------++---------------++---------------+\n|Inner Optimizer||Inner Optimizer||Inner Optimizer||Inner Optimizer|\n+---------------++---------------++---------------++---------------+",
+    "assertions": {
+      "required_labels": [
+        "Worker",
+        "Inner Optimizer",
+        "Outer Optimizer",
+        "outer loop sync"
+      ],
+      "forbidden_labels": [],
+      "entity_count": 9,
+      "required_edges": [],
+      "required_edge_labels": [
+        "outer loop sync"
+      ],
+      "preserved_elements": []
+    }
+  },
+  "2.19": {
+    "prompt": "Draw a peer discovery diagram. Six Pi nodes in two rows of three: top row \"Pi-1\", \"Pi-2\", \"Pi-3\"; bottom row \"Pi-4\", \"Pi-5\", \"Pi-6\". Show dotted broadcast lines (using ...) between all Pi nodes representing mDNS multicast. One \"Tracker\" node to the side connected only to Pi-1.",
+    "reference": "+------+ ... +------+ ... +------+\n| Pi-1 | ... | Pi-2 | ... | Pi-3 |\n+------+ ... +------+ ... +------+\n   |                    ...   |\n   |                          |\n+------+ ... +------+ ... +------+\n| Pi-4 | ... | Pi-5 | ... | Pi-6 |\n+------+ ... +------+ ... +------+\n   ^\n   |\n+---------+\n| Tracker |\n+---------+",
+    "assertions": {
+      "required_labels": [
+        "Pi-1",
+        "Pi-2",
+        "Pi-3",
+        "Pi-4",
+        "Pi-5",
+        "Pi-6",
+        "Tracker"
+      ],
+      "forbidden_labels": [],
+      "entity_count": 7,
+      "required_edges": [],
+      "required_edge_labels": [],
+      "preserved_elements": []
+    }
+  },
+  "2.20": {
+    "prompt": "Draw a parameter server architecture. One \"Parameter Server\" at the top. Four \"Worker\" boxes below it. Show bidirectional arrows between PS and each worker labeled \"push gradients\" (Worker\u2192PS) and \"pull params\" (PS\u2192Worker).",
+    "reference": "                         +------------------+\n                         | Parameter Server |\n                         +------------------+\n                    pull params to all workers\n               /             |             |             \\\n              v              v             v              v\n+--------+  <---- push gradients ----> +--------+  +--------+  +--------+\n|Worker-1|                             |Worker-2|  |Worker-3|  |Worker-4|\n+--------+                             +--------+  +--------+  +--------+",
+    "assertions": {
+      "required_labels": [
+        "Parameter Server",
+        "Worker",
+        "push gradients",
+        "pull params"
+      ],
+      "forbidden_labels": [],
+      "entity_count": 5,
+      "required_edges": [],
+      "required_edge_labels": [
+        "push gradients",
+        "pull params"
+      ],
+      "preserved_elements": []
+    }
+  }
+}

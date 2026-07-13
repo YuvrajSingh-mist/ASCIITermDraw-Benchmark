@@ -1,0 +1,9 @@
+Draw a microservices API gateway pattern for a post-migration system where direct client access to backend services has been removed:
+- "Mobile Client" and "Web Client" both connect to "API Gateway"
+- Inside the API Gateway box, show two sub-components: "Auth Middleware" and "Rate Limiter"
+- Gateway routes to three backend services, each with its own DB:
+  - "User Service" with "Users DB"
+  - "Product Service" with "Products DB"
+  - "Order Service" with "Orders DB"
+- Do not show any direct client-to-service or client-to-database links
+Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

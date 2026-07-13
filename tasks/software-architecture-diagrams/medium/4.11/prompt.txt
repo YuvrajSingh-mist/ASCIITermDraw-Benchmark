@@ -1,0 +1,9 @@
+Draw the Twitter news feed architecture with hybrid fan-out, where old direct bypasses from the user to storage or Kafka have been removed:
+- "User" posts via "Tweet Service" which writes to "Tweets DB (Cassandra)"
+- Tweet Service publishes to "Fan-out Service" via "Kafka"
+- Fan-out Service reads "Social Graph DB" to find followers
+- Fan-out Service writes to "Feed Cache (Redis)" for normal users — label this path "fan-out on write"
+- For celebrity accounts: "Feed Service" reads directly from Tweets DB — label this path "fan-out on read"
+- User reads their timeline via "Feed Service" which checks Feed Cache first
+- Do not show any direct User→Kafka or User→Tweets DB links
+Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

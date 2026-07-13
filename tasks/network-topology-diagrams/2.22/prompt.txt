@@ -1,1 +1,0 @@
-Draw a federated learning setup. One "Central Aggregator" in the middle. Four local trainers around it: "Trainer-1", "Trainer-2", "Trainer-3", "Trainer-4". Bidirectional arrows between Aggregator and each Trainer labeled "model update".

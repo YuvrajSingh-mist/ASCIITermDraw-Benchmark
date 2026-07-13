@@ -1,0 +1,29 @@
+{
+  "required_labels": [
+    "Auth+Session Service",
+    "Users DB",
+    "Sessions DB"
+  ],
+  "forbidden_labels": [
+    "Auth",
+    "Session"
+  ],
+  "entity_count": 3,
+  "required_edges": [
+    {
+      "from": "Auth+Session Service",
+      "to": "Users DB"
+    },
+    {
+      "from": "Auth+Session Service",
+      "to": "Sessions DB"
+    }
+  ],
+  "editing": {
+    "required_edge_labels": [],
+    "preserved_elements": [
+      "Users DB",
+      "Sessions DB"
+    ]
+  }
+}
