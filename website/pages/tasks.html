@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TermDraw-Bench  -  Tasks</title>
+  <meta name="description" content="Detailed published task inventory for TermDraw-Bench, including categories, prompts, previews, and difficulty buckets.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-site-data="../assets/data/site_data.json">
+
+<nav aria-label="Main navigation">
+  <span class="nav-title">TermDraw-Bench</span>
+  <div class="nav-links">
+    <a href="../index.html">Overview</a>
+    <a href="#task-browser">Tasks</a>
+    <a href="./quickstart.html">Quick Start</a>
+  </div>
+</nav>
+
+<main>
+  <div class="hero">
+    <div class="container">
+      <h1>Tasks</h1>
+      <p class="hero-subtitle">Detailed Benchmark Inventory</p>
+      <p class="hero-desc">
+        Browse every published task in the benchmark with its category, difficulty bucket, prompt text,
+        repository path, and a reference ASCII preview.
+      </p>
+      <div class="hero-btns">
+        <a href="#task-browser" class="btn btn-primary">Open Task Browser</a>
+        <a href="../index.html" class="btn btn-outline">Back to Overview</a>
+      </div>
+    </div>
+  </div>
+
+  <section id="task-browser" aria-labelledby="heading-task-browser">
+    <div class="container">
+      <h2 class="section-title" id="heading-task-browser">Task Browser</h2>
+      <div class="prose">
+        <p>The listing below is generated from the benchmark repository itself, so the published page reflects the actual task tree contributors and evaluators use.</p>
+      </div>
+      <div class="filter-wrap">
+        <label for="task-filter">Search by task id, category, difficulty, path, or prompt</label>
+        <input id="task-filter" type="search" placeholder="e.g. 4.14, topology, medium, kafka, gateway">
+      </div>
+      <div id="task-list" class="task-list"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-links">
+      <a href="../index.html">Overview</a>
+      <a href="#task-browser">Tasks</a>
+      <a href="./quickstart.html">Quick Start</a>
+    </div>
+    <p><strong>TermDraw-Bench</strong> &nbsp;&middot;&nbsp; Detailed task inventory &nbsp;&middot;&nbsp; GitHub Pages ready</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

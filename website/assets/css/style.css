@@ -222,6 +222,12 @@ pre[class*="language-"] .token.punctuation { color: var(--text-ter) !important; 
   color: var(--text-ter);
 }
 
+.learn-more-wrap {
+  margin-top: 1.4rem;
+  display: flex;
+  justify-content: flex-start;
+}
+
 .task-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

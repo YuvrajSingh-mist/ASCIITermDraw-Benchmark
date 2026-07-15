@@ -3,6 +3,11 @@ name: Deploy Website
 on:
   push:
     branches: ["main"]
+    paths:
+      - ".github/workflows/deploy-pages.yml"
+      - "website/**"
+      - "tasks/**"
+      - "scripts/benchmark/**"
   workflow_dispatch:
 
 permissions:
@@ -17,8 +22,12 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
     steps:
       - uses: actions/checkout@v4
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
       - uses: actions/setup-node@v4
         with:
           node-version: "20"

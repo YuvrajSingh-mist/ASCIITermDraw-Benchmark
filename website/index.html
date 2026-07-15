@@ -23,6 +23,7 @@
 <nav aria-label="Main navigation">
   <span class="nav-title">TermDraw-Bench</span>
   <div class="nav-links">
+    <a href="./pages/tasks.html">Tasks</a>
     <a href="#documentation">Documentation</a>
     <a href="./pages/quickstart.html">Quick Start</a>
   </div>
@@ -205,15 +206,23 @@ python3 scripts/smoke_generate.py \
 
   <section id="task-index" aria-labelledby="heading-task-index">
     <div class="container">
-      <h2 class="section-title" id="heading-task-index">Task Index</h2>
+      <h2 class="section-title" id="heading-task-index">Benchmark Summary</h2>
       <div class="prose">
-        <p>Browse the benchmark corpus directly from the published site.</p>
+        <p>A compact view of the benchmark coverage before diving into the full detailed task listing.</p>
       </div>
-      <div class="filter-wrap">
-        <label for="task-filter">Search by task id, title, category, or prompt</label>
-        <input id="task-filter" type="search" placeholder="e.g. parameter server, 3.14, gateway">
+      <table>
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Tasks</th>
+            <th>Difficulty Buckets</th>
+          </tr>
+        </thead>
+        <tbody id="benchmark-summary-body"></tbody>
+      </table>
+      <div class="learn-more-wrap">
+        <a href="./pages/tasks.html" class="btn btn-outline">Learn more</a>
       </div>
-      <div id="task-list" class="task-list"></div>
     </div>
   </section>
 
@@ -231,8 +240,8 @@ python3 scripts/smoke_generate.py \
           <span> -  generated category and task index consumed by the published website</span>
         </li>
         <li>
-          <a href="#task-index">Task Browser</a>
-          <span> -  searchable task inventory generated from the benchmark repository</span>
+          <a href="./pages/tasks.html">Tasks</a>
+          <span> -  full detailed task inventory generated from the benchmark repository</span>
         </li>
         <li>
           <a href="#technical">Technical Details</a>
@@ -256,6 +265,7 @@ python3 scripts/smoke_generate.py \
 <footer>
   <div class="container">
     <div class="footer-links">
+      <a href="./pages/tasks.html">Tasks</a>
       <a href="#documentation">Documentation</a>
       <a href="./pages/quickstart.html">Quick Start</a>
     </div>

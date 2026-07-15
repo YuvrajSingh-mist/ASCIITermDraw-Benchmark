@@ -159,6 +159,20 @@ This uses the Pydantic / Instructor path and stores parsed JSON judgments in
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for repository conventions and contribution guidance.
 
+## Website Publishing
+
+The benchmark website lives in `website/` and is set up for GitHub Pages.
+
+- The deployment workflow is [`.github/workflows/deploy-pages.yml`](/Users/yuvrajsingh9886/Desktop/ASCIITermDraw-Benchmark/.github/workflows/deploy-pages.yml).
+- On every push to `main`, GitHub Actions rebuilds `website/assets/data/site_data.json` from the real `tasks/` tree and deploys the `website/` directory as the Pages artifact.
+- The site uses repo-relative asset paths, so it works when published under the repository subpath on GitHub Pages.
+
+To enable it in GitHub:
+
+1. Push this repository to GitHub.
+2. In `Settings -> Pages`, set `Source` to `GitHub Actions`.
+3. Push to `main` or run the `Deploy Website` workflow manually.
+
 ## Notes
 
 - The benchmark content was generated from the instructions in
