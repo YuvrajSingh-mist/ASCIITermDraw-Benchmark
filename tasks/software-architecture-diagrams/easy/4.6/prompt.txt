@@ -1,6 +1,0 @@
-Draw a rate limiter architecture:
-- "Client" → "Rate Limiter" service
-- Rate Limiter checks "Redis (token bucket counters)"
-- Allowed requests: Rate Limiter → "App Server"
-- Rejected requests: Rate Limiter → Client with dashed arrow labeled "429 Too Many Requests"
-Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

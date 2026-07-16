@@ -50,9 +50,13 @@ class StructuralObservations(BaseModel):
 class SemanticsObservations(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
+    semantics_score: float
     connections_correct: int
     text_inside_nodes_correct: int
+    text_centered_in_nodes: int
     layout_matches_prompt: int
+    labels_spelled_correct: int
+    arrows_cleanly_aligned: int
 
 
 class JudgeResult(BaseModel):
@@ -67,7 +71,7 @@ SYSTEM_PROMPT = (
     "You are a strict ASCII-diagram benchmark judge. "
     "Return a valid JudgeResult object. "
     "For structural judging, report observations only and let the harness score them. "
-    "For semantics, use only the three binary fields requested. "
+    "For semantics, use only the binary fields requested in the prompt schema. "
     "Keep `reason` concise."
 )
 
@@ -131,28 +135,38 @@ def structural_score_from_observations(
     if required_edges:
         components["required_edges"] = 1.0 if normalize_edge_set(required_edges) <= normalize_edge_set(observations.required_edges_present) else 0.0
 
-    if (task_dir / "source.ascii").exists():
-        editing = assertions.get("editing", {})
-        required_edge_labels = editing.get("required_edge_labels", [])
-        if required_edge_labels:
-            components["required_edge_labels"] = 1.0 if normalize_label_set(required_edge_labels) <= normalize_label_set(observations.required_edge_labels_present) else 0.0
+    editing = assertions.get("editing", {})
+    required_edge_labels = assertions.get(
+        "required_edge_labels",
+        editing.get("required_edge_labels", []),
+    )
+    if required_edge_labels:
+        components["required_edge_labels"] = 1.0 if normalize_label_set(required_edge_labels) <= normalize_label_set(observations.required_edge_labels_present) else 0.0
 
-        preserved_elements = editing.get("preserved_elements", [])
-        if preserved_elements:
-            components["preserved_elements"] = 1.0 if normalize_label_set(preserved_elements) <= normalize_label_set(observations.preserved_elements_present) else 0.0
+    preserved_elements = assertions.get(
+        "preserved_elements",
+        editing.get("preserved_elements", []),
+    )
+    if preserved_elements:
+        components["preserved_elements"] = 1.0 if normalize_label_set(preserved_elements) <= normalize_label_set(observations.preserved_elements_present) else 0.0
 
     if not components:
         return 0.0, {}
     return sum(components.values()) / len(components), components
 
 
-def semantics_score_from_observations(observations: SemanticsObservations) -> tuple[float, dict[str, int]]:
+def semantics_score_from_observations(observations: SemanticsObservations) -> tuple[float, dict[str, float | int]]:
+    semantics_score = max(0.0, min(1.0, float(observations.semantics_score)))
     components = {
+        "semantics_score": semantics_score,
         "connections_correct": 1 if observations.connections_correct else 0,
         "text_inside_nodes_correct": 1 if observations.text_inside_nodes_correct else 0,
+        "text_centered_in_nodes": 1 if observations.text_centered_in_nodes else 0,
         "layout_matches_prompt": 1 if observations.layout_matches_prompt else 0,
+        "labels_spelled_correct": 1 if observations.labels_spelled_correct else 0,
+        "arrows_cleanly_aligned": 1 if observations.arrows_cleanly_aligned else 0,
     }
-    return sum(components.values()) / 3.0, components
+    return semantics_score, components
 
 
 def load_csv_rows(path: Path) -> list[dict[str, str]]:
@@ -210,6 +224,9 @@ def run(
             output_text,
         )
         prompt += (
+            "\n\nAlso include `semantics_score` as a float from 0.0 to 1.0."
+            " This score must be decided by you from the semantics rubric itself."
+            " Do not let the harness infer it from the binary semantics fields."
             "\n\nReturn JSON that matches the required schema exactly."
         )
         user_content: str | list[dict[str, Any]] = prompt
@@ -258,7 +275,10 @@ def run(
         for key, value in structural_components.items():
             row[f"structural_{key}"] = f"{value:.4f}"
         for key, value in semantics_components.items():
-            row[f"semantics_{key}"] = str(value)
+            if isinstance(value, float):
+                row[f"semantics_{key}"] = f"{value:.4f}"
+            else:
+                row[f"semantics_{key}"] = str(value)
 
         judge_dir = outputs / "judge_json"
         judge_dir.mkdir(parents=True, exist_ok=True)

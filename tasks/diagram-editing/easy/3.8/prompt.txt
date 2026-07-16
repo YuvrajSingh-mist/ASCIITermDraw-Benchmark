@@ -1,1 +1,0 @@
-Insert an "API Server" between Browser and Database. Remove the direct Browser-to-Database arrow. Add Browser→API Server and API Server→Database arrows.Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

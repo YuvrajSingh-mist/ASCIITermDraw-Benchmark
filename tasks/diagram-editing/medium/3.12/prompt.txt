@@ -1,1 +1,0 @@
-Add a "Follower-5" node to the follower layer and connect it from the Leader. Do not disturb the lower follower row.Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

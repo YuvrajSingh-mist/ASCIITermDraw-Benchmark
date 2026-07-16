@@ -1,1 +1,0 @@
-Draw three boxes labeled "Input", "Process", "Output" connected left-to-right with arrows.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

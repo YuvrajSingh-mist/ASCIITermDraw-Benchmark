@@ -1,6 +1,0 @@
-Draw a database read replica pattern:
-- "App Server" on the left
-- "Primary DB" in the middle — App Server writes to it (label arrow "write")
-- "Read Replica-1" and "Read Replica-2" to the right — App Server reads from both (label arrows "read")
-- Primary DB replicates to both replicas with dashed arrows labeled "async replication"
-Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

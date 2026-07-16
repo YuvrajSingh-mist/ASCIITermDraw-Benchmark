@@ -1,12 +1,21 @@
 from __future__ import annotations
 
 import json
+import re
 from textwrap import dedent
 
 
 COMMON_PROMPT_SUFFIX = (
     " Return only the final ASCII diagram in plain text. "
     "Do not include markdown fences, explanations, or any extra text."
+)
+
+ARROW_PROMPT_SUFFIX = (
+    " When arrows are required, make them centered and aligned cleanly to their source and target. "
+    "If an arrow has a label, place the label a little above the arrow rather than inside the arrow line. "
+    "For any label or text inside a node, box, or icon, center it within that component whenever possible. "
+    "Any component with incoming or outgoing arrows should be sized wide or tall enough to make those connections visually unambiguous, so it is clear where arrows originate and where they terminate. "
+    "If one component fans out to multiple arrows, or multiple arrows converge into one component, its width or height should clearly support those attachment points."
 )
 
 EDITING_PROMPT_SUFFIX = (
@@ -26,15 +35,46 @@ def strip_task_prompt_suffix(task_id: str, prompt: str) -> str:
     return prompt
 
 
-def finalize_task_prompt(task_id: str, prompt: str) -> str:
-    prompt = prompt.strip()
-    suffix = COMMON_PROMPT_SUFFIX
+def task_uses_arrows(assertions: dict) -> bool:
+    if assertions.get("required_edges"):
+        return True
+    if assertions.get("required_edge_labels"):
+        return True
+    editing = assertions.get("editing", {})
+    if editing.get("required_edge_labels"):
+        return True
+    return False
+
+
+def split_prompt_items(text: str) -> list[str]:
+    normalized = " ".join(text.split())
+    return [
+        item.strip()
+        for item in re.split(r"(?<=[.!?])\s+", normalized)
+        if item.strip()
+    ]
+
+
+def render_prompt_bullets(items: list[str]) -> str:
+    return "\n".join(f"- {item}" for item in items)
+
+
+def finalize_task_prompt(task_id: str, prompt: str, assertions: dict) -> str:
+    prompt = strip_task_prompt_suffix(task_id, prompt.strip())
+    prefix = "Draw an ASCII diagram illustrating "
+    if not prompt.startswith(prefix):
+        if prompt.startswith("Draw "):
+            prompt = prefix + prompt[5:].lstrip()
+        else:
+            prompt = prefix + prompt[0].lower() + prompt[1:]
+
+    prompt_items = split_prompt_items(prompt)
+    if task_uses_arrows(assertions):
+        prompt_items.extend(split_prompt_items(ARROW_PROMPT_SUFFIX.strip()))
     if task_id.startswith("3."):
-        suffix = EDITING_PROMPT_SUFFIX + COMMON_PROMPT_SUFFIX
-    if prompt.endswith(suffix.strip()):
-        return prompt
-    joiner = "\n" if "\n" in prompt else ""
-    return prompt + joiner + suffix.lstrip()
+        prompt_items.extend(split_prompt_items(EDITING_PROMPT_SUFFIX.strip()))
+    prompt_items.extend(split_prompt_items(COMMON_PROMPT_SUFFIX.strip()))
+    return render_prompt_bullets(prompt_items)
 
 
 def normalize_assertions(task_id: str, assertions: dict) -> dict:
@@ -70,15 +110,22 @@ def build_judge_prompt(
             + "\n---\n"
         )
 
+    has_required_edge_labels = bool(assertions.get("required_edge_labels")) or bool(
+        assertions.get("editing", {}).get("required_edge_labels")
+    )
+
     structural_fields = [
         "required_labels_present: list of labels from `required_labels` that are clearly present in the model output",
         "entity_count_observed: integer count of entities/nodes/boxes observed in the model output",
         "required_edges_present: list of edges from `required_edges` that are clearly present in the model output, using the same `{from, to}` strings as the assertions JSON",
     ]
+    if has_required_edge_labels:
+        structural_fields.append(
+            "required_edge_labels_present: list of labels from `required_edge_labels` that are clearly present"
+        )
     if is_edit_task:
         structural_fields.extend(
             [
-                "required_edge_labels_present: list of labels from `required_edge_labels` that are clearly present",
                 "preserved_elements_present: list of items from `preserved_elements` that are still preserved after the edit",
             ]
         )
@@ -111,7 +158,10 @@ def build_judge_prompt(
         semantics rubric:
         - `connections_correct`: 1 if the connections are made properly, else 0.
         - `text_inside_nodes_correct`: 1 if all text inside nodes, including multiline node text if any, is correctly present, else 0.
-        - `layout_matches_prompt`: 1 if the layout follows the prompt strictly, else 0.
+        - `text_centered_in_nodes`: 1 if labels or multiline text inside boxes/icons/nodes are visually centered within their components, else 0.
+        - `layout_matches_prompt`: 1 if the overall layout/architecture follows the prompt strictly, else 0.
+        - `labels_spelled_correct`: 1 if visible labels are spelled correctly with no obvious typos, truncation, or wrong wording, else 0.
+        - `arrows_cleanly_aligned`: 1 if arrows are centered and visually aligned to the correct lanes, boxes, nodes, and targets, with arrowheads attaching cleanly where they should. If an arrow has a label, the label should sit a little above the arrow rather than inside the arrow line. Otherwise 0.
 
         Rules:
         - Use this exact rubric only. Do not invent a task-specific checklist.
@@ -122,12 +172,15 @@ def build_judge_prompt(
           "structural_observations": {{
             "required_labels_present": [],
             "entity_count_observed": 0,
-            "required_edges_present": []{', "required_edge_labels_present": [], "preserved_elements_present": []' if is_edit_task else ''}
+            "required_edges_present": []{', "required_edge_labels_present": []' if has_required_edge_labels else ''}{', "preserved_elements_present": []' if is_edit_task else ''}
           }},
           "semantics": {{
             "connections_correct": 0,
             "text_inside_nodes_correct": 0,
-            "layout_matches_prompt": 0
+            "text_centered_in_nodes": 0,
+            "layout_matches_prompt": 0,
+            "labels_spelled_correct": 0,
+            "arrows_cleanly_aligned": 0
           }},
           "reason": "string"
         }}

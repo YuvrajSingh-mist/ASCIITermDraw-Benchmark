@@ -1,1 +1,0 @@
-Add protocol labels to the existing arrows only: "HTTP" on Browser→API, "gRPC" on API→Worker, "SQL" on Worker→DB, and "cache" on Worker→Redis.Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

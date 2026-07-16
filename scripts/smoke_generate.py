@@ -21,6 +21,7 @@ from scripts.run_model import (
     SYSTEM_PROMPT,
     build_user_content,
     select_task_dirs,
+    write_output_and_render_png,
 )
 
 
@@ -88,8 +89,7 @@ def run(
         )
         text = extract_chat_content(response)
 
-        output_path = outputs / f"{task_id}.txt"
-        output_path.write_text(text + "\n")
+        output_path, png_path = write_output_and_render_png(outputs, task_id, text)
         preview = text[:300].replace("\n", "\\n")
         print(f"=== {task_id} ===")
         print(text)
@@ -99,6 +99,7 @@ def run(
             {
                 "task_id": task_id,
                 "output_file": str(output_path),
+                "png_file": str(png_path),
                 "preview": preview,
                 "transport": "fireworks-chat-completions",
             }

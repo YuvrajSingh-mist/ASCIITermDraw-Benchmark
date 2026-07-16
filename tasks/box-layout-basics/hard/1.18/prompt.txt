@@ -1,1 +1,0 @@
-Draw a two-lane sequence diagram. Left lane labeled "Client", right lane labeled "Server". Show three messages from top to bottom: "connect" from Client to Server, "ack" from Server to Client, and "payload" from Client to Server.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

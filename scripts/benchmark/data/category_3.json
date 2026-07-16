@@ -112,37 +112,57 @@
     "source": "+---------+     +---------+\n|  NodeA  |---->|  NodeB  |\n+---------+     +---------+"
   },
   "3.5": {
-    "prompt": "Add a bidirectional arrow between Service and Monitor labeled \"metrics\" above the arrow line.",
-    "reference": "             metrics\n+---------+<------->+---------+\n| Service |         | Monitor |\n+---------+         +---------+",
+    "prompt": "Add protocol labels to the existing arrows only: \"HTTP\" on Browser→API, \"gRPC\" on API→Worker, \"SQL\" on Worker→DB, and \"cache\" on Worker→Redis.",
+    "reference": "+-----------+ HTTP +-----------+\n|  Browser  |----->|    API    |\n+-----------+      +-----------+\n                        | gRPC\n                        v\n                   +-----------+\n                   |  Worker   |\n                   +-----------+\n                    /       \\\n               SQL v         v cache\n              +----------+ +----------+\n              |    DB    | |  Redis   |\n              +----------+ +----------+",
     "assertions": {
       "required_labels": [
-        "Service",
-        "Monitor",
-        "metrics"
+        "Browser",
+        "API",
+        "Worker",
+        "DB",
+        "Redis",
+        "HTTP",
+        "gRPC",
+        "SQL",
+        "cache"
       ],
       "forbidden_labels": [],
-      "entity_count": 2,
+      "entity_count": 5,
       "required_edges": [
         {
-          "from": "Service",
-          "to": "Monitor"
+          "from": "Browser",
+          "to": "API"
         },
         {
-          "from": "Monitor",
-          "to": "Service"
+          "from": "API",
+          "to": "Worker"
+        },
+        {
+          "from": "Worker",
+          "to": "DB"
+        },
+        {
+          "from": "Worker",
+          "to": "Redis"
         }
       ],
       "editing": {
         "required_edge_labels": [
-          "metrics"
+          "HTTP",
+          "gRPC",
+          "SQL",
+          "cache"
         ],
         "preserved_elements": [
-          "Service",
-          "Monitor"
+          "Browser",
+          "API",
+          "Worker",
+          "DB",
+          "Redis"
         ]
       }
     },
-    "source": "+---------+          +---------+\n| Service |          | Monitor |\n+---------+          +---------+"
+    "source": "+-----------+     +-----------+\n|  Browser  |---->|    API    |\n+-----------+     +-----------+\n                     |\n                     v\n                +-----------+\n                |  Worker   |\n                +-----------+\n                 /         \\\n                v           v\n          +----------+   +----------+\n          |    DB    |   |  Redis   |\n          +----------+   +----------+"
   },
   "3.6": {
     "prompt": "Add an internal section below the title. Use a horizontal divider (+-...+) to separate. Add two endpoints below the divider: \"/login\" and \"/refresh\".",
@@ -229,61 +249,39 @@
     "source": "+---------+     +----------+\n| Browser |---->| Database |\n+---------+     +----------+"
   },
   "3.9": {
-    "prompt": "Add protocol labels to the existing arrows only: \"HTTP\" on Browser\u2192API, \"gRPC\" on API\u2192Worker, \"SQL\" on Worker\u2192DB, and \"cache\" on Worker\u2192Redis.",
-    "reference": "+-----------+ HTTP +-----------+\n|  Browser  |----->|    API    |\n+-----------+      +-----------+\n                        | gRPC\n                        v\n                   +-----------+\n                   |  Worker   |\n                   +-----------+\n                    /       \\\n               SQL v         v cache\n              +----------+ +----------+\n              |    DB    | |  Redis   |\n              +----------+ +----------+",
+    "prompt": "Replace the two multiline config lines inside the existing Worker box only. Change \"CPU: 2\" to \"CPU: 4\" and change \"RAM: 8GB\" to \"RAM: 16GB\". Keep the Browser box, the arrow, and the Worker title the same, and resize the Worker box if needed to fit the updated text cleanly.",
+    "reference": "+---------+     +------------+\n| Browser |---->|   Worker   |\n+---------+     +------------+\n                | CPU: 4     |\n                | RAM: 16GB  |\n                +------------+",
     "assertions": {
       "required_labels": [
         "Browser",
-        "API",
         "Worker",
-        "DB",
-        "Redis",
-        "HTTP",
-        "gRPC",
-        "SQL",
-        "cache"
+        "CPU: 4",
+        "RAM: 16GB"
       ],
-      "forbidden_labels": [],
-      "entity_count": 5,
+      "forbidden_labels": [
+        "CPU: 2",
+        "RAM: 8GB"
+      ],
+      "entity_count": 2,
       "required_edges": [
         {
           "from": "Browser",
-          "to": "API"
-        },
-        {
-          "from": "API",
           "to": "Worker"
-        },
-        {
-          "from": "Worker",
-          "to": "DB"
-        },
-        {
-          "from": "Worker",
-          "to": "Redis"
         }
       ],
       "editing": {
-        "required_edge_labels": [
-          "HTTP",
-          "gRPC",
-          "SQL",
-          "cache"
-        ],
+        "required_edge_labels": [],
         "preserved_elements": [
           "Browser",
-          "API",
-          "Worker",
-          "DB",
-          "Redis"
+          "Worker"
         ]
       }
     },
-    "source": "+-----------+     +-----------+\n|  Browser  |---->|    API    |\n+-----------+     +-----------+\n                     |\n                     v\n                +-----------+\n                |  Worker   |\n                +-----------+\n                 /         \\\n                v           v\n          +----------+   +----------+\n          |    DB    |   |  Redis   |\n          +----------+   +----------+"
+    "source": "+---------+     +-----------+\n| Browser |---->|  Worker   |\n+---------+     +-----------+\n                | CPU: 2    |\n                | RAM: 8GB  |\n                +-----------+"
   },
   "3.10": {
     "prompt": "Remove \"Follower-3\" and its connection from the cluster, while preserving the remaining follower layout.",
-    "reference": "            +--------+\n            | Leader |\n            +--------+\n         /    |    |    \\\n        v     v    v     v\n+------------+ +------------+ +------------+ +------------+\n| Follower-1 | | Follower-2 | | Follower-4 | | Follower-5 |\n+------------+ +------------+ +------------+ +------------+",
+    "reference": "        +--------------------------------------+\n        |                Leader                |\n        +--------------------------------------+\n             |             |             |             |\n             v             v             v             v\n+------------+ +------------+ +------------+ +------------+\n| Follower-1 | | Follower-2 | | Follower-4 | | Follower-5 |\n+------------+ +------------+ +------------+ +------------+",
     "assertions": {
       "required_labels": [
         "Leader",
@@ -296,70 +294,6 @@
         "Follower-3"
       ],
       "entity_count": 5,
-      "required_edges": [],
-      "editing": {
-        "required_edge_labels": [],
-        "preserved_elements": [
-          "Leader",
-          "Follower-1",
-          "Follower-2",
-          "Follower-4",
-          "Follower-5"
-        ]
-      }
-    },
-    "source": "               +--------+\n               | Leader |\n               +--------+\n          /   /   |   \\   \\\n         v   v    v    v   v\n+------------+ +------------+ +------------+ +------------+ +------------+\n| Follower-1 | | Follower-2 | | Follower-3 | | Follower-4 | | Follower-5 |\n+------------+ +------------+ +------------+ +------------+ +------------+"
-  },
-  "3.11": {
-    "prompt": "Scale the app layer to 3 instances. Add \"App-2\" and \"App-3\" alongside App-1. Connect NGINX to all three with arrows while keeping the app layer evenly aligned below NGINX.",
-    "reference": "                  +----------+\n                  |  NGINX   |\n                  +----------+\n                 /    |    \\\n                /     |     \\\n               v      v      v\n          +--------+ +--------+ +--------+\n          | App-1  | | App-2  | | App-3  |\n          +--------+ +--------+ +--------+",
-    "assertions": {
-      "required_labels": [
-        "NGINX",
-        "App-1",
-        "App-2",
-        "App-3"
-      ],
-      "forbidden_labels": [],
-      "entity_count": 4,
-      "required_edges": [
-        {
-          "from": "NGINX",
-          "to": "App-1"
-        },
-        {
-          "from": "NGINX",
-          "to": "App-2"
-        },
-        {
-          "from": "NGINX",
-          "to": "App-3"
-        }
-      ],
-      "editing": {
-        "required_edge_labels": [],
-        "preserved_elements": [
-          "NGINX",
-          "App-1"
-        ]
-      }
-    },
-    "source": "+----------+     +--------+\n|  NGINX   |---->| App-1  |\n+----------+     +--------+"
-  },
-  "3.12": {
-    "prompt": "Add a \"Follower-5\" node to the follower layer and connect it from the Leader. Do not disturb the lower follower row.",
-    "reference": "             +--------+\n             | Leader |\n             +--------+\n           /    |    |    \\\n          /     |    |     \\\n         v      v    v      v\n   +------------+ +------------+ +------------+ +------------+\n   | Follower-1 | | Follower-2 | | Follower-3 | | Follower-5 |\n   +------------+ +------------+ +------------+ +------------+\n            \\          |          /\n             \\         |         /\n              v        v        v\n              +------------+\n              | Follower-4 |\n              +------------+",
-    "assertions": {
-      "required_labels": [
-        "Leader",
-        "Follower-1",
-        "Follower-2",
-        "Follower-3",
-        "Follower-4",
-        "Follower-5"
-      ],
-      "forbidden_labels": [],
-      "entity_count": 6,
       "required_edges": [
         {
           "from": "Leader",
@@ -371,11 +305,120 @@
         },
         {
           "from": "Leader",
-          "to": "Follower-3"
+          "to": "Follower-4"
         },
         {
           "from": "Leader",
           "to": "Follower-5"
+        }
+      ],
+      "editing": {
+        "required_edge_labels": [],
+        "preserved_elements": [
+          "Leader",
+          "Follower-1",
+          "Follower-2",
+          "Follower-4",
+          "Follower-5"
+        ]
+      }
+    },
+    "source": "     +---------------------------------------------------+\n     |                      Leader                       |\n     +---------------------------------------------------+\n          |             |             |             |             |\n          v             v             v             v             v\n+------------+ +------------+ +------------+ +------------+ +------------+\n| Follower-1 | | Follower-2 | | Follower-3 | | Follower-4 | | Follower-5 |\n+------------+ +------------+ +------------+ +------------+ +------------+"
+  },
+  "3.11": {
+    "prompt": "Preserve \"Client\", \"API\", \"Worker\", \"DB\", and \"Metrics\", but make three coordinated edits. First, replace the single middle \"API\" box with two boxes in sequence: \"API Gateway\" and \"App Service\". Second, insert a new \"Auth\" box directly below \"API Gateway\" with a downward arrow from \"API Gateway\" to \"Auth\". Third, remove the old direct API-to-Worker edge and reconnect the main path as Client→API Gateway→App Service→Worker, keep \"DB\" below \"Worker\", and place the \"Metrics\" box as a left-side sidecar below \"Client\". Keep the diagram layered and left-to-right where appropriate.",
+    "reference": "+--------+   +-------------+   +-------------+   +----------+\n| Client |-->| API Gateway |-->| App Service |-->|  Worker  |\n+--------+   +-------------+   +-------------+   +----------+\n    |            |                                            |\n    v            v                                            v\n+---------+   +------+                                      +------+\n| Metrics |   | Auth |                                      |  DB  |\n+---------+   +------+                                      +------+",
+    "assertions": {
+      "required_labels": [
+        "Client",
+        "API Gateway",
+        "App Service",
+        "Auth",
+        "Worker",
+        "DB",
+        "Metrics"
+      ],
+      "forbidden_labels": [
+        "API"
+      ],
+      "entity_count": 7,
+      "required_edges": [
+        {
+          "from": "Client",
+          "to": "API Gateway"
+        },
+        {
+          "from": "API Gateway",
+          "to": "App Service"
+        },
+        {
+          "from": "App Service",
+          "to": "Worker"
+        },
+        {
+          "from": "API Gateway",
+          "to": "Auth"
+        },
+        {
+          "from": "Worker",
+          "to": "DB"
+        }
+      ],
+      "editing": {
+        "required_edge_labels": [],
+        "preserved_elements": [
+          "Client",
+          "Worker",
+          "DB",
+          "Metrics"
+        ]
+      }
+    },
+    "source": "+--------+     +-----+     +----------+\n| Client |---->| API |---->|  Worker  |\n+--------+     +-----+     +----------+\n                               |      |\n                               v      v\n                           +------+ +---------+\n                           |  DB  | | Metrics |\n                           +------+ +---------+"
+  },
+  "3.12": {
+    "prompt": "Insert an \"Aggregator\" node between \"Leader\" and the follower layer. Preserve \"Follower-1\", \"Follower-2\", \"Follower-3\", and \"Follower-4\". Remove the old direct fan-out from Leader to the followers, connect Leader→Aggregator, and then connect Aggregator to all four followers. Also add a \"Standby Leader\" box to the right of Leader connected by a bidirectional link to show a backup leader pair. Keep the follower row unchanged.",
+    "reference": "        +--------------+<------->+----------------+\n        |    Leader    |         | Standby Leader |\n        +--------------+         +----------------+\n                |\n                v\n          +--------------+\n          |  Aggregator  |\n          +--------------+\n           /     |   |     \\\n          v      v   v      v\n+------------+ +------------+ +------------+ +------------+\n| Follower-1 | | Follower-2 | | Follower-3 | | Follower-4 |\n+------------+ +------------+ +------------+ +------------+",
+    "assertions": {
+      "required_labels": [
+        "Leader",
+        "Standby Leader",
+        "Aggregator",
+        "Follower-1",
+        "Follower-2",
+        "Follower-3",
+        "Follower-4"
+      ],
+      "forbidden_labels": [],
+      "entity_count": 7,
+      "required_edges": [
+        {
+          "from": "Leader",
+          "to": "Standby Leader"
+        },
+        {
+          "from": "Standby Leader",
+          "to": "Leader"
+        },
+        {
+          "from": "Leader",
+          "to": "Aggregator"
+        },
+        {
+          "from": "Aggregator",
+          "to": "Follower-1"
+        },
+        {
+          "from": "Aggregator",
+          "to": "Follower-2"
+        },
+        {
+          "from": "Aggregator",
+          "to": "Follower-3"
+        },
+        {
+          "from": "Aggregator",
+          "to": "Follower-4"
         }
       ],
       "editing": {
@@ -389,98 +432,115 @@
         ]
       }
     },
-    "source": "         +--------+\n         | Leader |\n         +--------+\n         /   |   \\\n        v    v    v\n+------------+ +------------+ +------------+\n| Follower-1 | | Follower-2 | | Follower-3 |\n+------------+ +------------+ +------------+\n            \\\n             v\n        +------------+\n        | Follower-4 |\n        +------------+"
+    "source": "        +--------------+\n        |    Leader    |\n        +--------------+\n           /     |   |     \\\n          v      v   v      v\n+------------+ +------------+ +------------+ +------------+\n| Follower-1 | | Follower-2 | | Follower-3 | | Follower-4 |\n+------------+ +------------+ +------------+ +------------+"
   },
   "3.13": {
-    "prompt": "Change the three service-to-database connections to bidirectional links without changing the node layout.",
-    "reference": "+-----------+  +-----------+  +-----------+\n| Service A |  | Service B |  | Service C |\n+-----------+  +-----------+  +-----------+\n    ^   |         ^   |         ^   |\n    |   v         |   v         |   v\n+------+        +------+        +------+\n| DB-A |        | DB-B |        | DB-C |\n+------+        +------+        +------+",
+    "prompt": "Preserve \"Browser\", \"API\", \"Worker\", \"DB\", and \"Redis\", but make three coordinated edits of a different kind. First, split the single \"Worker\" box into two side-by-side boxes: \"Worker-A\" and \"Worker-B\". Second, connect API downward to both workers with separate arrows, removing the old single API-to-Worker path. Third, move Redis so it sits centered below the two workers and connect both Worker-A and Worker-B down to Redis, while keeping Worker-A→DB and Worker-B→DB present. Add a multiline second line \"v2.4\" inside both worker boxes.",
+    "reference": "+-----------+\n|  Browser  |\n+-----------+\n      |\n      v\n+-----------+\n|    API    |\n+-----------+\n   /         \\\n  v           v\n+-----------+ +-----------+\n| Worker-A  | | Worker-B  |\n| v2.4      | | v2.4      |\n+-----------+ +-----------+\n   |    \\       /    |\n   |     \\     /     |\n   v      v   v      v\n+----+   +-------+   +----+\n| DB |   | Redis |   | DB |\n+----+   +-------+   +----+",
     "assertions": {
       "required_labels": [
-        "Service A",
-        "Service B",
-        "Service C",
-        "DB-A",
-        "DB-B",
-        "DB-C"
+        "Browser",
+        "API",
+        "Worker-A",
+        "Worker-B",
+        "v2.4",
+        "DB",
+        "Redis"
       ],
-      "forbidden_labels": [],
+      "forbidden_labels": [
+        "Worker"
+      ],
       "entity_count": 6,
       "required_edges": [
         {
-          "from": "Service A",
-          "to": "DB-A"
+          "from": "Browser",
+          "to": "API"
         },
         {
-          "from": "DB-A",
-          "to": "Service A"
+          "from": "API",
+          "to": "Worker-A"
         },
         {
-          "from": "Service B",
-          "to": "DB-B"
+          "from": "API",
+          "to": "Worker-B"
         },
         {
-          "from": "DB-B",
-          "to": "Service B"
+          "from": "Worker-A",
+          "to": "DB"
         },
         {
-          "from": "Service C",
-          "to": "DB-C"
+          "from": "Worker-B",
+          "to": "DB"
         },
         {
-          "from": "DB-C",
-          "to": "Service C"
+          "from": "Worker-A",
+          "to": "Redis"
+        },
+        {
+          "from": "Worker-B",
+          "to": "Redis"
         }
       ],
       "editing": {
         "required_edge_labels": [],
         "preserved_elements": [
-          "Service A",
-          "Service B",
-          "Service C",
-          "DB-A",
-          "DB-B",
-          "DB-C"
+          "Browser",
+          "API",
+          "DB",
+          "Redis"
         ]
       }
     },
-    "source": "+-----------+  +-----------+  +-----------+\n| Service A |  | Service B |  | Service C |\n+-----------+  +-----------+  +-----------+\n      |              |              |\n      v              v              v\n+------+        +------+        +------+\n| DB-A |        | DB-B |        | DB-C |\n+------+        +------+        +------+"
+    "source": "+-----------+\n|  Browser  |\n+-----------+\n      |\n      v\n+-----------+\n|    API    |\n+-----------+\n      |\n      v\n+-----------+\n|  Worker   |\n+-----------+\n   /   \\\n  v     v\n+----+ +-------+\n| DB | | Redis |\n+----+ +-------+"
   },
   "3.14": {
-    "prompt": "Draw one outer grouping box around both the frontend row and the backend row, and label the grouping box \"Region: EU\". Do not modify the inner service boxes or their connections.",
-    "reference": "+----------------------------------+\n|            Region: EU            |\n| +-----------+   +-----------+    |\n| | Frontend  |-->| API Layer |    |\n| +-----------+   +-----------+    |\n|                      |           |\n|                      v           |\n|                +-----------+     |\n|                |  DB Layer |     |\n|                +-----------+     |\n+----------------------------------+",
+    "prompt": "Preserve the existing three-layer architecture, but make three coordinated edits. First, wrap the entire architecture in an outer grouping box labeled \"Region: EU\". Second, rename \"API Layer\" to \"API Gateway\" and resize its box to fit. Third, add a new \"Cache\" box to the right of \"API Gateway\" with a horizontal arrow from \"API Gateway\" to \"Cache\", while preserving the original Frontend→API Gateway→DB Layer flow and the lower DB Layer→Analytics edge.",
+    "reference": "+--------------------------------------------------+\n|                    Region: EU                    |\n| +-----------+   +-------------+   +---------+   |\n| | Frontend  |-->| API Gateway |-->| Cache   |   |\n| +-----------+   +-------------+   +---------+   |\n|                        |                         |\n|                        v                         |\n|                  +-----------+                   |\n|                  |  DB Layer |                   |\n|                  +-----------+                   |\n|                        |                         |\n|                        v                         |\n|                  +-----------+                   |\n|                  | Analytics |                   |\n|                  +-----------+                   |\n+--------------------------------------------------+",
     "assertions": {
       "required_labels": [
         "Region: EU",
         "Frontend",
-        "API Layer",
-        "DB Layer"
+        "API Gateway",
+        "DB Layer",
+        "Analytics",
+        "Cache"
       ],
-      "forbidden_labels": [],
-      "entity_count": 4,
+      "forbidden_labels": [
+        "API Layer"
+      ],
+      "entity_count": 6,
       "required_edges": [
         {
           "from": "Frontend",
-          "to": "API Layer"
+          "to": "API Gateway"
         },
         {
-          "from": "API Layer",
+          "from": "API Gateway",
           "to": "DB Layer"
+        },
+        {
+          "from": "DB Layer",
+          "to": "Analytics"
+        },
+        {
+          "from": "API Gateway",
+          "to": "Cache"
         }
       ],
       "editing": {
         "required_edge_labels": [],
         "preserved_elements": [
           "Frontend",
-          "API Layer",
-          "DB Layer"
+          "DB Layer",
+          "Analytics"
         ]
       }
     },
-    "source": "+-----------+   +-----------+\n| Frontend  |-->| API Layer |\n+-----------+   +-----------+\n                    |\n                    v\n              +-----------+\n              |  DB Layer |\n              +-----------+"
+    "source": "+-----------+   +-----------+\n| Frontend  |-->| API Layer |\n+-----------+   +-----------+\n                    |\n                    v\n              +-----------+\n              |  DB Layer |\n              +-----------+\n                    |\n                    v\n              +-----------+\n              | Analytics |\n              +-----------+"
   },
   "3.15": {
-    "prompt": "Add version annotations inside the three service boxes on new lines: \"v2.1\" for Auth Service, \"v1.8\" for User Service, and \"v3.0\" for Order Service. Do not change the gateway or arrows.",
-    "reference": "+-----------+\n|  Gateway  |\n+-----------+\n  /   |   \\\n v    v    v\n+--------------+  +--------------+  +---------------+\n| Auth Service |  | User Service |  | Order Service |\n| v2.1         |  | v1.8         |  | v3.0          |\n+--------------+  +--------------+  +---------------+",
+    "prompt": "Keep \"Gateway\", the three outgoing arrows, and the three databases present, but make three coordinated edits. First, convert each service box into a multiline box by adding a version line: \"v2.1\" under \"Auth Service\", \"v1.8\" under \"User Service\", and \"v3.0\" under \"Order Service\". Second, add another internal line \"healthy\" inside each of the three service boxes. Third, add a new shared \"Metrics\" box centered below the full service row and connect each of the three services downward to Metrics, while preserving the original service-to-database edges. Resize the top Gateway box wide enough so its three arrows meet the three service boxes cleanly. Keep both the service row and the lower database row aligned.",
+    "reference": "+------------------------------------------------------+\n|                       Gateway                        |\n+------------------------------------------------------+\n        /                    |                    \\\n       v                     v                     v\n+--------------+      +--------------+      +---------------+\n| Auth Service |      | User Service |      | Order Service |\n| v2.1         |      | v1.8         |      | v3.0          |\n| healthy      |      | healthy      |      | healthy       |\n+--------------+      +--------------+      +---------------+\n      |   \\                 |   |                 /   |\n      |    \\                |   |                /    |\n      v     \\               v   v               /     v\n+---------+  \\        +---------+        /  +---------+\n| UsersDB |   \\       | UserDB  |       /   | OrderDB |\n+---------+    \\      +---------+      /    +---------+\n                \\          |          /\n                 \\         v         /\n                  +----------------+\n                  |    Metrics     |\n                  +----------------+",
     "assertions": {
       "required_labels": [
         "Gateway",
@@ -489,10 +549,15 @@
         "Order Service",
         "v2.1",
         "v1.8",
-        "v3.0"
+        "v3.0",
+        "healthy",
+        "Metrics",
+        "UsersDB",
+        "UserDB",
+        "OrderDB"
       ],
       "forbidden_labels": [],
-      "entity_count": 4,
+      "entity_count": 8,
       "required_edges": [
         {
           "from": "Gateway",
@@ -505,6 +570,30 @@
         {
           "from": "Gateway",
           "to": "Order Service"
+        },
+        {
+          "from": "Auth Service",
+          "to": "UsersDB"
+        },
+        {
+          "from": "User Service",
+          "to": "UserDB"
+        },
+        {
+          "from": "Order Service",
+          "to": "OrderDB"
+        },
+        {
+          "from": "Auth Service",
+          "to": "Metrics"
+        },
+        {
+          "from": "User Service",
+          "to": "Metrics"
+        },
+        {
+          "from": "Order Service",
+          "to": "Metrics"
         }
       ],
       "editing": {
@@ -513,133 +602,236 @@
           "Gateway",
           "Auth Service",
           "User Service",
-          "Order Service"
+          "Order Service",
+          "UsersDB",
+          "UserDB",
+          "OrderDB"
         ]
       }
     },
-    "source": "+-----------+\n|  Gateway  |\n+-----------+\n  /   |   \\\n v    v    v\n+--------------+  +--------------+  +---------------+\n| Auth Service |  | User Service |  | Order Service |\n+--------------+  +--------------+  +---------------+"
+    "source": "+------------------------------------------------------+\n|                       Gateway                        |\n+------------------------------------------------------+\n        /                    |                    \\\n       v                     v                     v\n+--------------+      +--------------+      +---------------+\n| Auth Service |      | User Service |      | Order Service |\n+--------------+      +--------------+      +---------------+\n      |                     |                     |\n      v                     v                     v\n+---------+           +---------+           +---------+\n| UsersDB |           | UserDB  |           | OrderDB |\n+---------+           +---------+           +---------+"
   },
   "3.16": {
-    "prompt": "Merge the \"Auth\" and \"Session\" boxes into one box labeled \"Auth+Session Service\". Update all connections so the merged box connects to both \"Users DB\" and \"Sessions DB\".",
-    "reference": " +----------------------+\n | Auth+Session Service |\n +----------------------+\n      |          |\n      v          v\n+----------+  +-------------+\n| Users DB |  | Sessions DB |\n+----------+  +-------------+",
+    "prompt": "Preserve \"Client\", \"Gateway\", \"Worker\", \"DB\", and \"Cache\", but make a hard multi-step edit. Replace the single \"Gateway\" box with two boxes in sequence: \"Edge LB\" and \"API Gateway\". Add a new \"Auth\" box directly below \"API Gateway\". Split the single \"Worker\" box into two side-by-side boxes labeled \"Worker-A\" and \"Worker-B\", and add a second line \"v2.2\" inside both worker boxes. Reconnect the main path as Client→Edge LB→API Gateway, then fan out from API Gateway to both workers. Keep \"DB\" below Worker-A and \"Cache\" below Worker-B.",
+    "reference": "+-----------+   +---------+   +-------------+\n|  Client   |-->| Edge LB |-->| API Gateway |\n+-----------+   +---------+   +-------------+\n                                   |      \\\n                                   v       v\n                               +------+ +-----------+   +-----------+\n                               | Auth | | Worker-A  | | Worker-B  |\n                               +------+ | v2.2      | | v2.2      |\n                                        +-----------+ +-----------+\n                                             |             |\n                                             v             v\n                                          +------+      +-------+\n                                          |  DB  |      | Cache |\n                                          +------+      +-------+",
     "assertions": {
       "required_labels": [
-        "Auth+Session Service",
-        "Users DB",
-        "Sessions DB"
+        "Client",
+        "Edge LB",
+        "API Gateway",
+        "Auth",
+        "Worker-A",
+        "Worker-B",
+        "v2.2",
+        "DB",
+        "Cache"
       ],
       "forbidden_labels": [
-        "Auth",
-        "Session"
+        "Gateway",
+        "Worker"
       ],
-      "entity_count": 3,
+      "entity_count": 8,
       "required_edges": [
         {
-          "from": "Auth+Session Service",
-          "to": "Users DB"
+          "from": "Client",
+          "to": "Edge LB"
         },
         {
-          "from": "Auth+Session Service",
-          "to": "Sessions DB"
+          "from": "Edge LB",
+          "to": "API Gateway"
+        },
+        {
+          "from": "API Gateway",
+          "to": "Auth"
+        },
+        {
+          "from": "API Gateway",
+          "to": "Worker-A"
+        },
+        {
+          "from": "API Gateway",
+          "to": "Worker-B"
+        },
+        {
+          "from": "Worker-A",
+          "to": "DB"
+        },
+        {
+          "from": "Worker-B",
+          "to": "Cache"
         }
       ],
       "editing": {
         "required_edge_labels": [],
         "preserved_elements": [
-          "Users DB",
-          "Sessions DB"
+          "Client",
+          "DB",
+          "Cache"
         ]
       }
     },
-    "source": "+----------+     +-----------+\n|  Auth    |     |  Session  |\n+----------+     +-----------+\n     |                 |\n     v                 v\n+----------+     +-----------+\n| Users DB |     | Sessions  |\n|          |     |    DB     |\n+----------+     +-----------+"
+    "source": "+-----------+   +---------+   +----------+\n|  Client   |-->| Gateway |-->|  Worker  |\n+-----------+   +---------+   +----------+\n                                  |      |\n                                  v      v\n                              +------+ +-------+\n                              |  DB  | | Cache |\n                              +------+ +-------+"
   },
   "3.17": {
-    "prompt": "Swap the positions of \"Service A\" and \"Service B\" in the middle layer. Update the arrows from Gateway and the arrows to the databases accordingly, but do not change the top or bottom layers otherwise.",
-    "reference": "+-----------+\n|  Gateway  |\n+-----------+\n    /   \\\n   v     v\n+-----------+   +-----------+\n| Service B |   | Service A |\n+-----------+   +-----------+\n    |               |\n    v               v\n+------+         +------+\n| DB-B |         | DB-A |\n+------+         +------+",
+    "prompt": "Preserve the four follower boxes, but make a hard topology rewrite. Add a new \"Standby Leader\" box to the right of \"Leader\" connected by a bidirectional link. Insert a \"Control Bus\" box below Leader. Replace the old one-to-four fan-out with two mid-layer boxes labeled \"Aggregator-A\" and \"Aggregator-B\" connected downward from Control Bus. Add a bidirectional sync link between Aggregator-A and Aggregator-B. Reconnect Aggregator-A to Follower-1 and Follower-2, and reconnect Aggregator-B to Follower-3 and Follower-4.",
+    "reference": "        +--------------+<------->+----------------+\n        |    Leader    |         | Standby Leader |\n        +--------------+         +----------------+\n                |\n                v\n          +--------------+\n          | Control Bus  |\n          +--------------+\n             /                    \\\n            v                      v\n     +--------------+<---------->+--------------+\n     | Aggregator-A |            | Aggregator-B |\n     +--------------+            +--------------+\n        /        \\                  /        \\\n       v          v                v          v\n+------------+ +------------+ +------------+ +------------+\n| Follower-1 | | Follower-2 | | Follower-3 | | Follower-4 |\n+------------+ +------------+ +------------+ +------------+",
     "assertions": {
       "required_labels": [
-        "Gateway",
-        "Service A",
-        "Service B",
-        "DB-A",
-        "DB-B"
+        "Leader",
+        "Standby Leader",
+        "Control Bus",
+        "Aggregator-A",
+        "Aggregator-B",
+        "Follower-1",
+        "Follower-2",
+        "Follower-3",
+        "Follower-4"
       ],
       "forbidden_labels": [],
-      "entity_count": 5,
+      "entity_count": 9,
       "required_edges": [
         {
-          "from": "Gateway",
-          "to": "Service B"
+          "from": "Leader",
+          "to": "Standby Leader"
         },
         {
-          "from": "Gateway",
-          "to": "Service A"
+          "from": "Standby Leader",
+          "to": "Leader"
         },
         {
-          "from": "Service B",
-          "to": "DB-B"
+          "from": "Leader",
+          "to": "Control Bus"
         },
         {
-          "from": "Service A",
-          "to": "DB-A"
+          "from": "Control Bus",
+          "to": "Aggregator-A"
+        },
+        {
+          "from": "Control Bus",
+          "to": "Aggregator-B"
+        },
+        {
+          "from": "Aggregator-A",
+          "to": "Aggregator-B"
+        },
+        {
+          "from": "Aggregator-B",
+          "to": "Aggregator-A"
+        },
+        {
+          "from": "Aggregator-A",
+          "to": "Follower-1"
+        },
+        {
+          "from": "Aggregator-A",
+          "to": "Follower-2"
+        },
+        {
+          "from": "Aggregator-B",
+          "to": "Follower-3"
+        },
+        {
+          "from": "Aggregator-B",
+          "to": "Follower-4"
         }
       ],
       "editing": {
         "required_edge_labels": [],
         "preserved_elements": [
-          "Gateway",
-          "DB-A",
-          "DB-B"
+          "Leader",
+          "Follower-1",
+          "Follower-2",
+          "Follower-3",
+          "Follower-4"
         ]
       }
     },
-    "source": "+-----------+\n|  Gateway  |\n+-----------+\n    /   \\\n   v     v\n+-----------+   +-----------+\n| Service A |   | Service B |\n+-----------+   +-----------+\n    |               |\n    v               v\n+------+         +------+\n| DB-A |         | DB-B |\n+------+         +------+"
+    "source": "        +--------------+\n        |    Leader    |\n        +--------------+\n           /     |   |     \\\n          v      v   v      v\n+------------+ +------------+ +------------+ +------------+\n| Follower-1 | | Follower-2 | | Follower-3 | | Follower-4 |\n+------------+ +------------+ +------------+ +------------+"
   },
   "3.18": {
-    "prompt": "Add a sidecar \"Proxy\" box directly below each app box. Connect each Proxy to \"Mesh Control Plane\" below.",
-    "reference": "+-------+   +-------+   +-------+\n| App A |   | App B |   | App C |\n+-------+   +-------+   +-------+\n    |           |           |\n    v           v           v\n+-------+   +-------+   +-------+\n| Proxy |   | Proxy |   | Proxy |\n+-------+   +-------+   +-------+\n    \\           |           /\n     \\          |          /\n      v         v         v\n      +--------------------+\n      | Mesh Control Plane |\n      +--------------------+",
+    "prompt": "Preserve \"Client\", \"Ingest API\", and \"Warehouse\", but make a hard streaming-pipeline edit. Replace the single \"Processor\" box with a streaming layer. Insert a new \"Kafka\" box directly below \"Ingest API\". Add a new \"DLQ\" box to the right of Kafka connected horizontally from Kafka. Split the old processor into two boxes in sequence: \"Parser\" and \"Enricher\". Add a second line \"stateless\" inside both Parser and Enricher. Reconnect the main path as Client→Ingest API→Kafka→Parser→Enricher→Warehouse.",
+    "reference": "+--------+   +------------+\n| Client |-->| Ingest API |\n+--------+   +------------+\n                  |\n                  v\n            +-----------+------->+-----+\n            |   Kafka   |        | DLQ |\n            +-----------+        +-----+\n                  |\n                  v\n            +-----------+    +-----------+\n            |  Parser   |--->| Enricher  |\n            | stateless |    | stateless |\n            +-----------+    +-----------+\n                                  |\n                                  v\n                             +-----------+\n                             | Warehouse |\n                             +-----------+",
     "assertions": {
       "required_labels": [
-        "App A",
-        "App B",
-        "App C",
-        "Proxy",
-        "Mesh Control Plane"
+        "Client",
+        "Ingest API",
+        "Kafka",
+        "DLQ",
+        "Parser",
+        "Enricher",
+        "stateless",
+        "Warehouse"
       ],
       "forbidden_labels": [],
       "entity_count": 7,
-      "required_edges": [],
+      "required_edges": [
+        {
+          "from": "Client",
+          "to": "Ingest API"
+        },
+        {
+          "from": "Ingest API",
+          "to": "Kafka"
+        },
+        {
+          "from": "Kafka",
+          "to": "DLQ"
+        },
+        {
+          "from": "Kafka",
+          "to": "Parser"
+        },
+        {
+          "from": "Parser",
+          "to": "Enricher"
+        },
+        {
+          "from": "Enricher",
+          "to": "Warehouse"
+        }
+      ],
       "editing": {
         "required_edge_labels": [],
         "preserved_elements": [
-          "App A",
-          "App B",
-          "App C"
+          "Client",
+          "Ingest API",
+          "Warehouse"
         ]
       }
     },
-    "source": "+-------+   +-------+   +-------+\n| App A |   | App B |   | App C |\n+-------+   +-------+   +-------+"
+    "source": "+--------+   +------------+   +-----------+\n| Client |-->| Ingest API |-->| Processor |\n+--------+   +------------+   +-----------+\n                                   |\n                                   v\n                              +-----------+\n                              | Warehouse |\n                              +-----------+"
   },
   "3.19": {
-    "prompt": "Swap the positions of \"Cache\" and \"Queue\" in the middle layer. Update the arrows from API and to the workers accordingly, but do not alter the top API box or the worker layer.",
-    "reference": "+---------+\n|   API   |\n+---------+\n  /     \\\n v       v\n+-------+ +-------+\n| Queue | | Cache |\n+-------+ +-------+\n  |           |\n  v           v\n+---------+ +---------+\n| WorkerB | | WorkerA |\n+---------+ +---------+",
+    "prompt": "Preserve the existing API and worker boxes, but make a hard orchestration edit. Wrap the full diagram in one outer box labeled \"Region: Batch Ops\". Insert a new box labeled \"Scheduler\" directly below \"API\". Add a new box labeled \"Audit Log\" to the right of \"Scheduler\" connected by a horizontal arrow from Scheduler. Move \"Queue\" to the left and \"Cache\" to the right below Scheduler. Reconnect the lower edges so Queue points to WorkerB and Cache points to WorkerA.",
+    "reference": "+--------------------------------------------------+\n|                Region: Batch Ops                 |\n|            +---------+                           |\n|            |   API   |                           |\n|            +---------+                           |\n|                 |                                |\n|                 v                                |\n|            +-----------+      +-----------+      |\n|            | Scheduler |----->| Audit Log |      |\n|            +-----------+      +-----------+      |\n|              /       \\                          |\n|             v         v                          |\n|        +-------+  +-------+                     |\n|        | Queue |  | Cache |                     |\n|        +-------+  +-------+                     |\n|           |           |                         |\n|           v           v                         |\n|       +---------+ +---------+                   |\n|       | WorkerB | | WorkerA |                   |\n|       +---------+ +---------+                   |\n+--------------------------------------------------+",
     "assertions": {
       "required_labels": [
         "API",
         "Cache",
         "Queue",
+        "Region: Batch Ops",
+        "Scheduler",
+        "Audit Log",
         "WorkerA",
         "WorkerB"
       ],
       "forbidden_labels": [],
-      "entity_count": 5,
+      "entity_count": 7,
       "required_edges": [
         {
           "from": "API",
+          "to": "Scheduler"
+        },
+        {
+          "from": "Scheduler",
+          "to": "Audit Log"
+        },
+        {
+          "from": "Scheduler",
           "to": "Queue"
         },
         {
-          "from": "API",
+          "from": "Scheduler",
           "to": "Cache"
         },
         {
@@ -663,28 +855,34 @@
     "source": "+---------+\n|   API   |\n+---------+\n  /     \\\n v       v\n+-------+ +-------+\n| Cache | | Queue |\n+-------+ +-------+\n  |           |\n  v           v\n+---------+ +---------+\n| WorkerA | | WorkerB |\n+---------+ +---------+"
   },
   "3.20": {
-    "prompt": "Replace the single \"Database\" box with two boxes side by side: \"Write Primary\" on the left and \"Read Replica\" on the right. Keep \"API App\" connected to both, keep the \"Billing\" and \"Analytics\" nodes below, and add an arrow from Write Primary to Read Replica labeled \"replication\".",
-    "reference": "           +----------+\n           | API App  |\n           +----------+\n             /      \\\n            v        v\n+---------------+ replication +--------------+\n| Write Primary |----------->| Read Replica |\n+---------------+            +--------------+\n      |                              |\n      v                              v\n+----------+                   +-----------+\n| Billing  |                   | Analytics |\n+----------+                   +-----------+",
+    "prompt": "Preserve \"API App\", \"Billing\", and \"Analytics\", but make a hard database-topology edit. Insert a new box labeled \"API Gateway\" between \"API App\" and the database layer. Replace the single \"Database\" box with two boxes side by side: \"Write Primary\" on the left and \"Read Replica\" on the right. Add an arrow from Write Primary to Read Replica labeled \"replication\". Add a new box labeled \"CDC Queue\" below Read Replica. Connect API Gateway down to both database boxes. Keep Billing below Write Primary, and reconnect Analytics so it sits below CDC Queue instead of directly below the old Database box.",
+    "reference": "           +----------+\n           | API App  |\n           +----------+\n                |\n                v\n         +-------------+\n         | API Gateway |\n         +-------------+\n             /      \\\n            v        v\n+---------------+ replication +--------------+\n| Write Primary |----------->| Read Replica |\n+---------------+            +--------------+\n      |                              |\n      v                              v\n+----------+                   +-----------+\n| Billing  |                   | CDC Queue |\n+----------+                   +-----------+\n                                      |\n                                      v\n                                 +-----------+\n                                 | Analytics |\n                                 +-----------+",
     "assertions": {
       "required_labels": [
         "API App",
+        "API Gateway",
         "Write Primary",
         "Read Replica",
         "Billing",
+        "CDC Queue",
         "Analytics",
         "replication"
       ],
       "forbidden_labels": [
         "Database"
       ],
-      "entity_count": 5,
+      "entity_count": 6,
       "required_edges": [
         {
           "from": "API App",
+          "to": "API Gateway"
+        },
+        {
+          "from": "API Gateway",
           "to": "Write Primary"
         },
         {
-          "from": "API App",
+          "from": "API Gateway",
           "to": "Read Replica"
         },
         {
@@ -697,6 +895,10 @@
         },
         {
           "from": "Read Replica",
+          "to": "CDC Queue"
+        },
+        {
+          "from": "CDC Queue",
           "to": "Analytics"
         }
       ],

@@ -1,1 +1,0 @@
-Draw a single ASCII box with the label "API Gateway" centered inside it.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

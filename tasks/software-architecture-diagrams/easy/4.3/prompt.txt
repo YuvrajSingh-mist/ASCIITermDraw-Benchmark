@@ -1,4 +1,0 @@
-Draw a CI/CD pipeline as a left-to-right chain with these stages in order:
-"Code Push" → "Build" → "Unit Tests" → "Integration Tests" → "Staging Deploy" → "Prod Deploy"
-Also show a dashed "rollback" arrow from "Prod Deploy" back to "Staging Deploy" labeled "on failure".
-Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

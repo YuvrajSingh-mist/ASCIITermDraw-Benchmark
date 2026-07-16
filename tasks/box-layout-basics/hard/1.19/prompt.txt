@@ -1,1 +1,0 @@
-Draw a table-style box for "users table" with a title row, a divider, and four rows: "id (PK)", "org_id", "email", and "created_at". To the right of it place a separate note box labeled "index: email".Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

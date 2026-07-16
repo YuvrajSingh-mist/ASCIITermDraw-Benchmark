@@ -1,7 +1,0 @@
-Draw a Dropbox-style file storage system after direct storage access has been removed from the client apps:
-- "Client (Desktop)" uploads to "Upload Service"
-- Upload Service stores file chunks in "S3 (Block Store)" and metadata in "Metadata DB (PostgreSQL)"
-- "Download Service" reads from both S3 and Metadata DB to serve files to Client
-- "Sync Service" connects to "Notification Queue (Kafka)" to send change notifications to Client
-- Do not show the client talking directly to S3 or Metadata DB
-Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

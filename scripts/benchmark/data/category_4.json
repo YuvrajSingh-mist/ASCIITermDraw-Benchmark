@@ -1,46 +1,51 @@
 {
   "4.1": {
-    "prompt": "Draw the classic 3-tier web architecture:\n- \"Client (Browser)\" on the left\n- \"Load Balancer (NGINX)\" in the middle receiving traffic from Client\n- Three app servers in a column: \"App-1\", \"App-2\", \"App-3\" receiving traffic from LB\n- \"PostgreSQL\" database on the right receiving queries from all app servers\nShow arrows between each tier.",
-    "reference": "+------------------+     +-----------------------+\n| Client (Browser) |---->| Load Balancer (NGINX) |\n+------------------+     +-----------------------+\n                                  |\n                 +----------------+----------------+\n                 |                |                |\n                 v                v                v\n              +-------+        +-------+        +-------+\n              | App-1 |        | App-2 |        | App-3 |\n              +-------+        +-------+        +-------+\n                 \\                |                /\n                  \\               |               /\n                   v              v              v\n                        +----------------+\n                        |   PostgreSQL   |\n                        +----------------+",
+    "prompt": "Draw a SaaS web application architecture with a user traffic path from \"Client (Browser)\" to \"CDN / WAF\" to \"Load Balancer\". Place two web app nodes, \"Web App-1\" and \"Web App-2\", below the load balancer. Both web apps must connect to both \"Redis Session Cache\" and \"Primary PostgreSQL\" in a storage layer below them.",
+    "reference": "+------------------+     +-------------+     +---------------+\n| Client (Browser) |---->|  CDN / WAF  |---->| Load Balancer |\n+------------------+     +-------------+     +---------------+\n                                                  |       |\n                                                  v       v\n                                          +-----------+ +-----------+\n                                          | Web App-1 | | Web App-2 |\n                                          +-----------+ +-----------+\n                                              |    \\     /    |\n                                              |     \\   /     |\n                                              v      v v      v\n                                    +---------------------+  +--------------------+\n                                    | Redis Session Cache |  | Primary PostgreSQL |\n                                    +---------------------+  +--------------------+",
     "assertions": {
       "required_labels": [
         "Client (Browser)",
-        "Load Balancer (NGINX)",
-        "App-1",
-        "App-2",
-        "App-3",
-        "PostgreSQL"
+        "CDN / WAF",
+        "Load Balancer",
+        "Web App-1",
+        "Web App-2",
+        "Redis Session Cache",
+        "Primary PostgreSQL"
       ],
       "forbidden_labels": [],
-      "entity_count": 6,
+      "entity_count": 7,
       "required_edges": [
         {
           "from": "Client (Browser)",
-          "to": "Load Balancer (NGINX)"
+          "to": "CDN / WAF"
         },
         {
-          "from": "Load Balancer (NGINX)",
-          "to": "App-1"
+          "from": "CDN / WAF",
+          "to": "Load Balancer"
         },
         {
-          "from": "Load Balancer (NGINX)",
-          "to": "App-2"
+          "from": "Load Balancer",
+          "to": "Web App-1"
         },
         {
-          "from": "Load Balancer (NGINX)",
-          "to": "App-3"
+          "from": "Load Balancer",
+          "to": "Web App-2"
         },
         {
-          "from": "App-1",
-          "to": "PostgreSQL"
+          "from": "Web App-1",
+          "to": "Redis Session Cache"
         },
         {
-          "from": "App-2",
-          "to": "PostgreSQL"
+          "from": "Web App-2",
+          "to": "Redis Session Cache"
         },
         {
-          "from": "App-3",
-          "to": "PostgreSQL"
+          "from": "Web App-1",
+          "to": "Primary PostgreSQL"
+        },
+        {
+          "from": "Web App-2",
+          "to": "Primary PostgreSQL"
         }
       ],
       "required_edge_labels": [],
@@ -48,175 +53,201 @@
     }
   },
   "4.2": {
-    "prompt": "Draw a database read replica pattern:\n- \"App Server\" on the left\n- \"Primary DB\" in the middle \u2014 App Server writes to it (label arrow \"write\")\n- \"Read Replica-1\" and \"Read Replica-2\" to the right \u2014 App Server reads from both (label arrows \"read\")\n- Primary DB replicates to both replicas with dashed arrows labeled \"async replication\"",
-    "reference": "+------------+      write      +------------+   async replication   +----------------+\n| App Server |---------------->| Primary DB |----------------------->| Read Replica-1 |\n+------------+                 +------------+                        +----------------+\n      | read                          |\n      |                               +----------------------------->+----------------+\n      +------------------------------------------------------------->| Read Replica-2 |\n                                                                     +----------------+",
+    "prompt": "Draw a read-heavy orders API architecture with \"Client App\" calling \"Orders API\" using an arrow labeled \"HTTPS request\". Orders API writes to \"Primary MySQL\" using an arrow labeled \"write\". Make the \"Primary MySQL\" box wide enough so each outgoing arrow clearly attaches to a distinct point on the box. Primary MySQL must replicate to both \"Read Replica-1\" and \"Read Replica-2\" using arrows labeled \"async replication\". Primary MySQL must also connect down to \"Snapshot Worker\" using an arrow labeled \"snapshot job\", and Snapshot Worker must write to \"S3 Backup\" using an arrow labeled \"backup upload\". Keep the primary centered above the snapshot worker and the two replicas on its left and right.",
+    "reference": "+------------+      HTTPS request      +------------+\n| Client App |------------------------>| Orders API |\n+------------+                         +------------+\n                                              |\n                                            write\n                                              v\n                          +-----------------------------------+\n                          |           Primary MySQL           |\n                          +-----------------------------------+\n                               |               |               |\n                       async replication  snapshot job  async replication\n                               v               v               v\n                     +----------------+ +-----------------+ +----------------+\n                     | Read Replica-1 | | Snapshot Worker | | Read Replica-2 |\n                     +----------------+ +-----------------+ +----------------+\n                                               |\n                                          backup upload\n                                               v\n                                         +-----------+\n                                         | S3 Backup |\n                                         +-----------+",
     "assertions": {
       "required_labels": [
-        "App Server",
-        "Primary DB",
+        "Client App",
+        "Orders API",
+        "Primary MySQL",
         "Read Replica-1",
         "Read Replica-2",
+        "Snapshot Worker",
+        "S3 Backup",
+        "HTTPS request",
         "write",
-        "read",
-        "async replication"
+        "async replication",
+        "snapshot job",
+        "backup upload"
       ],
       "forbidden_labels": [],
-      "entity_count": 4,
+      "entity_count": 7,
       "required_edges": [
         {
-          "from": "App Server",
-          "to": "Primary DB"
+          "from": "Client App",
+          "to": "Orders API"
         },
         {
-          "from": "App Server",
+          "from": "Orders API",
+          "to": "Primary MySQL"
+        },
+        {
+          "from": "Primary MySQL",
           "to": "Read Replica-1"
         },
         {
-          "from": "App Server",
+          "from": "Primary MySQL",
           "to": "Read Replica-2"
         },
         {
-          "from": "Primary DB",
-          "to": "Read Replica-1"
+          "from": "Primary MySQL",
+          "to": "Snapshot Worker"
         },
         {
-          "from": "Primary DB",
-          "to": "Read Replica-2"
+          "from": "Snapshot Worker",
+          "to": "S3 Backup"
         }
       ],
       "required_edge_labels": [
+        "HTTPS request",
         "write",
-        "read",
-        "async replication"
+        "async replication",
+        "snapshot job",
+        "backup upload"
       ],
       "preserved_elements": []
     }
   },
   "4.3": {
-    "prompt": "Draw a CI/CD pipeline as a left-to-right chain with these stages in order:\n\"Code Push\" \u2192 \"Build\" \u2192 \"Unit Tests\" \u2192 \"Integration Tests\" \u2192 \"Staging Deploy\" \u2192 \"Prod Deploy\"\nAlso show a dashed \"rollback\" arrow from \"Prod Deploy\" back to \"Staging Deploy\" labeled \"on failure\".",
-    "reference": "+-----------+  +-------+  +------------+  +-------------------+  +----------------+  +-------------+\n| Code Push |->| Build |->| Unit Tests |->| Integration Tests |->| Staging Deploy |->| Prod Deploy |\n+-----------+  +-------+  +------------+  +-------------------+  +----------------+  +-------------+\n                                                                   ^                 |\n                                                                   |--- on failure ---+",
+    "prompt": "Draw an event-driven checkout architecture. Put \"Web Client\" on the left, then \"API Gateway\", then \"Order Service\". Below Order Service, place \"Orders DB\" and \"Kafka\". Kafka must fan out to \"Payment Worker\", \"Inventory Worker\", and \"Email Worker\" on the bottom row. Order Service writes to Orders DB and publishes to Kafka.",
+    "reference": "+------------+     +-------------+     +---------------+\n| Web Client |---->| API Gateway |---->| Order Service |\n+------------+     +-------------+     +---------------+\n                                             |       |\n                                             v       v\n                                       +-----------+ +-------+\n                                       | Orders DB | | Kafka |\n                                       +-----------+ +-------+\n                                                     |   |   |\n                                                     v   v   v\n                                            +--------------+ +------------------+ +--------------+\n                                            | Payment Worker| | Inventory Worker | | Email Worker |\n                                            +--------------+ +------------------+ +--------------+",
     "assertions": {
       "required_labels": [
-        "Code Push",
-        "Build",
-        "Unit Tests",
-        "Integration Tests",
-        "Staging Deploy",
-        "Prod Deploy",
-        "on failure"
+        "Web Client",
+        "API Gateway",
+        "Order Service",
+        "Orders DB",
+        "Kafka",
+        "Payment Worker",
+        "Inventory Worker",
+        "Email Worker"
+      ],
+      "forbidden_labels": [],
+      "entity_count": 8,
+      "required_edges": [
+        {
+          "from": "Web Client",
+          "to": "API Gateway"
+        },
+        {
+          "from": "API Gateway",
+          "to": "Order Service"
+        },
+        {
+          "from": "Order Service",
+          "to": "Orders DB"
+        },
+        {
+          "from": "Order Service",
+          "to": "Kafka"
+        },
+        {
+          "from": "Kafka",
+          "to": "Payment Worker"
+        },
+        {
+          "from": "Kafka",
+          "to": "Inventory Worker"
+        },
+        {
+          "from": "Kafka",
+          "to": "Email Worker"
+        }
+      ],
+      "required_edge_labels": [],
+      "preserved_elements": []
+    }
+  },
+  "4.4": {
+    "prompt": "Draw a CDN delivery architecture with \"Users (Global)\" sending traffic to \"Geo DNS\". From Geo DNS, route to two edge nodes, \"Edge Cache (US)\" and \"Edge Cache (EU)\", using arrows labeled \"cached\". Both edge caches connect to \"Origin API\" using arrows labeled \"cache miss\". Origin API then reads from \"Object Store\" below it.",
+    "reference": "+----------------+     +----------+\n| Users (Global) |---->| Geo DNS  |\n+----------------+     +----------+\n                           |    |\n                    cached |    | cached\n                           v    v\n                  +-----------------+   +-----------------+\n                  | Edge Cache (US) |   | Edge Cache (EU) |\n                  +-----------------+   +-----------------+\n                           \\               /\n                            \\             /\n                       cache miss\\       //cache miss\n                              \\     //\n                               v   v\n                           +------------+\n                           | Origin API |\n                           +------------+\n                                 |\n                                 v\n                           +--------------+\n                           | Object Store |\n                           +--------------+",
+    "assertions": {
+      "required_labels": [
+        "Users (Global)",
+        "Geo DNS",
+        "Edge Cache (US)",
+        "Edge Cache (EU)",
+        "Origin API",
+        "Object Store",
+        "cached",
+        "cache miss"
       ],
       "forbidden_labels": [],
       "entity_count": 6,
       "required_edges": [
         {
-          "from": "Code Push",
-          "to": "Build"
-        },
-        {
-          "from": "Build",
-          "to": "Unit Tests"
-        },
-        {
-          "from": "Unit Tests",
-          "to": "Integration Tests"
-        },
-        {
-          "from": "Integration Tests",
-          "to": "Staging Deploy"
-        },
-        {
-          "from": "Staging Deploy",
-          "to": "Prod Deploy"
-        },
-        {
-          "from": "Prod Deploy",
-          "to": "Staging Deploy"
-        }
-      ],
-      "required_edge_labels": [
-        "on failure"
-      ],
-      "preserved_elements": []
-    }
-  },
-  "4.4": {
-    "prompt": "Draw a CDN architecture:\n- \"Users (Global)\" on the left\n- Two edge cache nodes in the middle: \"Edge Cache (US)\" and \"Edge Cache (EU)\"\n- \"Origin Server\" on the right\n- Users connect to both edge nodes (label \"cached response\")\n- Both edge nodes connect to Origin Server (label \"cache miss\")",
-    "reference": "cached response                    cache miss\n+----------------+                +-----------------+                +---------------+\n| Users (Global) |--------------->| Edge Cache (US) |--------------->| Origin Server |\n+----------------+                +-----------------+                +---------------+\n        |\n        | cached response\n        v\n  +-----------------+                           cache miss           ^\n  | Edge Cache (EU) |-----------------------------------------------/\n  +-----------------+",
-    "assertions": {
-      "required_labels": [
-        "Users (Global)",
-        "Edge Cache (US)",
-        "Edge Cache (EU)",
-        "Origin Server",
-        "cached response",
-        "cache miss"
-      ],
-      "forbidden_labels": [],
-      "entity_count": 4,
-      "required_edges": [
-        {
           "from": "Users (Global)",
+          "to": "Geo DNS"
+        },
+        {
+          "from": "Geo DNS",
           "to": "Edge Cache (US)"
         },
         {
-          "from": "Users (Global)",
+          "from": "Geo DNS",
           "to": "Edge Cache (EU)"
         },
         {
           "from": "Edge Cache (US)",
-          "to": "Origin Server"
+          "to": "Origin API"
         },
         {
           "from": "Edge Cache (EU)",
-          "to": "Origin Server"
+          "to": "Origin API"
+        },
+        {
+          "from": "Origin API",
+          "to": "Object Store"
         }
       ],
       "required_edge_labels": [
-        "cached response",
+        "cached",
         "cache miss"
       ],
       "preserved_elements": []
     }
   },
   "4.5": {
-    "prompt": "Draw a URL shortener system architecture:\n- \"Client\" \u2192 \"Load Balancer\" \u2192 two \"App Server\" boxes\n- App Servers check \"Redis Cache\" first (label arrow \"cache hit / O(1)\")\n- On cache miss, App Servers query \"Cassandra DB\" (label arrow \"cache miss\")\n- App Servers write click events to \"Kafka\"\n- \"Analytics Service\" consumes from Kafka",
-    "reference": "+--------+     +---------------+\n| Client |---->| Load Balancer |\n+--------+     +---------------+\n                    |      |\n                    v      v\n            +-------------+  +-------------+\n            | App Server1 |  | App Server2 |\n            +-------------+  +-------------+\n                 |   \\          /   |\n                 |    \\        /    |\n                 |     v      v     |\n                 |   +-------------+ |\n                 |   | Redis Cache | |  cache hit / O(1)\n                 |   +-------------+ |\n                 |        ^          |\n                 |        |          |\n                 |        v          |  cache miss\n                 |   +--------------+|\n                 +-->| Cassandra DB ||\n                     +--------------+|\n                          |          |\n                          v          v\n                       +-------+---->+-------------------+\n                       | Kafka |     | Analytics Service |\n                       +-------+     +-------------------+",
+    "prompt": "Draw a URL shortener architecture with \"Client\" calling \"API Gateway\", which forwards to a single \"Shortener Service\". Shortener Service must check \"Redis Cache\" first using a path labeled \"cache hit\", query \"Cassandra DB\" using a path labeled \"cache miss\", and publish click events to \"Kafka\". Kafka then sends events to \"Analytics Worker\".",
+    "reference": "+--------+     +-------------+     +-------------------+\n| Client |---->| API Gateway |---->| Shortener Service |\n+--------+     +-------------+     +-------------------+\n                                          |      |      |\n                                          v      v      v\n                                  +-------------+ +--------------+ +-------+\n                                  | Redis Cache | | Cassandra DB | | Kafka |\n                                  +-------------+ +--------------+ +-------+\n                                    cache hit      cache miss         |\n                                                                      v\n                                                            +------------------+\n                                                            | Analytics Worker |\n                                                            +------------------+",
     "assertions": {
       "required_labels": [
         "Client",
-        "Load Balancer",
-        "App Server",
+        "API Gateway",
+        "Shortener Service",
         "Redis Cache",
         "Cassandra DB",
         "Kafka",
-        "Analytics Service"
+        "Analytics Worker",
+        "cache hit",
+        "cache miss"
       ],
       "forbidden_labels": [],
-      "entity_count": 8,
+      "entity_count": 7,
       "required_edges": [
         {
           "from": "Client",
-          "to": "Load Balancer"
+          "to": "API Gateway"
         },
         {
-          "from": "Load Balancer",
-          "to": "App Server"
+          "from": "API Gateway",
+          "to": "Shortener Service"
         },
         {
-          "from": "App Server",
+          "from": "Shortener Service",
           "to": "Redis Cache"
         },
         {
-          "from": "App Server",
+          "from": "Shortener Service",
           "to": "Cassandra DB"
         },
         {
-          "from": "App Server",
+          "from": "Shortener Service",
           "to": "Kafka"
         },
         {
           "from": "Kafka",
-          "to": "Analytics Service"
+          "to": "Analytics Worker"
         }
       ],
       "required_edge_labels": [
@@ -227,45 +258,51 @@
     }
   },
   "4.6": {
-    "prompt": "Draw a rate limiter architecture:\n- \"Client\" \u2192 \"Rate Limiter\" service\n- Rate Limiter checks \"Redis (token bucket counters)\"\n- Allowed requests: Rate Limiter \u2192 \"App Server\"\n- Rejected requests: Rate Limiter \u2192 Client with dashed arrow labeled \"429 Too Many Requests\"",
-    "reference": "+--------+     +--------------+     +------------+\n| Client |---->| Rate Limiter |---->| App Server |\n+--------+     +--------------+     +------------+\n     ^               |\n     |               v\n     |     +-------------------------------+\n     |     | Redis (token bucket counters) |\n     |     +-------------------------------+\n     |\n     +--------- 429 Too Many Requests ------+",
+    "prompt": "Draw a fintech API protection architecture with \"Client\" on the left, \"API Gateway\" in the middle, and \"Payments API\" leading to \"Ledger PostgreSQL\" on the right. Inside the API Gateway box, add a centered second line reading \"Auth + RL\". Place \"Redis Counters\" below the gateway. Show rejected traffic returning from API Gateway back to Client labeled \"401 / 429\".",
+    "reference": "+--------+     +---------------+     +--------------+     +-------------------+\n| Client |---->|  API Gateway  |---->| Payments API |---->| Ledger PostgreSQL |\n+--------+     |   Auth + RL   |     +--------------+     +-------------------+\n     ^         +---------------+\n     |                |\n401 / 429             v\n     |         +----------------+\n     +---------| Redis Counters |\n               +----------------+",
     "assertions": {
       "required_labels": [
         "Client",
-        "Rate Limiter",
-        "Redis (token bucket counters)",
-        "App Server",
-        "429 Too Many Requests"
+        "API Gateway",
+        "Auth + RL",
+        "Redis Counters",
+        "Payments API",
+        "Ledger PostgreSQL",
+        "401 / 429"
       ],
       "forbidden_labels": [],
-      "entity_count": 4,
+      "entity_count": 5,
       "required_edges": [
         {
           "from": "Client",
-          "to": "Rate Limiter"
+          "to": "API Gateway"
         },
         {
-          "from": "Rate Limiter",
-          "to": "Redis (token bucket counters)"
+          "from": "API Gateway",
+          "to": "Redis Counters"
         },
         {
-          "from": "Rate Limiter",
-          "to": "App Server"
+          "from": "API Gateway",
+          "to": "Payments API"
         },
         {
-          "from": "Rate Limiter",
+          "from": "Payments API",
+          "to": "Ledger PostgreSQL"
+        },
+        {
+          "from": "API Gateway",
           "to": "Client"
         }
       ],
       "required_edge_labels": [
-        "429 Too Many Requests"
+        "401 / 429"
       ],
       "preserved_elements": []
     }
   },
   "4.7": {
-    "prompt": "Draw a notification system:\n- Three event sources publish to \"Kafka\": \"Order Service\", \"Payment Service\", \"Shipping Service\"\n- \"Notification Service\" consumes from Kafka and checks \"User Preferences DB\"\n- Notification Service delivers to three channels: \"Email Service\", \"SMS Service\", \"Push Service\"\n- Each channel connects to its provider: Email \u2192 \"SendGrid\", SMS \u2192 \"Twilio\", Push \u2192 \"FCM\"",
-    "reference": "+---------------+ +-----------------+ +------------------+\n| Order Service | | Payment Service | | Shipping Service |\n+---------------+ +-----------------+ +------------------+\n        \\               |                /\n         \\              |               /\n          v             v              v\n                  +-------+\n                  | Kafka |\n                  +-------+\n                      |\n                      v\n          +----------------------+\n          | Notification Service |\n          +----------------------+\n             |       |        |      \\\n             v       v        v       v\n +---------------+ +-------------+ +--------------+ +---------------------+\n | Email Service | | SMS Service | | Push Service | | User Preferences DB |\n +---------------+ +-------------+ +--------------+ +---------------------+\n       |                |                |\n       v                v                v\n +----------+      +--------+      +------+\n | SendGrid |      | Twilio |      | FCM  |\n +----------+      +--------+      +------+",
+    "prompt": "Draw a notification delivery architecture where \"Order Service\", \"Payment Service\", and \"Shipping Service\" all publish into \"Kafka\". Kafka feeds \"Notification Service\". Notification Service must connect to five components below it: \"Email Service\", \"SMS Service\", \"Push Service\", \"User Preferences DB\", and \"Template Store\". Then connect Email Service to \"SendGrid\", SMS Service to \"Twilio\", and Push Service to \"FCM\".",
+    "reference": "+---------------+ +-----------------+ +------------------+\n| Order Service | | Payment Service | | Shipping Service |\n+---------------+ +-----------------+ +------------------+\n        \\               |                //\n         \\              |               //\n          v             v              v\n                  +-------+\n                  | Kafka |\n                  +-------+\n                      |\n                      v\n     +---------------------------------------------------------------+\n     |                     Notification Service                       |\n     +---------------------------------------------------------------+\n       |          |          |              |                 |\n       v          v          v              v                 v\n+---------------+ +-------------+ +--------------+ +---------------------+ +----------------+\n| Email Service | | SMS Service | | Push Service | | User Preferences DB | | Template Store |\n+---------------+ +-------------+ +--------------+ +---------------------+ +----------------+\n      |                |                |\n      v                v                v\n+----------+      +--------+      +------+\n| SendGrid |      | Twilio |      | FCM  |\n+----------+      +--------+      +------+",
     "assertions": {
       "required_labels": [
         "Order Service",
@@ -274,6 +311,7 @@
         "Kafka",
         "Notification Service",
         "User Preferences DB",
+        "Template Store",
         "Email Service",
         "SMS Service",
         "Push Service",
@@ -282,7 +320,7 @@
         "FCM"
       ],
       "forbidden_labels": [],
-      "entity_count": 12,
+      "entity_count": 13,
       "required_edges": [
         {
           "from": "Order Service",
@@ -303,6 +341,10 @@
         {
           "from": "Notification Service",
           "to": "User Preferences DB"
+        },
+        {
+          "from": "Notification Service",
+          "to": "Template Store"
         },
         {
           "from": "Notification Service",
@@ -334,8 +376,8 @@
     }
   },
   "4.8": {
-    "prompt": "Draw a microservices API gateway pattern for a post-migration system where direct client access to backend services has been removed:\n- \"Mobile Client\" and \"Web Client\" both connect to \"API Gateway\"\n- Inside the API Gateway box, show two sub-components: \"Auth Middleware\" and \"Rate Limiter\"\n- Gateway routes to three backend services, each with its own DB:\n  - \"User Service\" with \"Users DB\"\n  - \"Product Service\" with \"Products DB\"\n  - \"Order Service\" with \"Orders DB\"\n- Do not show any direct client-to-service or client-to-database links",
-    "reference": "+---------------+      +-------------------------------+      +--------------+      +----------+\n| Mobile Client |----->|          API Gateway          |----->| User Service |----->| Users DB |\n+---------------+      |  +-------------------------+  |      +--------------+      +----------+\n                       |  | Auth Middleware         |  |\n+------------+-------->|  | Rate Limiter           |  |----->+----------------+     +-------------+\n| Web Client |         |  +-------------------------+  |      | Product Service |---->| Products DB |\n+------------+         +-------------------------------+      +----------------+     +-------------+\n                                                                   \\\n                                                                    \\---->+---------------+---->+-----------+\n                                                                          | Order Service |    | Orders DB |\n                                                                          +---------------+    +-----------+",
+    "prompt": "Draw a microservices gateway architecture with \"Mobile Client\" and \"Web Client\" both connecting into \"API Gateway\". Inside the API Gateway box, add centered internal lines for \"Auth Middleware\" and \"Rate Limiter\". The gateway must route independently to \"User Service\", \"Catalog Service\", and \"Order Service\", and each service must connect to its own database: \"Users DB\", \"Products DB\", and \"Orders DB\".",
+    "reference": "+---------------+      +-------------------------------+\n| Mobile Client |----->|          API Gateway          |\n+---------------+      |       Auth Middleware         |\n                       |         Rate Limiter          |\n+------------+-------->|                               |\n| Web Client |         +-------------------------------+\n+------------+              |        |        |\n                             v        v        v\n                      +--------------+ +----------------+ +---------------+\n                      | User Service | | Catalog Service| | Order Service |\n                      +--------------+ +----------------+ +---------------+\n                             |                |                 |\n                             v                v                 v\n                        +----------+     +-------------+    +-----------+\n                        | Users DB |     | Products DB |    | Orders DB |\n                        +----------+     +-------------+    +-----------+",
     "assertions": {
       "required_labels": [
         "Mobile Client",
@@ -345,7 +387,7 @@
         "Rate Limiter",
         "User Service",
         "Users DB",
-        "Product Service",
+        "Catalog Service",
         "Products DB",
         "Order Service",
         "Orders DB"
@@ -367,7 +409,7 @@
         },
         {
           "from": "API Gateway",
-          "to": "Product Service"
+          "to": "Catalog Service"
         },
         {
           "from": "API Gateway",
@@ -378,7 +420,7 @@
           "to": "Users DB"
         },
         {
-          "from": "Product Service",
+          "from": "Catalog Service",
           "to": "Products DB"
         },
         {
@@ -391,20 +433,29 @@
     }
   },
   "4.9": {
-    "prompt": "Draw a Dropbox-style file storage system after direct storage access has been removed from the client apps:\n- \"Client (Desktop)\" uploads to \"Upload Service\"\n- Upload Service stores file chunks in \"S3 (Block Store)\" and metadata in \"Metadata DB (PostgreSQL)\"\n- \"Download Service\" reads from both S3 and Metadata DB to serve files to Client\n- \"Sync Service\" connects to \"Notification Queue (Kafka)\" to send change notifications to Client\n- Do not show the client talking directly to S3 or Metadata DB",
-    "reference": "+------------------+     +----------------+     +------------------+\n| Client (Desktop) |---->| Upload Service |---->| S3 (Block Store) |\n+------------------+     +----------------+     +------------------+\n                                 |\n                                 v\n                       +--------------------------+\n                       | Metadata DB (PostgreSQL) |\n                       +--------------------------+\n                                 ^        ^\n                                 |        |\n                       +------------------+\n                       | Download Service |\n                       +------------------+\n                                 |\n                                 v\n                      +---------------------------+\n                      | Notification Queue (Kafka)|\n                      +---------------------------+\n                                 ^\n                                 |\n                           +-------------+\n                           | Sync Service |\n                           +-------------+",
+    "prompt": "Draw a file storage architecture with \"Client (Desktop)\" uploading into \"Upload Service\". Upload Service must write to both \"S3 (Block Store)\" and \"Metadata DB (PostgreSQL)\", and also send files to \"Virus Scan Worker\". Add a separate \"Download Service\" that the client calls to download a file. Download Service must read metadata from \"Metadata DB (PostgreSQL)\", read file blobs from \"S3 (Block Store)\", and return the file stream back to the client. Also add a \"Sync Service\" that watches \"Metadata DB (PostgreSQL)\" for file-change events and publishes them into \"Notification Queue (Kafka)\", which notifies the desktop client about sync updates.",
+    "reference": "+------------------+      upload file      +----------------+\n| Client (Desktop) |---------------------->| Upload Service |\n+------------------+                       +----------------+\n                                                 |      |      |\n                                                 v      v      v\n                                      +------------------+ +--------------------------+ +------------------+\n                                      | S3 (Block Store) | | Metadata DB (PostgreSQL) | | Virus Scan Worker|\n                                      +------------------+ +--------------------------+ +------------------+\n\n+------------------+   download request   +-------------------+\n| Client (Desktop) |--------------------->| Download Service  |\n+------------------+                      +-------------------+\n                                                |        |\n                                                |        |\n                                       read blob |        | read metadata\n                                                v        v\n                                      +------------------+ +--------------------------+\n                                      | S3 (Block Store) | | Metadata DB (PostgreSQL) |\n                                      +------------------+ +--------------------------+\n                                                \\\n                                                 \\\n                                              file stream\n                                                   \\\n                                                    v\n                                         +------------------+\n                                         | Client (Desktop) |\n                                         +------------------+\n\n                                      +--------------------------+\n                                      | Metadata DB (PostgreSQL) |\n                                      +--------------------------+\n                                                 |\n                                          file-change events\n                                                 v\n                                         +--------------+\n                                         | Sync Service |\n                                         +--------------+\n                                                 |\n                                           publish updates\n                                                 v\n                                   +---------------------------+\n                                   | Notification Queue (Kafka)|\n                                   +---------------------------+\n                                                 |\n                                              sync notify\n                                                 v\n                                      +------------------+\n                                      | Client (Desktop) |\n                                      +------------------+",
     "assertions": {
       "required_labels": [
         "Client (Desktop)",
         "Upload Service",
         "S3 (Block Store)",
         "Metadata DB (PostgreSQL)",
+        "Virus Scan Worker",
         "Download Service",
         "Sync Service",
-        "Notification Queue (Kafka)"
+        "Notification Queue (Kafka)",
+        "upload file",
+        "download request",
+        "read blob",
+        "read metadata",
+        "file stream",
+        "file-change events",
+        "publish updates",
+        "sync notify"
       ],
       "forbidden_labels": [],
-      "entity_count": 7,
+      "entity_count": 8,
       "required_edges": [
         {
           "from": "Client (Desktop)",
@@ -419,6 +470,14 @@
           "to": "Metadata DB (PostgreSQL)"
         },
         {
+          "from": "Upload Service",
+          "to": "Virus Scan Worker"
+        },
+        {
+          "from": "Client (Desktop)",
+          "to": "Download Service"
+        },
+        {
           "from": "Download Service",
           "to": "S3 (Block Store)"
         },
@@ -431,6 +490,10 @@
           "to": "Client (Desktop)"
         },
         {
+          "from": "Metadata DB (PostgreSQL)",
+          "to": "Sync Service"
+        },
+        {
           "from": "Sync Service",
           "to": "Notification Queue (Kafka)"
         },
@@ -439,24 +502,34 @@
           "to": "Client (Desktop)"
         }
       ],
-      "required_edge_labels": [],
+      "required_edge_labels": [
+        "upload file",
+        "download request",
+        "read blob",
+        "read metadata",
+        "file stream",
+        "file-change events",
+        "publish updates",
+        "sync notify"
+      ],
       "preserved_elements": []
     }
   },
   "4.10": {
-    "prompt": "Draw a search autocomplete system:\n- \"User\" types into \"Search API\"\n- Search API checks \"Trie Cache (In-Memory)\" first\n- On miss, Search API queries \"Prefix Index (Elasticsearch)\"\n- \"Data Aggregation Service\" reads \"Query Logs DB\" and rebuilds both the Trie Cache and Prefix Index periodically\n- Results flow back from Search API to User",
-    "reference": "+------+<----+------------+\n| User |---->| Search API |\n+------+     +------------+\n               |      |\n               v      v\n  +-----------------------+   +-----------------------------+\n  | Trie Cache (In-Memory)|   | Prefix Index (Elasticsearch)|\n  +-----------------------+   +-----------------------------+\n               ^                     ^\n               |                     |\n               +----------+ +--------+\n                          | |\n                  +-------------------------+\n                  | Data Aggregation Service|\n                  +-------------------------+\n                              |\n                              v\n                       +---------------+\n                       | Query Logs DB |\n                       +---------------+",
+    "prompt": "Draw a search autocomplete architecture where \"User\" sends requests to \"Search API\" and receives responses back. Search API checks \"Trie Cache (In-Memory)\" and \"Prefix Index (Elasticsearch)\" below it. Under those, place \"Index Builder\", and below that place \"Query Logs DB\" and \"Product Catalog\". Query Logs DB and Product Catalog both feed Index Builder, and Index Builder rebuilds both the Trie Cache and Prefix Index.",
+    "reference": "+------+<----+------------+\n| User |---->| Search API |\n+------+     +------------+\n               |      |\n               v      v\n  +-----------------------+   +-----------------------------+\n  | Trie Cache (In-Memory)|   | Prefix Index (Elasticsearch)|\n  +-----------------------+   +-----------------------------+\n               ^                     ^\n               |                     |\n          +-------------------------------+\n          |          Index Builder        |\n          +-------------------------------+\n               ^                     ^\n               |                     |\n      +---------------+      +----------------+\n      | Query Logs DB |      | Product Catalog|\n      +---------------+      +----------------+",
     "assertions": {
       "required_labels": [
         "User",
         "Search API",
         "Trie Cache (In-Memory)",
         "Prefix Index (Elasticsearch)",
-        "Data Aggregation Service",
-        "Query Logs DB"
+        "Index Builder",
+        "Query Logs DB",
+        "Product Catalog"
       ],
       "forbidden_labels": [],
-      "entity_count": 6,
+      "entity_count": 7,
       "required_edges": [
         {
           "from": "User",
@@ -464,27 +537,31 @@
         },
         {
           "from": "Search API",
-          "to": "Trie Cache (In-Memory)"
-        },
-        {
-          "from": "Search API",
-          "to": "Prefix Index (Elasticsearch)"
-        },
-        {
-          "from": "Search API",
           "to": "User"
         },
         {
-          "from": "Data Aggregation Service",
-          "to": "Query Logs DB"
-        },
-        {
-          "from": "Data Aggregation Service",
+          "from": "Search API",
           "to": "Trie Cache (In-Memory)"
         },
         {
-          "from": "Data Aggregation Service",
+          "from": "Search API",
           "to": "Prefix Index (Elasticsearch)"
+        },
+        {
+          "from": "Index Builder",
+          "to": "Trie Cache (In-Memory)"
+        },
+        {
+          "from": "Index Builder",
+          "to": "Prefix Index (Elasticsearch)"
+        },
+        {
+          "from": "Query Logs DB",
+          "to": "Index Builder"
+        },
+        {
+          "from": "Product Catalog",
+          "to": "Index Builder"
         }
       ],
       "required_edge_labels": [],
@@ -492,8 +569,8 @@
     }
   },
   "4.11": {
-    "prompt": "Draw the Twitter news feed architecture with hybrid fan-out, where old direct bypasses from the user to storage or Kafka have been removed:\n- \"User\" posts via \"Tweet Service\" which writes to \"Tweets DB (Cassandra)\"\n- Tweet Service publishes to \"Fan-out Service\" via \"Kafka\"\n- Fan-out Service reads \"Social Graph DB\" to find followers\n- Fan-out Service writes to \"Feed Cache (Redis)\" for normal users \u2014 label this path \"fan-out on write\"\n- For celebrity accounts: \"Feed Service\" reads directly from Tweets DB \u2014 label this path \"fan-out on read\"\n- User reads their timeline via \"Feed Service\" which checks Feed Cache first\n- Do not show any direct User\u2192Kafka or User\u2192Tweets DB links",
-    "reference": "+------+     +---------------+     +------------------------+\n| User |---->| Tweet Service |---->| Tweets DB (Cassandra)  |\n+------+     +---------------+     +------------------------+\n                  |\n                  v\n               +-------+     +-----------------+     +--------------------+\n               | Kafka |---->| Fan-out Service |---->| Social Graph DB    |\n               +-------+     +-----------------+     +--------------------+\n                                      |\n                                      | fan-out on write\n                                      v\n                               +-------------------+\n                               | Feed Cache (Redis)|\n                               +-------------------+\n                                      ^\n                                      |\n                                 +--------------+\n                                 | Feed Service |\n                                 +--------------+\n                                      |\n                                      | fan-out on read\n                                      v\n                           +------------------------+\n                           | Tweets DB (Cassandra)  |\n                           +------------------------+",
+    "prompt": "Draw the Twitter/X news feed architecture using a hybrid fan-out strategy. At the top left, place a box labeled \"User\". Connect it to a box labeled \"Tweet Service\" with an arrow labeled \"Post Tweet\". Connect \"Tweet Service\" to \"Tweets DB (Cassandra)\" with an arrow labeled \"Store Tweet\". Also connect \"Tweet Service\" to \"Kafka\" with an arrow labeled \"Publish Tweet Event\". Connect \"Kafka\" to \"Fan-out Service\" with an arrow labeled \"Consume Event\". From \"Fan-out Service\", draw an arrow to \"Social Graph DB\" labeled \"Lookup Followers\". Then draw an arrow from \"Fan-out Service\" to \"Feed Cache (Redis)\" labeled \"fan-out on write\". For timeline reads, place a \"Feed Service\" box below. Connect \"User\" to \"Feed Service\" with an arrow labeled \"Read Timeline\". Connect \"Feed Service\" to \"Feed Cache (Redis)\" with an arrow labeled \"Read Feed\". Also connect \"Feed Service\" directly to \"Tweets DB (Cassandra)\" with an arrow labeled \"fan-out on read (celebrities / cache miss)\". Finally, draw an arrow from \"Feed Service\" back to \"User\" labeled \"Return Timeline\". Do not draw any direct connection from \"User\" to \"Kafka\", \"Tweets DB (Cassandra)\", \"Feed Cache (Redis)\", or \"Social Graph DB\". Use only ASCII boxes, arrows, and text labels.",
+    "reference": "+------+      Post Tweet      +---------------+\n| User |--------------------->| Tweet Service |\n+------+                      +---------------+\n   |                                  |\n   |                           Store Tweet\n   |                                  v\n   |                     +------------------------+\n   |                     | Tweets DB (Cassandra)  |\n   |                     +------------------------+\n   |                                  ^\n   |                          Publish Tweet Event\n   |                                  |\n   |                              +-------+\n   |                              | Kafka |\n   |                              +-------+\n   |                                  |\n   |                            Consume Event\n   |                                  v\n   |                         +-----------------+\n   |                         | Fan-out Service |\n   |                         +-----------------+\n   |                            |           |\n   |                    Lookup Followers  fan-out on write\n   |                            v           v\n   |               +-------------------+ +-------------------+\n   |               |  Social Graph DB  | | Feed Cache (Redis)|\n   |               +-------------------+ +-------------------+\n   |                                         ^\n   |                                     Read Feed\n   |                                         |\n   |          Read Timeline          +--------------+\n   +-------------------------------->| Feed Service |\n                                      +--------------+\n                                            |\n           Return Timeline                  |  fan-out on read (celebrities / cache miss)\n<-------------------------------------------+------------------------------+\n                                                                    |\n                                                                    v\n                                                         +------------------------+\n                                                         | Tweets DB (Cassandra)  |\n                                                         +------------------------+",
     "assertions": {
       "required_labels": [
         "User",
@@ -504,8 +581,16 @@
         "Social Graph DB",
         "Feed Cache (Redis)",
         "Feed Service",
+        "Post Tweet",
+        "Store Tweet",
+        "Publish Tweet Event",
+        "Consume Event",
+        "Lookup Followers",
         "fan-out on write",
-        "fan-out on read"
+        "Read Timeline",
+        "Read Feed",
+        "fan-out on read (celebrities / cache miss)",
+        "Return Timeline"
       ],
       "forbidden_labels": [],
       "entity_count": 8,
@@ -535,6 +620,10 @@
           "to": "Feed Cache (Redis)"
         },
         {
+          "from": "User",
+          "to": "Feed Service"
+        },
+        {
           "from": "Feed Service",
           "to": "Feed Cache (Redis)"
         },
@@ -548,15 +637,23 @@
         }
       ],
       "required_edge_labels": [
+        "Post Tweet",
+        "Store Tweet",
+        "Publish Tweet Event",
+        "Consume Event",
+        "Lookup Followers",
         "fan-out on write",
-        "fan-out on read"
+        "Read Timeline",
+        "Read Feed",
+        "fan-out on read (celebrities / cache miss)",
+        "Return Timeline"
       ],
       "preserved_elements": []
     }
   },
   "4.12": {
-    "prompt": "Draw a video upload and streaming pipeline for a production system where direct end-user access to storage has been removed:\n- \"User\" uploads raw video to \"Upload Service\"\n- Upload Service stores in \"Raw Storage (S3)\" and queues a job in \"Transcoding Queue (Kafka)\"\n- Three \"Transcoder Worker\" boxes consume from Kafka and write output to \"Processed Storage (S3)\"\n- \"CDN\" pulls from Processed Storage and serves video to User\n- \"Metadata Service\" updates \"Video DB\" at each processing stage\n- Do not show the user talking directly to S3 or bypassing the upload / streaming services",
-    "reference": "+------+     +----------------+     +------------------+\n| User |---->| Upload Service |---->| Raw Storage (S3) |\n+------+     +----------------+     +------------------+\n                 |\n                 v\n      +----------------------------+\n      | Transcoding Queue (Kafka)  |\n      +----------------------------+\n             |         |         |\n             v         v         v\n+-------------------+ +-------------------+ +-------------------+\n| Transcoder Worker | | Transcoder Worker | | Transcoder Worker |\n+-------------------+ +-------------------+ +-------------------+\n             \\         |         /\n              \\        |        /\n               v       v       v\n      +------------------------+\n      | Processed Storage (S3) |\n      +------------------------+\n                 |\n                 v\n              +-----+\n              | CDN |\n              +-----+\n                 |\n                 v\n              +------+\n              | User |\n              +------+\n\n     +------------------+---->+----------+\n     | Metadata Service |     | Video DB |\n     +------------------+---->+----------+",
+    "prompt": "Draw a video upload and streaming pipeline for a production system where direct end-user access to storage has been removed. \"User\" uploads raw video to \"Upload Service\". Upload Service stores in \"Raw Storage (S3)\" using an arrow labeled \"store raw\" and queues a job in \"Transcoding Queue (Kafka)\" using an arrow labeled \"enqueue job\". Three \"Transcoder Worker\" boxes consume from Kafka using arrows labeled \"consume\" and write output to \"Processed Storage (S3)\" using arrows labeled \"transcode output\". \"CDN\" pulls from Processed Storage using an arrow labeled \"origin pull\" and serves video to User using an arrow labeled \"stream video\". \"Metadata Service\" receives stage updates from \"Upload Service\", \"Transcoding Queue (Kafka)\", and \"Processed Storage (S3)\" using arrows labeled \"stage update\", then updates \"Video DB\" using an arrow labeled \"upsert metadata\". Do not show the user talking directly to S3 or bypassing the upload or streaming services.",
+    "reference": "+------+      upload raw video      +----------------+      stage update      +------------------+\n| User |--------------------------->| Upload Service |------------------------>| Metadata Service |\n+------+                            +----------------+                         +------------------+\n                                         |         |                                   |\n                                     store raw  enqueue job                       upsert metadata\n                                         v         v                                   v\n                           +------------------+  +----------------------------+    +----------+\n                           | Raw Storage (S3) |  | Transcoding Queue (Kafka)  |    | Video DB |\n                           +------------------+  +----------------------------+    +----------+\n                                                      |            |            |\n                                                   consume       consume      consume\n                                                      v            v            v\n                                           +-------------------+ +-------------------+ +-------------------+\n                                           | Transcoder Worker | | Transcoder Worker | | Transcoder Worker |\n                                           +-------------------+ +-------------------+ +-------------------+\n                                                      |            |            |\n                                               transcode output transcode output transcode output\n                                                      v            v            v\n                                               +------------------------+\n                                               | Processed Storage (S3) |\n                                               +------------------------+\n                                                   |                 |\n                                             stage update       origin pull\n                                                   |                 v\n                                                   +--------->+-----+\n                                                              | CDN |\n                                                              +-----+\n                                                                 |\n                                                            stream video\n                                                                 v\n                                                              +------+\n                                                              | User |\n                                                              +------+",
     "assertions": {
       "required_labels": [
         "User",
@@ -567,7 +664,15 @@
         "Processed Storage (S3)",
         "CDN",
         "Metadata Service",
-        "Video DB"
+        "Video DB",
+        "store raw",
+        "enqueue job",
+        "consume",
+        "transcode output",
+        "origin pull",
+        "stream video",
+        "stage update",
+        "upsert metadata"
       ],
       "forbidden_labels": [],
       "entity_count": 11,
@@ -585,6 +690,14 @@
           "to": "Transcoding Queue (Kafka)"
         },
         {
+          "from": "Upload Service",
+          "to": "Metadata Service"
+        },
+        {
+          "from": "Transcoding Queue (Kafka)",
+          "to": "Metadata Service"
+        },
+        {
           "from": "Transcoding Queue (Kafka)",
           "to": "Transcoder Worker"
         },
@@ -594,63 +707,79 @@
         },
         {
           "from": "Processed Storage (S3)",
+          "to": "Metadata Service"
+        },
+        {
+          "from": "Metadata Service",
+          "to": "Video DB"
+        },
+        {
+          "from": "Processed Storage (S3)",
           "to": "CDN"
         },
         {
           "from": "CDN",
           "to": "User"
-        },
-        {
-          "from": "Metadata Service",
-          "to": "Video DB"
         }
       ],
-      "required_edge_labels": [],
+      "required_edge_labels": [
+        "store raw",
+        "enqueue job",
+        "consume",
+        "transcode output",
+        "origin pull",
+        "stream video",
+        "stage update",
+        "upsert metadata"
+      ],
       "preserved_elements": []
     }
   },
   "4.13": {
-    "prompt": "Draw a real-time chat system:\n- \"User A\" and \"User B\" each connected to \"Chat Server\" via WebSocket (label connections \"WebSocket\")\n- Chat Server publishes to \"Message Queue (Kafka)\"\n- \"Message Service\" consumes from Kafka and writes to \"Messages DB (Cassandra)\"\n- \"Presence Service\" tracks online status in \"Presence Cache (Redis)\"\n- Chat Server checks Presence Service before routing\n- For offline users: \"Push Notification Service\" sends via \"APNs / FCM\"",
-    "reference": "WebSocket                  WebSocket                  WebSocket\n+--------+<-------------->+-------------+<-------------->+--------+\n| User A |                | Chat Server |                | User B |\n+--------+                +-------------+                +--------+\n                               |     \\\n                               |      \\\n                               v       v\n                    +----------------+  +----------------------+\n                    | Message Queue   |  | Presence Service     |\n                    | (Kafka)         |  +----------------------+\n                    +----------------+             |\n                               |                   v\n                               v        +------------------------+\n                    +------------------+ | Presence Cache (Redis)|\n                    | Message Service  | +------------------------+\n                    +------------------+\n                               | \\\n                               |  \\---->+--------------------------+\n                               |        | Messages DB (Cassandra)  |\n                               v        +--------------------------+\n                    +--------------------------+---->+-----------+\n                    | Push Notification Service|     | APNs / FCM|\n                    +--------------------------+     +-----------+",
+    "prompt": "Draw a real-time chat system. Place \"User A\" on the left and \"User B\" on the right, with both connected bidirectionally to \"Chat Gateway\" via arrows labeled \"WebSocket\". Chat Gateway must query \"Presence Service\" using an arrow labeled \"presence check\", and Presence Service stores online status in \"Presence Cache (Redis)\". Chat Gateway must also publish messages to \"Message Queue (Kafka)\" using an arrow labeled \"publish message\". A \"Delivery Service\" consumes from Kafka using an arrow labeled \"consume\", writes message history to \"Messages DB (Cassandra)\" using an arrow labeled \"persist history\", delivers online messages back to connected clients using an arrow labeled \"online delivery\", and routes offline deliveries to \"Push Notification Service\" using an arrow labeled \"offline delivery\". Push Notification Service then sends to \"APNs / FCM\" using an arrow labeled \"push send\". Keep the online and offline delivery paths visually distinct and do not connect users directly to Kafka or the databases.",
+    "reference": "+--------+      WebSocket      +--------------+      WebSocket      +--------+\n| User A |<------------------->| Chat Gateway |<------------------->| User B |\n+--------+                     +--------------+                     +--------+\n                                      |                 |\n                               presence check     publish message\n                                      v                 v\n                           +----------------+   +-----------------------+\n                           | Presence Service|   | Message Queue (Kafka)|\n                           +----------------+   +-----------------------+\n                                      |                 |\n                                      v              consume\n                           +----------------------+      v\n                           | Presence Cache       | +------------------+   online delivery   +--------+\n                           | (Redis)              | | Delivery Service |-------------------->| User B |\n                           +----------------------+ +------------------+                     +--------+\n                                                         |             |\n                                                  persist history  offline delivery\n                                                         v             v\n                                      +--------------------------+ +--------------------------+\n                                      | Messages DB (Cassandra)  | | Push Notification Service|\n                                      +--------------------------+ +--------------------------+\n                                                                             |\n                                                                        push send\n                                                                             v\n                                                                        +-----------+\n                                                                        | APNs / FCM|\n                                                                        +-----------+",
     "assertions": {
       "required_labels": [
         "User A",
         "User B",
-        "Chat Server",
-        "Message Queue (Kafka)",
-        "Message Service",
-        "Messages DB (Cassandra)",
+        "Chat Gateway",
         "Presence Service",
         "Presence Cache (Redis)",
+        "Message Queue (Kafka)",
+        "Delivery Service",
+        "Messages DB (Cassandra)",
         "Push Notification Service",
         "APNs / FCM",
-        "WebSocket"
+        "WebSocket",
+        "presence check",
+        "publish message",
+        "consume",
+        "persist history",
+        "online delivery",
+        "offline delivery",
+        "push send"
       ],
       "forbidden_labels": [],
       "entity_count": 10,
       "required_edges": [
         {
           "from": "User A",
-          "to": "Chat Server"
+          "to": "Chat Gateway"
+        },
+        {
+          "from": "Chat Gateway",
+          "to": "User A"
         },
         {
           "from": "User B",
-          "to": "Chat Server"
+          "to": "Chat Gateway"
         },
         {
-          "from": "Chat Server",
-          "to": "Message Queue (Kafka)"
+          "from": "Chat Gateway",
+          "to": "User B"
         },
         {
-          "from": "Message Queue (Kafka)",
-          "to": "Message Service"
-        },
-        {
-          "from": "Message Service",
-          "to": "Messages DB (Cassandra)"
-        },
-        {
-          "from": "Chat Server",
+          "from": "Chat Gateway",
           "to": "Presence Service"
         },
         {
@@ -658,7 +787,23 @@
           "to": "Presence Cache (Redis)"
         },
         {
-          "from": "Chat Server",
+          "from": "Chat Gateway",
+          "to": "Message Queue (Kafka)"
+        },
+        {
+          "from": "Message Queue (Kafka)",
+          "to": "Delivery Service"
+        },
+        {
+          "from": "Delivery Service",
+          "to": "Messages DB (Cassandra)"
+        },
+        {
+          "from": "Delivery Service",
+          "to": "User B"
+        },
+        {
+          "from": "Delivery Service",
           "to": "Push Notification Service"
         },
         {
@@ -667,14 +812,21 @@
         }
       ],
       "required_edge_labels": [
-        "WebSocket"
+        "WebSocket",
+        "presence check",
+        "publish message",
+        "consume",
+        "persist history",
+        "online delivery",
+        "offline delivery",
+        "push send"
       ],
       "preserved_elements": []
     }
   },
   "4.14": {
-    "prompt": "Draw a ride-sharing backend (Uber-style):\n- \"Rider App\" and \"Driver App\" both connect to \"API Gateway\"\n- \"Location Service\" receives GPS pings from Driver App via WebSocket, stores in \"Location Cache (Redis)\" with geohash label\n- \"Matching Service\" reads from Location Cache to find nearby drivers, creates trips in \"Trips DB\"\n- \"Payment Service\" processes payments, writes to \"Payments DB\" and external \"Stripe\"\n- \"Notification Service\" sends status updates to both apps",
-    "reference": "+-----------+      +-------------+      +------------+\n| Rider App |----->| API Gateway |<-----| Driver App |\n+-----------+      +-------------+      +------------+\n                                               |\n                                               | WebSocket / geohash\n                                               v\n                                      +------------------+---->+------------------------+\n                                      | Location Service |     | Location Cache (Redis) |\n                                      +------------------+     +------------------------+\n                                                          ^\n                                                          |\n                                                  +-----------------+---->+----------+\n                                                  | Matching Service|     | Trips DB |\n                                                  +-----------------+     +----------+\n\n                                                  +-----------------+---->+-------------+---->+--------+\n                                                  | Payment Service |     | Payments DB |     | Stripe |\n                                                  +-----------------+     +-------------+     +--------+\n\n                                                  +----------------------+\n                                                  | Notification Service |\n                                                  +----------------------+\n                                                      |              |\n                                                      v              v\n                                                 +-----------+   +------------+\n                                                 | Rider App |   | Driver App |\n                                                 +-----------+   +------------+",
+    "prompt": "Draw a ride-sharing backend for an Uber-style system. Put \"API Gateway\" near the top center, with \"Rider App\" and \"Driver App\" both connecting into it. \"Driver App\" also sends live GPS pings to \"Location Service\" using an arrow labeled \"WebSocket GPS\", and Location Service stores to \"Location Cache (Redis)\" using an arrow labeled \"geohash\". API Gateway routes dispatch lookups to \"Matching Service\", trip requests to \"Trip Service\", and payment requests to \"Payment Service\". Matching Service reads from Location Cache using an arrow labeled \"nearby search\" and sends assignments to Trip Service using an arrow labeled \"assign driver\". Trip Service writes to \"Trips DB\" using an arrow labeled \"write trip\" and emits status updates to \"Notification Service\". Payment Service writes to \"Payments DB\" using an arrow labeled \"write payment\" and calls external \"Stripe\" using an arrow labeled \"call PSP\". Notification Service sends updates back to both Rider App and Driver App using arrows labeled \"notify rider\" and \"notify driver\".",
+    "reference": "+-----------+      rider requests      +-------------+      driver app      +------------+\n| Rider App |------------------------->| API Gateway |<------------------| Driver App |\n+-----------+                          +-------------+                   +------------+\n                                            |              |                |\n                                     dispatch lookup   payment request  WebSocket GPS\n                                            v              v                v\n                                  +------------------+  +-----------------+  +------------------+\n                                  | Matching Service |  | Payment Service |  | Location Service |\n                                  +------------------+  +-----------------+  +------------------+\n                                            |              |                |\n                                      assign driver   write payment      geohash\n                                            v              v                v\n                                      +--------------+ +-------------+ +------------------------+\n                                      | Trip Service | | Payments DB | | Location Cache (Redis) |\n                                      +--------------+ +-------------+ +------------------------+\n                                            |              |                ^\n                                        write trip      call PSP      nearby search\n                                            v              v                |\n                                        +----------+   +--------+         |\n                                        | Trips DB |   | Stripe |         |\n                                        +----------+   +--------+         |\n                                            |                             |\n                                       emits status                       |\n                                            v                             |\n                                  +----------------------+                |\n                                  | Notification Service |                |\n                                  +----------------------+                |\n                                          |            |                  |\n                                     notify rider  notify driver          |\n                                          v            v                  |\n                                   +-----------+   +------------+         |\n                                   | Rider App |   | Driver App |---------+\n                                   +-----------+   +------------+",
     "assertions": {
       "required_labels": [
         "Rider App",
@@ -683,15 +835,25 @@
         "Location Service",
         "Location Cache (Redis)",
         "Matching Service",
+        "Trip Service",
         "Trips DB",
         "Payment Service",
         "Payments DB",
         "Stripe",
         "Notification Service",
-        "geohash"
+        "WebSocket GPS",
+        "geohash",
+        "nearby search",
+        "assign driver",
+        "write trip",
+        "payment request",
+        "write payment",
+        "call PSP",
+        "notify rider",
+        "notify driver"
       ],
       "forbidden_labels": [],
-      "entity_count": 11,
+      "entity_count": 12,
       "required_edges": [
         {
           "from": "Rider App",
@@ -710,12 +872,32 @@
           "to": "Location Cache (Redis)"
         },
         {
+          "from": "API Gateway",
+          "to": "Matching Service"
+        },
+        {
+          "from": "API Gateway",
+          "to": "Trip Service"
+        },
+        {
+          "from": "API Gateway",
+          "to": "Payment Service"
+        },
+        {
           "from": "Matching Service",
           "to": "Location Cache (Redis)"
         },
         {
           "from": "Matching Service",
+          "to": "Trip Service"
+        },
+        {
+          "from": "Trip Service",
           "to": "Trips DB"
+        },
+        {
+          "from": "Trip Service",
+          "to": "Notification Service"
         },
         {
           "from": "Payment Service",
@@ -735,124 +917,195 @@
         }
       ],
       "required_edge_labels": [
-        "geohash"
+        "WebSocket GPS",
+        "geohash",
+        "nearby search",
+        "assign driver",
+        "write trip",
+        "payment request",
+        "write payment",
+        "call PSP",
+        "notify rider",
+        "notify driver"
       ],
       "preserved_elements": []
     }
   },
   "4.15": {
-    "prompt": "Draw a Lambda architecture data pipeline:\n- Three data sources publish to \"Kafka (Event Stream)\": \"App Events\", \"DB Change Stream\", \"IoT Sensors\"\n- Speed layer: Kafka \u2192 \"Stream Processor (Flink)\" \u2192 \"Time-Series DB\" \u2014 label \"speed layer\"\n- Batch layer: Kafka \u2192 \"Batch Processor (Spark)\" \u2192 \"Data Warehouse (BigQuery)\" \u2014 label \"batch layer\"\n- Both outputs feed \"Analytics Dashboard\"\n- \"Data Catalog\" connects to both storage layers",
-    "reference": "+------------+  +------------------+  +-------------+\n| App Events |  | DB Change Stream |  | IoT Sensors |\n+------------+  +------------------+  +-------------+\n      \\                 |                  /\n       \\                |                 /\n        v               v                v\n         +----------------------------+\n         | Kafka (Event Stream)       |\n         +----------------------------+\n                |              |\n         speed layer      batch layer\n                |              |\n                v              v\n   +------------------------+  +---------------------------+\n   | Stream Processor       |  | Batch Processor          |\n   | (Flink)                |  | (Spark)                  |\n   +------------------------+  +---------------------------+\n                |              |\n                v              v\n        +----------------+   +-----------------------------+\n        | Time-Series DB |   | Data Warehouse (BigQuery)  |\n        +----------------+   +-----------------------------+\n                 \\              /\n                  \\            /\n                   v          v\n             +-----------------------+\n             | Analytics Dashboard   |\n             +-----------------------+\n                    |\n                    v\n               +--------------+\n               | Data Catalog |\n               +--------------+\n                 |         |\n                 v         v\n        +----------------+   +-----------------------------+\n        | Time-Series DB |   | Data Warehouse (BigQuery)  |\n        +----------------+   +-----------------------------+",
+    "prompt": "Draw a medallion lakehouse architecture for mixed streaming and batch ingestion. Put three source boxes on the top row: \"App Events\", \"DB CDC\", and \"CRM Export\". All three must feed \"Bronze Delta\" using arrows labeled \"append raw\", \"capture changes\", and \"daily dump\". Below Bronze place \"Silver Validation\" connected by an arrow labeled \"clean + dedupe\". Silver must fan out to \"Gold BI Mart\" with an arrow labeled \"aggregate KPIs\", to \"Feature Tables\" with an arrow labeled \"serve ML\", and to \"Quarantine\" with an arrow labeled \"bad records\". \"Gold BI Mart\" must feed \"Executive Dashboard\" using an arrow labeled \"BI queries\", and \"Feature Tables\" must feed \"ML Training\" using an arrow labeled \"offline features\". Place \"Data Catalog\" on the side and connect it to \"Bronze Delta\", \"Silver Validation\", \"Gold BI Mart\", and \"Feature Tables\" using arrows all labeled \"metadata sync\".",
+    "reference": "+------------+   append raw   +----------------+\n| App Events |--------------->|  Bronze Delta  |\n+------------+                +----------------+\n\n+--------+   capture changes   +----------------+\n| DB CDC |-------------------->|  Bronze Delta  |\n+--------+                     +----------------+\n\n+------------+    daily dump    +----------------+\n| CRM Export |----------------->|  Bronze Delta  |\n+------------+                  +----------------+\n                                 |\n                            clean + dedupe\n                                 v\n                         +-------------------+              +---------------+\n                         | Silver Validation |<-------------| Data Catalog  |\n                         +-------------------+  metadata sync +---------------+\n                           |          |    \\                      |   |   |\n                    aggregate KPIs serve ML bad records     metadata sync sync sync\n                           v          v        v                  v   v   v\n                +---------------+ +----------------+ +------------+\n                | Gold BI Mart  | | Feature Tables | | Quarantine |\n                +---------------+ +----------------+ +------------+\n                      |                 |\n                  BI queries      offline features\n                      v                 v\n           +---------------------+ +--------------+\n           | Executive Dashboard | | ML Training  |\n           +---------------------+ +--------------+",
     "assertions": {
       "required_labels": [
         "App Events",
-        "DB Change Stream",
-        "IoT Sensors",
-        "Kafka (Event Stream)",
-        "Stream Processor (Flink)",
-        "Time-Series DB",
-        "Batch Processor (Spark)",
-        "Data Warehouse (BigQuery)",
-        "Analytics Dashboard",
+        "DB CDC",
+        "CRM Export",
+        "Bronze Delta",
+        "Silver Validation",
+        "Gold BI Mart",
+        "Feature Tables",
+        "Quarantine",
+        "Executive Dashboard",
+        "ML Training",
         "Data Catalog",
-        "speed layer",
-        "batch layer"
+        "append raw",
+        "capture changes",
+        "daily dump",
+        "clean + dedupe",
+        "aggregate KPIs",
+        "serve ML",
+        "bad records",
+        "BI queries",
+        "offline features",
+        "metadata sync"
       ],
       "forbidden_labels": [],
-      "entity_count": 10,
+      "entity_count": 11,
       "required_edges": [
         {
           "from": "App Events",
-          "to": "Kafka (Event Stream)"
+          "to": "Bronze Delta"
         },
         {
-          "from": "DB Change Stream",
-          "to": "Kafka (Event Stream)"
+          "from": "DB CDC",
+          "to": "Bronze Delta"
         },
         {
-          "from": "IoT Sensors",
-          "to": "Kafka (Event Stream)"
+          "from": "CRM Export",
+          "to": "Bronze Delta"
         },
         {
-          "from": "Kafka (Event Stream)",
-          "to": "Stream Processor (Flink)"
+          "from": "Bronze Delta",
+          "to": "Silver Validation"
         },
         {
-          "from": "Kafka (Event Stream)",
-          "to": "Batch Processor (Spark)"
+          "from": "Silver Validation",
+          "to": "Gold BI Mart"
         },
         {
-          "from": "Stream Processor (Flink)",
-          "to": "Time-Series DB"
+          "from": "Silver Validation",
+          "to": "Feature Tables"
         },
         {
-          "from": "Batch Processor (Spark)",
-          "to": "Data Warehouse (BigQuery)"
+          "from": "Silver Validation",
+          "to": "Quarantine"
         },
         {
-          "from": "Time-Series DB",
-          "to": "Analytics Dashboard"
+          "from": "Gold BI Mart",
+          "to": "Executive Dashboard"
         },
         {
-          "from": "Data Warehouse (BigQuery)",
-          "to": "Analytics Dashboard"
-        },
-        {
-          "from": "Data Catalog",
-          "to": "Time-Series DB"
+          "from": "Feature Tables",
+          "to": "ML Training"
         },
         {
           "from": "Data Catalog",
-          "to": "Data Warehouse (BigQuery)"
+          "to": "Bronze Delta"
+        },
+        {
+          "from": "Data Catalog",
+          "to": "Silver Validation"
+        },
+        {
+          "from": "Data Catalog",
+          "to": "Gold BI Mart"
+        },
+        {
+          "from": "Data Catalog",
+          "to": "Feature Tables"
         }
       ],
       "required_edge_labels": [
-        "speed layer",
-        "batch layer"
+        "append raw",
+        "capture changes",
+        "daily dump",
+        "clean + dedupe",
+        "aggregate KPIs",
+        "serve ML",
+        "bad records",
+        "BI queries",
+        "offline features",
+        "metadata sync"
       ],
       "preserved_elements": []
     }
   },
   "4.16": {
-    "prompt": "Draw a multi-region active-active API architecture: put \"Global Traffic Manager\" at the top routing to two regional gateways, \"API Gateway A\" and \"API Gateway B\". Each gateway connects to its own cache and database: Region A has \"Redis Cache A\" and \"PostgreSQL A\"; Region B has \"Redis Cache B\" and \"PostgreSQL B\". Show bidirectional replication between the two PostgreSQL databases labeled \"async replication\".",
-    "reference": "                        +------------------------+\n                        | Global Traffic Manager |\n                        +------------------------+\n                              /            \\\n                             v              v\n                 +----------------+   +----------------+\n                 | API Gateway A  |   | API Gateway B  |\n                 +----------------+   +----------------+\n                         |                    |\n                         v                    v\n                 +----------------+   +----------------+\n                 | Redis Cache A  |   | Redis Cache B  |\n                 +----------------+   +----------------+\n                         |                    |\n                         v                    v\n                 +----------------+ async replication +----------------+\n                 | PostgreSQL A   |<----------------->| PostgreSQL B   |\n                 +----------------+                   +----------------+",
+    "prompt": "Draw an ASCII diagram illustrating a multi-region active-active orders API. Put \"Global DNS + WAF\" at the top routing to \"API Gateway A\" and \"API Gateway B\" using arrows labeled \"route traffic\". Under each gateway place an \"Auth Service\" and an \"Orders Service\" in the same region. Each gateway connects to both regional services using arrows labeled \"auth check\" and \"order writes\". Each orders service connects only to its regional Redis cache using arrows labeled \"hot reads\". Each regional Redis cache connects down to its regional PostgreSQL database using arrows labeled \"state writes\". Each regional PostgreSQL database connects down to its regional Kafka outbox using arrows labeled \"outbox events\". Show bidirectional replication between \"PostgreSQL A\" and \"PostgreSQL B\" labeled \"CDC replication\", and bidirectional mirroring between \"Kafka Outbox A\" and \"Kafka Outbox B\" labeled \"MirrorMaker\". When arrows are required, make them centered and aligned cleanly to their source and target. If an arrow has a label, place the label a little above the arrow rather than inside the arrow line. For any label or text inside a node, box, or icon, center it within that component whenever possible. Any component with incoming or outgoing arrows should be sized wide or tall enough to make those connections visually unambiguous, so it is clear where arrows originate and where they terminate. If one component fans out to multiple arrows, or multiple arrows converge into one component, its width or height should clearly support those attachment points. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+    "reference": "              +------------------+\n              | Global DNS + WAF |\n              +------------------+\n              /                  \\\n       route traffic         route traffic\n            v                      v\n    +---------------+      +---------------+\n    | API Gateway A |      | API Gateway B |\n    +---------------+      +---------------+\n       |         |            |         |\n  auth check order writes auth check order writes\n       v         v            v         v\n+--------------+ +----------------+ +--------------+ +----------------+\n| Auth Service | | Orders Service | | Auth Service | | Orders Service |\n|      A       | |       A        | |      B       | |       B        |\n+--------------+ +----------------+ +--------------+ +----------------+\n                       |                                    |\n                  hot reads                            hot reads\n                       v                                    v\n                  +---------+                          +---------+\n                  | Redis A |                          | Redis B |\n                  +---------+                          +---------+\n                       |                                    |\n                  state writes                         state writes\n                       v                                    v\n               +--------------+   CDC replication   +--------------+\n               | PostgreSQL A |<------------------->| PostgreSQL B |\n               +--------------+                     +--------------+\n                       |                                    |\n                  outbox events                        outbox events\n                       v                                    v\n             +----------------+      MirrorMaker      +----------------+\n             | Kafka Outbox A |<--------------------->| Kafka Outbox B |\n             +----------------+                       +----------------+",
     "assertions": {
       "required_labels": [
-        "Global Traffic Manager",
+        "Global DNS + WAF",
         "API Gateway A",
         "API Gateway B",
-        "Redis Cache A",
-        "Redis Cache B",
+        "Auth Service A",
+        "Orders Service A",
+        "Auth Service B",
+        "Orders Service B",
+        "Redis A",
+        "Redis B",
         "PostgreSQL A",
         "PostgreSQL B",
-        "async replication"
+        "Kafka Outbox A",
+        "Kafka Outbox B",
+        "route traffic",
+        "auth check",
+        "order writes",
+        "hot reads",
+        "state writes",
+        "outbox events",
+        "CDC replication",
+        "MirrorMaker"
       ],
       "forbidden_labels": [],
-      "entity_count": 7,
+      "entity_count": 13,
       "required_edges": [
         {
-          "from": "Global Traffic Manager",
+          "from": "Global DNS + WAF",
           "to": "API Gateway A"
         },
         {
-          "from": "Global Traffic Manager",
+          "from": "Global DNS + WAF",
           "to": "API Gateway B"
         },
         {
           "from": "API Gateway A",
-          "to": "Redis Cache A"
+          "to": "Auth Service A"
+        },
+        {
+          "from": "API Gateway A",
+          "to": "Orders Service A"
         },
         {
           "from": "API Gateway B",
-          "to": "Redis Cache B"
+          "to": "Auth Service B"
         },
         {
-          "from": "Redis Cache A",
+          "from": "API Gateway B",
+          "to": "Orders Service B"
+        },
+        {
+          "from": "Orders Service A",
+          "to": "Redis A"
+        },
+        {
+          "from": "Redis A",
           "to": "PostgreSQL A"
         },
         {
-          "from": "Redis Cache B",
+          "from": "PostgreSQL A",
+          "to": "Kafka Outbox A"
+        },
+        {
+          "from": "Orders Service B",
+          "to": "Redis B"
+        },
+        {
+          "from": "Redis B",
           "to": "PostgreSQL B"
+        },
+        {
+          "from": "PostgreSQL B",
+          "to": "Kafka Outbox B"
         },
         {
           "from": "PostgreSQL A",
@@ -861,30 +1114,68 @@
         {
           "from": "PostgreSQL B",
           "to": "PostgreSQL A"
+        },
+        {
+          "from": "Kafka Outbox A",
+          "to": "Kafka Outbox B"
+        },
+        {
+          "from": "Kafka Outbox B",
+          "to": "Kafka Outbox A"
         }
       ],
       "required_edge_labels": [
-        "async replication"
+        "route traffic",
+        "auth check",
+        "order writes",
+        "hot reads",
+        "state writes",
+        "outbox events",
+        "CDC replication",
+        "MirrorMaker"
       ],
       "preserved_elements": []
     }
   },
   "4.17": {
-    "prompt": "Draw a production RAG serving system: \"User\" talks to \"Chat API\". Chat API calls \"Retriever\" and \"Prompt Builder\". Retriever queries \"Vector DB\". Prompt Builder sends requests to \"LLM Serving\" and receives results back through Chat API to the User. Show an ingestion pipeline where \"Document Store\" feeds \"Embedding Worker\", and Embedding Worker updates Vector DB.",
-    "reference": "+------+<----+----------+<-----------------+\n| User |---->| Chat API |                  |\n+------+     +----------+                  |\n                |      \\                  |\n                |       \\                 |\n                v        v                 |\n          +-----------+  +----------------+ |\n          | Retriever |->| Prompt Builder |->+-------------+\n          +-----------+  +----------------+  | LLM Serving |\n               |                             +-------------+\n               v\n        +--------------+\n        |  Vector DB   |\n        +--------------+\n               ^\n               |\n      +------------------+\n      | Embedding Worker |\n      +------------------+\n               ^\n               |\n      +------------------+\n      | Document Store   |\n      +------------------+",
+    "prompt": "Draw an ASCII diagram illustrating an advanced production RAG system with both serving and indexing paths. Place \"User\" on the left sending a request to \"Chat API\", then to \"Query Rewriter\", then to \"Hybrid Retriever\" using arrows labeled \"ask\", \"rewrite query\", and \"hybrid search\". Hybrid Retriever must query three stores to its right: \"Summary Index\" using an arrow labeled \"coarse search\", \"Chunk Index\" using an arrow labeled \"vector hit\", and \"Metadata DB\" using an arrow labeled \"metadata filter\". Place \"Reranker\" directly below \"Hybrid Retriever\" with a downward connector labeled \"candidates\". Below \"Reranker\", stack \"Prompt Builder\", \"Safety Filter\", and \"LLM Gateway\" vertically using arrows labeled \"grounded prompt\", \"policy check\", and \"generate answer\". \"LLM Gateway\" must return to \"Chat API\" using a connector labeled \"model response\", and \"Chat API\" must return to \"User\" with an arrow labeled \"answer\". Also add an indexing pipeline on the right: \"Document Store\" feeds \"Parser + Chunker\" using an arrow labeled \"parse docs\". Parser + Chunker writes summaries to \"Summary Index\" using an arrow labeled \"write summaries\", writes metadata to \"Metadata DB\" using an arrow labeled \"write metadata\", and feeds \"Embedding Jobs\" using an arrow labeled \"chunk batches\". Embedding Jobs updates \"Chunk Index\" using an arrow labeled \"upsert vectors\". When arrows are required, make them centered and aligned cleanly to their source and target. If an arrow has a label, place the label a little above the arrow rather than inside the arrow line. For any label or text inside a node, box, or icon, center it within that component whenever possible. Any component with incoming or outgoing arrows should be sized wide or tall enough to make those connections visually unambiguous, so it is clear where arrows originate and where they terminate. If one component fans out to multiple arrows, or multiple arrows converge into one component, its width or height should clearly support those attachment points. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+    "reference": "+------+      ask      +----------+   rewrite query   +----------------+   hybrid search   +------------------+\n| User |-------------->| Chat API |------------------>| Query Rewriter |------------------>| Hybrid Retriever |\n+------+               +----------+                   +----------------+                   +------------------+\n   ^                      ^                                                                      /       |       \\\n   |                      |                                                                  coarse    vector   metadata\n   |                      |                                                                  search      hit     filter\n   +------- answer -------+                                                                    v         v         v\n                          |                                                             +-----------+ +-----------+ +-------------+\n                          |                                                             | Summary   | | Chunk     | | Metadata DB |\n                          |                                                             |  Index    | |  Index    | +-------------+\n                          |                                                             +-----------+ +-----------+\n                          |                                                                  ^             ^\n                          |                                                             write summaries  upsert vectors\n                          |                                                                  |             ^\n                          |                                                          +----------------+   |\n                          |                                                          | Embedding Jobs |---+\n                          |                                                          +----------------+\n                          |                                                                  ^\n                          |                                                             chunk batches\n                          |                                                                  |\n                          |                                                          +------------------+\n                          |                                                          | Parser + Chunker |\n                          |                                                          +------------------+\n                          |                                                                  ^\n                          |                                                             parse docs\n                          |                                                                  |\n                          |                                                          +------------------+\n                          |                                                          |  Document Store  |\n                          |                                                          +------------------+\n                          |\n                          |                                                             candidates\n                          |                                                                  v\n                          |                                                             +----------+\n                          |                                                             | Reranker |\n                          |                                                             +----------+\n                          |                                                                  |\n                          |                                                             grounded prompt\n                          |                                                                  v\n                          |                                                       +----------------+\n                          |                                                       | Prompt Builder |\n                          |                                                       +----------------+\n                          |                                                                  |\n                          |                                                             policy check\n                          |                                                                  v\n                          |                                                       +---------------+\n                          |                                                       | Safety Filter |\n                          |                                                       +---------------+\n                          |                                                                  |\n                          |                                                             generate answer\n                          |                                                                  v\n                     model response                                             +-------------+\n                          +<----------------------------------------------------| LLM Gateway |\n                                                                                +-------------+",
     "assertions": {
       "required_labels": [
         "User",
         "Chat API",
-        "Retriever",
+        "Query Rewriter",
+        "Hybrid Retriever",
+        "Summary Index",
+        "Chunk Index",
+        "Metadata DB",
+        "Reranker",
         "Prompt Builder",
-        "LLM Serving",
-        "Vector DB",
-        "Embedding Worker",
-        "Document Store"
+        "Safety Filter",
+        "LLM Gateway",
+        "Document Store",
+        "Parser + Chunker",
+        "Embedding Jobs",
+        "ask",
+        "rewrite query",
+        "hybrid search",
+        "coarse search",
+        "vector hit",
+        "metadata filter",
+        "candidates",
+        "grounded prompt",
+        "policy check",
+        "generate answer",
+        "model response",
+        "answer",
+        "parse docs",
+        "write summaries",
+        "write metadata",
+        "chunk batches",
+        "upsert vectors"
       ],
       "forbidden_labels": [],
-      "entity_count": 8,
+      "entity_count": 14,
       "required_edges": [
         {
           "from": "User",
@@ -892,62 +1183,125 @@
         },
         {
           "from": "Chat API",
-          "to": "User"
+          "to": "Query Rewriter"
         },
         {
-          "from": "Chat API",
-          "to": "Retriever"
+          "from": "Query Rewriter",
+          "to": "Hybrid Retriever"
         },
         {
-          "from": "Chat API",
-          "to": "Prompt Builder"
+          "from": "Hybrid Retriever",
+          "to": "Summary Index"
         },
         {
-          "from": "Retriever",
-          "to": "Vector DB"
+          "from": "Hybrid Retriever",
+          "to": "Chunk Index"
         },
         {
-          "from": "Retriever",
+          "from": "Hybrid Retriever",
+          "to": "Metadata DB"
+        },
+        {
+          "from": "Hybrid Retriever",
+          "to": "Reranker"
+        },
+        {
+          "from": "Reranker",
           "to": "Prompt Builder"
         },
         {
           "from": "Prompt Builder",
-          "to": "LLM Serving"
+          "to": "Safety Filter"
         },
         {
-          "from": "LLM Serving",
+          "from": "Safety Filter",
+          "to": "LLM Gateway"
+        },
+        {
+          "from": "LLM Gateway",
           "to": "Chat API"
         },
         {
-          "from": "Document Store",
-          "to": "Embedding Worker"
+          "from": "Chat API",
+          "to": "User"
         },
         {
-          "from": "Embedding Worker",
-          "to": "Vector DB"
+          "from": "Document Store",
+          "to": "Parser + Chunker"
+        },
+        {
+          "from": "Parser + Chunker",
+          "to": "Summary Index"
+        },
+        {
+          "from": "Parser + Chunker",
+          "to": "Metadata DB"
+        },
+        {
+          "from": "Parser + Chunker",
+          "to": "Embedding Jobs"
+        },
+        {
+          "from": "Embedding Jobs",
+          "to": "Chunk Index"
         }
       ],
-      "required_edge_labels": [],
+      "required_edge_labels": [
+        "ask",
+        "rewrite query",
+        "hybrid search",
+        "coarse search",
+        "vector hit",
+        "metadata filter",
+        "candidates",
+        "grounded prompt",
+        "policy check",
+        "generate answer",
+        "model response",
+        "answer",
+        "parse docs",
+        "write summaries",
+        "write metadata",
+        "chunk batches",
+        "upsert vectors"
+      ],
       "preserved_elements": []
     }
   },
   "4.18": {
-    "prompt": "Draw a checkout and fraud-detection architecture: \"Web Client\" calls \"Checkout API\". Checkout API calls both \"Order Service\" and \"Payment Service\". Order Service writes to \"Orders DB\". Payment Service checks \"Fraud Service\", charges \"Stripe\", and publishes to \"Event Bus\". \"Notification Service\" consumes from Event Bus.",
-    "reference": "+------------+     +--------------+\n| Web Client |---->| Checkout API |\n+------------+     +--------------+\n                      |        |\n                      v        v\n             +---------------+ +----------------+\n             | Order Service | | Payment Service|\n             +---------------+ +----------------+\n                    |               |      |    \\\n                    v               v      v     v\n              +-----------+   +-------------+ +--------+ +-----------+\n              | Orders DB |   | Fraud Svc   | | Stripe | | Event Bus |\n              +-----------+   +-------------+ +--------+ +-----------+\n                                                             |\n                                                             v\n                                                   +----------------------+\n                                                   | Notification Service |\n                                                   +----------------------+",
+    "prompt": "Draw an ASCII diagram illustrating an event-driven checkout saga with fraud and fulfillment. Put \"Web Client\" on the left calling \"Checkout API\" with an arrow labeled \"place order\". Checkout API must call \"Order Orchestrator\" using an arrow labeled \"start saga\". Order Orchestrator must call \"Inventory Service\" using an arrow labeled \"reserve stock\", call \"Payment Service\" using an arrow labeled \"authorize payment\", and write to \"Orders DB\" using an arrow labeled \"saga state\". Inventory Service must update \"Inventory DB\" using an arrow labeled \"stock hold\". \"Inventory DB\" must publish to \"Event Bus\" using an arrow labeled \"inventory events\". Payment Service must publish to \"Event Bus\" using an arrow labeled \"payment events\", call \"Fraud Scorer\" using an arrow labeled \"risk check\", and call \"PSP\" using an arrow labeled \"capture\". Event Bus must fan out to \"Notification Service\" using an arrow labeled \"customer updates\", to \"Fulfillment Worker\" using an arrow labeled \"ready to ship\", and to \"Dead Letter Queue\" using an arrow labeled \"failed events\". When arrows are required, make them centered and aligned cleanly to their source and target. If an arrow has a label, place the label a little above the arrow rather than inside the arrow line. For any label or text inside a node, box, or icon, center it within that component whenever possible. Any component with incoming or outgoing arrows should be sized wide or tall enough to make those connections visually unambiguous, so it is clear where arrows originate and where they terminate. If one component fans out to multiple arrows, or multiple arrows converge into one component, its width or height should clearly support those attachment points. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.",
+    "reference": "+------------+   place order   +--------------+   start saga   +--------------------+\n| Web Client |---------------->| Checkout API |--------------->| Order Orchestrator |\n+------------+                 +--------------+                +--------------------+\n                                                               /      |       \\\n                                                        reserve stock saga state authorize payment\n                                                             v        v         v\n                                                     +----------------+ +-----------+ +-----------------+\n                                                     |   Inventory    | | Orders DB | | Payment Service |\n                                                     |    Service     | +-----------+ +-----------------+\n                                                     +----------------+                      /      |      \\\n                                                            |                         payment   risk    capture\n                                                       stock hold                       events   check\n                                                            v                             v       v       v\n                                                             inventory events\n                                                     +--------------+----------->+------------------------------+ +--------------+ +------+\n                                                     | Inventory DB |            |          Event Bus           | | Fraud Scorer | | PSP  |\n                                                     +--------------+            +------------------------------+ +--------------+ +------+\n                                                                                     |         |         |\n                                                                              customer    ready to    failed\n                                                                               updates      ship      events\n                                                                                     v         v         v\n                                                                  +--------------------+ +--------------------+ +--------------------+\n                                                                  |    Notification    | |    Fulfillment    | |    Dead Letter    |\n                                                                  |      Service       | |       Worker       | |       Queue        |\n                                                                  +--------------------+ +--------------------+ +--------------------+",
     "assertions": {
       "required_labels": [
         "Web Client",
         "Checkout API",
-        "Order Service",
+        "Order Orchestrator",
+        "Inventory Service",
+        "Inventory DB",
         "Payment Service",
         "Orders DB",
-        "Fraud Svc",
-        "Stripe",
+        "Fraud Scorer",
+        "PSP",
         "Event Bus",
-        "Notification Service"
+        "Notification Service",
+        "Fulfillment Worker",
+        "Dead Letter Queue",
+        "place order",
+        "start saga",
+        "reserve stock",
+        "authorize payment",
+        "saga state",
+        "stock hold",
+        "inventory events",
+        "risk check",
+        "capture",
+        "payment events",
+        "customer updates",
+        "ready to ship",
+        "failed events"
       ],
       "forbidden_labels": [],
-      "entity_count": 9,
+      "entity_count": 13,
       "required_edges": [
         {
           "from": "Web Client",
@@ -955,23 +1309,35 @@
         },
         {
           "from": "Checkout API",
-          "to": "Order Service"
+          "to": "Order Orchestrator"
         },
         {
-          "from": "Checkout API",
+          "from": "Order Orchestrator",
+          "to": "Inventory Service"
+        },
+        {
+          "from": "Order Orchestrator",
           "to": "Payment Service"
         },
         {
-          "from": "Order Service",
+          "from": "Order Orchestrator",
           "to": "Orders DB"
         },
         {
-          "from": "Payment Service",
-          "to": "Fraud Svc"
+          "from": "Inventory Service",
+          "to": "Inventory DB"
+        },
+        {
+          "from": "Inventory DB",
+          "to": "Event Bus"
         },
         {
           "from": "Payment Service",
-          "to": "Stripe"
+          "to": "Fraud Scorer"
+        },
+        {
+          "from": "Payment Service",
+          "to": "PSP"
         },
         {
           "from": "Payment Service",
@@ -980,113 +1346,228 @@
         {
           "from": "Event Bus",
           "to": "Notification Service"
+        },
+        {
+          "from": "Event Bus",
+          "to": "Fulfillment Worker"
+        },
+        {
+          "from": "Event Bus",
+          "to": "Dead Letter Queue"
         }
       ],
-      "required_edge_labels": [],
+      "required_edge_labels": [
+        "place order",
+        "start saga",
+        "reserve stock",
+        "authorize payment",
+        "saga state",
+        "stock hold",
+        "inventory events",
+        "risk check",
+        "capture",
+        "payment events",
+        "customer updates",
+        "ready to ship",
+        "failed events"
+      ],
       "preserved_elements": []
     }
   },
   "4.19": {
-    "prompt": "Draw an ML feature serving architecture: \"User\" calls \"Online Prediction API\". The API queries both \"Model Server\" and \"Online Feature Cache\". \"Feature Pipeline\" syncs features into Online Feature Cache. \"Offline Warehouse\" feeds both Feature Pipeline and \"Training Jobs\". Training Jobs publish models to \"Model Registry\", and Model Server loads models from Model Registry.",
-    "reference": "+------+     +-----------------------+\n| User |---->| Online Prediction API |\n+------+     +-----------------------+\n                    |           |\n                    v           v\n             +-------------+  +----------------------+\n             | Model Server|  | Online Feature Cache |\n             +-------------+  +----------------------+\n                    ^                  ^\n                    |                  |\n              +----------------+       |\n              | Model Registry |       |\n              +----------------+       |\n                    ^                  |\n                    |                  |\n              +---------------+        |\n              | Training Jobs |        |\n              +---------------+        |\n                    ^                  |\n                    |                  |\n              +----------------+-------+\n              | Offline Warehouse      |\n              +----------------+\n                    |\n                    v\n              +----------------+\n              | Feature Pipeline|\n              +----------------+",
+    "prompt": "Draw a production ML feature platform with separate batch and streaming paths. Put \"Batch Warehouse\" and \"Clickstream Kafka\" on the left. \"Batch Warehouse\" feeds \"Batch Feature Jobs\" using an arrow labeled \"historical compute\", and \"Clickstream Kafka\" feeds \"Stream Feature Jobs\" using an arrow labeled \"realtime transforms\". Place \"Feature Registry\" above the two job boxes and connect it to both using arrows labeled \"feature defs\". Batch Feature Jobs writes to \"Offline Feature Store\" using an arrow labeled \"backfill features\" and also materializes to \"Online Feature Store\" using an arrow labeled \"batch materialize\". Stream Feature Jobs writes to Online Feature Store using an arrow labeled \"fresh features\". Offline Feature Store feeds \"Training Pipeline\" using an arrow labeled \"training set\". Training Pipeline publishes to \"Model Registry\" using an arrow labeled \"publish model\", and Model Registry loads into \"Model Server\" using an arrow labeled \"load model\". \"Online Inference API\" must query Online Feature Store using an arrow labeled \"online lookup\", call Model Server using an arrow labeled \"score request\", and write to \"Prediction Log\" using an arrow labeled \"prediction events\".",
+    "reference": "                                   +----------------+\n                                   | Feature Registry|\n                                   +----------------+\n                                      |         |\n                                feature defs  feature defs\n                                      v         v\n+-----------------+   historical compute   +--------------------+     +--------------------+   realtime transforms   +------------------+\n| Batch Warehouse |----------------------->| Batch Feature Jobs |     | Stream Feature Jobs |<----------------------| Clickstream Kafka|\n+-----------------+                        +--------------------+     +--------------------+                       +------------------+\n                                                   |        \\\\                  |\n                                          backfill features  batch materialize  fresh features\n                                                   v          v                  v\n                                       +------------------------+      +------------------------+<----- online lookup -----+\n                                       | Offline Feature Store  |      | Online Feature Store   |                           |\n                                       +------------------------+      +------------------------+                           |\n                                                   |                                                                    +----------------------+\n                                              training set                                                              | Online Inference API |\n                                                   v                                                                    +----------------------+\n                                           +------------------+                                                                  |\n                                           | Training Pipeline |                                                            prediction events\n                                           +------------------+                                                                  v\n                                                   |                                                                    +----------------+\n                                              publish model                                                             | Prediction Log |\n                                                   v                                                                    +----------------+\n                                           +----------------+\n                                           | Model Registry |\n                                           +----------------+\n                                                   |\n                                              load model\n                                                   v\n                                           +--------------+<-------------------------- score request --------------------------+\n                                           | Model Server |\n                                           +--------------+",
     "assertions": {
       "required_labels": [
-        "User",
-        "Online Prediction API",
+        "Batch Warehouse",
+        "Clickstream Kafka",
+        "Feature Registry",
+        "Batch Feature Jobs",
+        "Stream Feature Jobs",
+        "Offline Feature Store",
+        "Online Feature Store",
+        "Training Pipeline",
+        "Model Registry",
         "Model Server",
-        "Online Feature Cache",
-        "Feature Pipeline",
-        "Offline Warehouse",
-        "Training Jobs",
-        "Model Registry"
+        "Online Inference API",
+        "Prediction Log",
+        "historical compute",
+        "realtime transforms",
+        "feature defs",
+        "backfill features",
+        "batch materialize",
+        "fresh features",
+        "training set",
+        "publish model",
+        "load model",
+        "online lookup",
+        "score request",
+        "prediction events"
       ],
       "forbidden_labels": [],
-      "entity_count": 8,
+      "entity_count": 12,
       "required_edges": [
         {
-          "from": "User",
-          "to": "Online Prediction API"
+          "from": "Batch Warehouse",
+          "to": "Batch Feature Jobs"
         },
         {
-          "from": "Online Prediction API",
-          "to": "Model Server"
+          "from": "Clickstream Kafka",
+          "to": "Stream Feature Jobs"
         },
         {
-          "from": "Online Prediction API",
-          "to": "Online Feature Cache"
+          "from": "Feature Registry",
+          "to": "Batch Feature Jobs"
         },
         {
-          "from": "Offline Warehouse",
-          "to": "Feature Pipeline"
+          "from": "Feature Registry",
+          "to": "Stream Feature Jobs"
         },
         {
-          "from": "Feature Pipeline",
-          "to": "Online Feature Cache"
+          "from": "Batch Feature Jobs",
+          "to": "Offline Feature Store"
         },
         {
-          "from": "Offline Warehouse",
-          "to": "Training Jobs"
+          "from": "Batch Feature Jobs",
+          "to": "Online Feature Store"
         },
         {
-          "from": "Training Jobs",
+          "from": "Stream Feature Jobs",
+          "to": "Online Feature Store"
+        },
+        {
+          "from": "Offline Feature Store",
+          "to": "Training Pipeline"
+        },
+        {
+          "from": "Training Pipeline",
           "to": "Model Registry"
         },
         {
           "from": "Model Registry",
           "to": "Model Server"
+        },
+        {
+          "from": "Online Inference API",
+          "to": "Online Feature Store"
+        },
+        {
+          "from": "Online Inference API",
+          "to": "Model Server"
+        },
+        {
+          "from": "Online Inference API",
+          "to": "Prediction Log"
         }
       ],
-      "required_edge_labels": [],
+      "required_edge_labels": [
+        "historical compute",
+        "realtime transforms",
+        "feature defs",
+        "backfill features",
+        "batch materialize",
+        "fresh features",
+        "training set",
+        "publish model",
+        "load model",
+        "online lookup",
+        "score request",
+        "prediction events"
+      ],
       "preserved_elements": []
     }
   },
   "4.20": {
-    "prompt": "Draw a multi-signal observability pipeline: three services, \"Service A\", \"Service B\", and \"Service C\", all send telemetry to \"OTel Collector\". Collector routes traces to \"Tempo\", metrics to \"Prometheus\", and logs to \"Loki\". \"Grafana\" reads from all three backends.",
-    "reference": "+-----------+  +-----------+  +-----------+\n| Service A |  | Service B |  | Service C |\n+-----------+  +-----------+  +-----------+\n      \\             |             /\n       \\            |            /\n        v           v           v\n          +--------------------+\n          | OTel Collector     |\n          +--------------------+\n              /      |       \\\n             v       v        v\n      +--------+ +----------+ +------------+\n      | Tempo  | |Prometheus| |   Loki     |\n      +--------+ +----------+ +------------+\n             \\       |        /\n              \\      |       /\n               v     v      v\n               +--------------+\n               |   Grafana    |\n               +--------------+",
+    "prompt": "Draw a real-world OpenTelemetry gateway pipeline. Put three application boxes on the top row: \"Service A\", \"Service B\", and \"Service C\". Each service must send to its own agent collector below it: \"OTel Agent A\", \"OTel Agent B\", and \"OTel Agent C\" using arrows labeled \"OTLP\". All three agents send into one central \"OTel Gateway\" using arrows labeled \"forward OTLP\". OTel Gateway fans out to three processing paths: \"Tail Sampling\" using an arrow labeled \"traces\", \"Metrics Pipeline\" using an arrow labeled \"metrics\", and \"Logs Pipeline\" using an arrow labeled \"logs\". Tail Sampling exports to \"Tempo\" using an arrow labeled \"sampled spans\". Metrics Pipeline exports to \"Mimir\" using an arrow labeled \"remote write\". Logs Pipeline exports to \"Loki\" using an arrow labeled \"log push\". Mimir must also connect to \"Alertmanager\" using an arrow labeled \"rule alerts\". Finally, \"Grafana\" must read from Tempo, Mimir, and Loki.",
+    "reference": "+-----------+          +-----------+          +-----------+\n| Service A |          | Service B |          | Service C |\n+-----------+          +-----------+          +-----------+\n      |                      |                      |\n     OTLP                   OTLP                   OTLP\n      v                      v                      v\n+--------------+       +--------------+       +--------------+\n| OTel Agent A |       | OTel Agent B |       | OTel Agent C |\n+--------------+       +--------------+       +--------------+\n      \\                     |                     /\n       \\               forward OTLP             /\n        \\                   |                  /\n         v                  v                 v\n              +---------------------------+\n              |        OTel Gateway       |\n              +---------------------------+\n                 /            |            \\\n              traces       metrics         logs\n                v            v              v\n      +----------------+ +------------------+ +---------------+\n      | Tail Sampling  | | Metrics Pipeline | | Logs Pipeline |\n      +----------------+ +------------------+ +---------------+\n                |              |                     |\n          sampled spans   remote write            log push\n                v              v                     v\n          +---------+     +--------+           +--------+\n          |  Tempo  |     | Mimir  |           |  Loki  |\n          +---------+     +--------+           +--------+\n                              |\n                         rule alerts\n                              v\n                      +--------------+\n                      | Alertmanager |\n                      +--------------+\n\n          +---------+                    +---------+                    +--------+\n          |  Tempo  |------------------->|         |<-------------------| Mimir  |\n          +---------+                    | Grafana |                    +--------+\n                                         |         |\n          +--------+-------------------->|         |\n          |  Loki  |                     +---------+\n          +--------+",
     "assertions": {
       "required_labels": [
         "Service A",
         "Service B",
         "Service C",
-        "OTel Collector",
+        "OTel Agent A",
+        "OTel Agent B",
+        "OTel Agent C",
+        "OTel Gateway",
+        "Tail Sampling",
+        "Metrics Pipeline",
+        "Logs Pipeline",
         "Tempo",
-        "Prometheus",
+        "Mimir",
         "Loki",
-        "Grafana"
+        "Alertmanager",
+        "Grafana",
+        "OTLP",
+        "forward OTLP",
+        "traces",
+        "metrics",
+        "logs",
+        "sampled spans",
+        "remote write",
+        "log push",
+        "rule alerts"
       ],
       "forbidden_labels": [],
-      "entity_count": 8,
+      "entity_count": 15,
       "required_edges": [
         {
           "from": "Service A",
-          "to": "OTel Collector"
+          "to": "OTel Agent A"
         },
         {
           "from": "Service B",
-          "to": "OTel Collector"
+          "to": "OTel Agent B"
         },
         {
           "from": "Service C",
-          "to": "OTel Collector"
+          "to": "OTel Agent C"
         },
         {
-          "from": "OTel Collector",
+          "from": "OTel Agent A",
+          "to": "OTel Gateway"
+        },
+        {
+          "from": "OTel Agent B",
+          "to": "OTel Gateway"
+        },
+        {
+          "from": "OTel Agent C",
+          "to": "OTel Gateway"
+        },
+        {
+          "from": "OTel Gateway",
+          "to": "Tail Sampling"
+        },
+        {
+          "from": "OTel Gateway",
+          "to": "Metrics Pipeline"
+        },
+        {
+          "from": "OTel Gateway",
+          "to": "Logs Pipeline"
+        },
+        {
+          "from": "Tail Sampling",
           "to": "Tempo"
         },
         {
-          "from": "OTel Collector",
-          "to": "Prometheus"
+          "from": "Metrics Pipeline",
+          "to": "Mimir"
         },
         {
-          "from": "OTel Collector",
+          "from": "Logs Pipeline",
           "to": "Loki"
+        },
+        {
+          "from": "Mimir",
+          "to": "Alertmanager"
         },
         {
           "from": "Tempo",
           "to": "Grafana"
         },
         {
-          "from": "Prometheus",
+          "from": "Mimir",
           "to": "Grafana"
         },
         {
@@ -1094,7 +1575,17 @@
           "to": "Grafana"
         }
       ],
-      "required_edge_labels": [],
+      "required_edge_labels": [
+        "OTLP",
+        "forward OTLP",
+        "traces",
+        "metrics",
+        "logs",
+        "sampled spans",
+        "remote write",
+        "log push",
+        "rule alerts"
+      ],
       "preserved_elements": []
     }
   }

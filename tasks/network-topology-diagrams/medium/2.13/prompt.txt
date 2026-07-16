@@ -1,1 +1,0 @@
-Draw a service mesh with sidecars. Three services in a row: "Service A", "Service B", "Service C". Each has a small sidecar box directly below it labeled "Proxy". All Proxy boxes connect to a central "Control Plane" box below.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

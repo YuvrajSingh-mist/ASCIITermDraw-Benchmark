@@ -1,1 +1,0 @@
-Draw a single ASCII box labeled "Config" containing two lines of content: "host: localhost" on the first line and "port: 8080" on the second line.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

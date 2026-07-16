@@ -31,6 +31,7 @@ from scripts.lib.fireworks_api import (
     upload_dataset_file,
     wait_for_batch_job,
 )
+from scripts.rendered.render import render as render_ascii_file_to_png
 
 
 SYSTEM_PROMPT = (
@@ -143,6 +144,14 @@ def write_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:
             handle.write(json.dumps(row) + "\n")
 
 
+def write_output_and_render_png(outputs_dir: Path, task_id: str, text: str) -> tuple[Path, Path]:
+    output_path = outputs_dir / f"{task_id}.txt"
+    png_path = outputs_dir / f"{task_id}.png"
+    output_path.write_text(text.strip() + "\n")
+    render_ascii_file_to_png(output_path, png_path)
+    return output_path, png_path
+
+
 def run(
     model_name: str,
     tasks_dir: str,
@@ -250,7 +259,7 @@ def run(
             if not task_id:
                 continue
             text = extract_batch_content(row)
-            (outputs / f"{task_id}.txt").write_text(text.strip() + "\n")
+            write_output_and_render_png(outputs, task_id, text)
             written += 1
             print(f"Done: {task_id}")
 

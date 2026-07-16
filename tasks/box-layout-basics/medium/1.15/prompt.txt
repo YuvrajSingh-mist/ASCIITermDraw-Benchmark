@@ -1,1 +1,0 @@
-Draw a circle node labeled "Start" using ( ) notation, connected with a right arrow to a rectangular box labeled "Process".Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

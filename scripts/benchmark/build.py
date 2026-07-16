@@ -44,7 +44,7 @@ def render_tasks() -> None:
         )
         expected_dirs.add(task_dir)
         assertions = normalize_assertions(task_id, data["assertions"])
-        prompt = finalize_task_prompt(task_id, data["prompt"])
+        prompt = finalize_task_prompt(task_id, data["prompt"], assertions)
         judge_prompt = build_judge_prompt(
             task_id,
             prompt,

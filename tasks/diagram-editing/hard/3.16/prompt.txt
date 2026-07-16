@@ -1,1 +1,0 @@
-Merge the "Auth" and "Session" boxes into one box labeled "Auth+Session Service". Update all connections so the merged box connects to both "Users DB" and "Sessions DB".Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

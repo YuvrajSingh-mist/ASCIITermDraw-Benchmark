@@ -13,3 +13,4 @@ results*.csv
 node_modules/
 termdraw_benchmark_spec.md
 outputs/
+tasks/

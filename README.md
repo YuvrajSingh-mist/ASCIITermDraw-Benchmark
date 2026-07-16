@@ -155,6 +155,32 @@ This uses the Pydantic / Instructor path and stores parsed JSON judgments in
 `outputs/.../judge_json/`. The judge now returns `structural_score`,
 `semantics_score`, and `score`, where `score = structural_score + semantics_score`.
 
+You can also run a multimodal `deepeval` GEval judge against rendered output PNGs:
+
+```bash
+uv sync
+uv run --no-sync python -m scripts.judge.run_geval_judge \
+  --provider openai \
+  --model gpt-5.4 \
+  --tasks tasks/ \
+  --outputs outputs/qwen2.5-7b/ \
+  --results results_qwen2.5-7b.csv
+```
+
+For Anthropic:
+
+```bash
+uv run --no-sync python -m scripts.judge.run_geval_judge \
+  --provider anthropic \
+  --model claude-sonnet-4-5 \
+  --tasks tasks/ \
+  --outputs outputs/qwen2.5-7b/ \
+  --results results_qwen2.5-7b.csv
+```
+
+The `python -m ...` form runs the live source tree directly after `uv sync`,
+which is useful while iterating on the judge itself.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for repository conventions and contribution guidance.

@@ -1,1 +1,0 @@
-Draw a fan-out layout with one box labeled "Leader" at the top. Below it, draw three boxes in a row labeled "Worker A", "Worker B", and "Worker C". Connect the Leader to each worker with aligned arrows.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

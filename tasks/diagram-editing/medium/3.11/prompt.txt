@@ -1,1 +1,0 @@
-Scale the app layer to 3 instances. Add "App-2" and "App-3" alongside App-1. Connect NGINX to all three with arrows while keeping the app layer evenly aligned below NGINX.Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

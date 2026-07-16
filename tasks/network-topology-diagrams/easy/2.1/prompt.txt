@@ -1,1 +1,0 @@
-Draw a client-server-database chain: "Browser" → "Web Server" → "PostgreSQL". Show arrows between each.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

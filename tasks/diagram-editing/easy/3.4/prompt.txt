@@ -1,1 +1,0 @@
-Reverse the arrow direction. It should now point from NodeB to NodeA.Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

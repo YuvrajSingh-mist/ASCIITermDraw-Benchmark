@@ -1,1 +1,0 @@
-Draw a two-column layout. Left column: one box labeled "Client". Right column: two stacked boxes labeled "Primary DB" on top and "Replica DB" below. Connect the Client to both DB boxes with arrows pointing right.Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.

@@ -1,1 +1,0 @@
-Rename "App Srv" to "FastAPI". Resize the box to fit the new label. Keep everything else exactly the same.Strictly apply only the requested edits and do not make any other changes outside them. Return only the final ASCII diagram in plain text. Do not include markdown fences, explanations, or any extra text.
