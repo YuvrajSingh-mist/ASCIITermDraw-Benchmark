@@ -12,6 +12,8 @@ from typing import List
 
 @dataclass
 class Assertions:
+    """Parsed fields from a task's assertions.json that L1 checks are scored against."""
+
     required_labels: List[str] = field(default_factory=list)
     forbidden_labels: List[str] = field(default_factory=list)
     entity_count: int = 0
@@ -20,6 +22,7 @@ class Assertions:
 
 
 def load_assertions(path: str) -> Assertions:
+    """Load assertions.json, keeping only the fields Assertions declares."""
     data = json.loads(Path(path).read_text())
     return Assertions(**{k: v for k, v in data.items()
                          if k in Assertions.__dataclass_fields__})
@@ -69,6 +72,7 @@ def box_integrity(lines: List[str]) -> float:
 
 
 def label_recall(output: str, required: List[str]) -> float:
+    """Fraction of required labels found (case-insensitive substring match) in the output."""
     if not required:
         return 1.0
     found = sum(1 for lbl in required
@@ -77,6 +81,7 @@ def label_recall(output: str, required: List[str]) -> float:
 
 
 def label_absent(output: str, forbidden: List[str]) -> float:
+    """Fraction of forbidden labels correctly absent from the output."""
     if not forbidden:
         return 1.0
     absent = sum(1 for lbl in forbidden
@@ -85,6 +90,7 @@ def label_absent(output: str, forbidden: List[str]) -> float:
 
 
 def entity_count_score(lines: List[str], expected: int) -> float:
+    """Score how close the count of detected box top-left corners is to the expected entity count."""
     if expected == 0:
         return 1.0
     # Count distinct closed boxes (top-left corners)
@@ -102,6 +108,7 @@ def entity_count_score(lines: List[str], expected: int) -> float:
 
 
 def edge_presence(output: str, edges: list) -> float:
+    """Fraction of required edges where both endpoint labels appear and some connector character exists in the output."""
     if not edges:
         return 1.0
     # For each required edge, check that both labels appear and there are
@@ -120,6 +127,7 @@ def edge_presence(output: str, edges: list) -> float:
 
 
 def edge_label_presence(output: str, edge_labels: List[str]) -> float:
+    """Fraction of required edge labels found (case-insensitive substring match) in the output."""
     if not edge_labels:
         return 1.0
     found = sum(1 for lbl in edge_labels if lbl.lower() in output.lower())
@@ -127,6 +135,7 @@ def edge_label_presence(output: str, edge_labels: List[str]) -> float:
 
 
 def format_compliance(output: str) -> float:
+    """1.0 if the output uses at least the basic box-drawing characters (+, -, |), else 0.0."""
     has_plus  = '+' in output
     has_dash  = '-' in output
     has_pipe  = '|' in output
@@ -134,6 +143,7 @@ def format_compliance(output: str) -> float:
 
 
 def score(output: str, assertions: Assertions) -> dict:
+    """Run all L1 structural checks against the output and combine them into a weighted L1_total score."""
     lines = output.splitlines()
     editing = assertions.editing or {}
     b  = box_integrity(lines)

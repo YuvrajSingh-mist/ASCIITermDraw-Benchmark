@@ -6,32 +6,48 @@ generate and edit structured ASCII diagrams.
 It ships as a normal GitHub-style repository with:
 
 - `80` tasks across `4` categories
-- checked-in `tasks/` and `oneshot/` assets
-- Fireworks-based generation scripts
-- assertion scoring plus a VLM judge
+- a generated `tasks/` tree (not distributed publicly — it's the test set)
+- Fireworks-based generation (model responses + rendered PNGs only —
+  Fireworks is not used for judging)
+- assertion scoring plus a DeepEval `BaseMetric` judge against OpenAI/Anthropic
 - a website under `website/`
 
 ## Quick Start
 
-The benchmark already ships prebuilt in this repository. You do not need to
-generate the tasks yourself.
-
-To run models against it locally:
+`tasks/` is **not** checked into this repository (see `.gitignore`) and is
+not publicly distributed — it's the benchmark's test set, generated from
+`scripts/benchmark/data/*.json`. Access is maintainer-controlled; this README
+does not document how to obtain it. If you're running this benchmark and
+don't already have `tasks/` in place, ask the maintainer.
 
 ```bash
 uv sync
 cp .env.example .env
-# put your Fireworks key in .env
+# put your Fireworks / OpenAI / Anthropic keys in .env
 ```
 
-Then use one of these:
+### 1. Render reference PNGs
+
+Rendering ASCII diagrams to PNG uses Node + Playwright. See `DEVELOPER.md`
+(local-only, not tracked in this repo) for setup; once set up:
+
+```bash
+uv run python -m scripts.rendered.render_all
+```
+
+### 2. Generate and judge
 
 ```bash
 uv run smoke --model accounts/fireworks/models/qwen3p7-plus --outputs outputs/smoke
 uv run run-model --model accounts/fireworks/models/your-model --outputs outputs/my-run
 uv run eval --outputs outputs/my-run --results results.csv
-uv run judge --model accounts/fireworks/models/your-judge-model --outputs outputs/my-run --results judge_results.csv
+uv run judge-geval --provider openai --model gpt-5.4 --tasks tasks --outputs outputs/my-run --results outputs/geval_results.csv
 ```
+
+`--model` must be a model actually deployed on your Fireworks account —
+placeholder-looking names (`your-model`, `qwen3-vl-8b-instruct`, etc.) will
+404. `qwen3p7-plus` above is a real, currently-working example; verify your
+own account's available models before a large run.
 
 That is the intended user-facing surface. The lower-level Python scripts still
 exist, but most people should not need to call them directly.
@@ -60,8 +76,7 @@ Category 3 tasks also contain:
 
 ```text
 .
-├── oneshot/
-├── tasks/
+├── tasks/                  # generated, not checked in — see Quick Start
 │   ├── box-layout-basics/
 │   │   ├── easy/
 │   │   ├── medium/
@@ -101,7 +116,6 @@ uv run run-model \
   --model accounts/fireworks/models/your-vision-model \
   --tasks tasks/ \
   --outputs outputs/qwen2.5-7b/ \
-  --oneshot oneshot/ \
   --reasoning-effort none \
   --network-retries 5
 ```
@@ -123,14 +137,15 @@ uv run smoke \
   --model accounts/fireworks/models/your-vision-model \
   --tasks tasks/ \
   --outputs outputs/smoke/ \
-  --oneshot oneshot/ \
   --reasoning-effort none \
   --sample-count 5 \
   --seed 7
 ```
 
-This runs synchronous requests and writes one `{task_id}.txt` per selected task
-plus `outputs/smoke/manifest.json`.
+This runs synchronous requests and writes generations mirroring the
+`tasks/` layout — one `<category>/<difficulty>/<task_id>/{task_id}.txt`
+(and a rendered `.png` alongside it) per selected task — plus
+`outputs/smoke/manifest.json`.
 
 Run L1 scoring:
 
@@ -141,25 +156,12 @@ uv run eval \
   --results results_qwen2.5-7b.csv
 ```
 
-Run structured-output judging:
+Judging is OpenAI/Anthropic only, via DeepEval `BaseMetric` (real `deepeval`
+package import) against rendered output PNGs — Fireworks is used purely for
+generation, not judging:
 
 ```bash
-uv run judge \
-  --model accounts/fireworks/models/your-judge-model \
-  --tasks tasks/ \
-  --outputs outputs/qwen2.5-7b/ \
-  --results results_qwen2.5-7b.csv
-```
-
-This uses the Pydantic / Instructor path and stores parsed JSON judgments in
-`outputs/.../judge_json/`. The judge now returns `structural_score`,
-`semantics_score`, and `score`, where `score = structural_score + semantics_score`.
-
-You can also run the OpenAI / Anthropic multimodal structured judge against rendered output PNGs:
-
-```bash
-uv sync
-uv run --no-sync python -m scripts.judge.run_geval_judge \
+uv run judge-geval \
   --provider openai \
   --model gpt-5.4 \
   --tasks tasks/ \
@@ -170,7 +172,7 @@ uv run --no-sync python -m scripts.judge.run_geval_judge \
 For Anthropic:
 
 ```bash
-uv run --no-sync python -m scripts.judge.run_geval_judge \
+uv run judge-geval \
   --provider anthropic \
   --model claude-sonnet-4-5 \
   --tasks tasks/ \
@@ -178,8 +180,32 @@ uv run --no-sync python -m scripts.judge.run_geval_judge \
   --results results_qwen2.5-7b.csv
 ```
 
-The `python -m ...` form runs the live source tree directly after `uv sync`,
-which is useful while iterating on the judge itself.
+`judge-geval` skips any task without a matching candidate output (at
+`outputs/<category>/<difficulty>/<task_id>/<task_id>.txt`, mirroring `tasks/`)
+rather than failing — generate first, then judge.
+While iterating on the judge itself you can equivalently run the live source
+tree directly with `uv run python -m scripts.judge.run_geval_judge ...`
+using the same flags.
+
+Add `--task-id 1.10` to judge a single task, or `--dry-run` to verify
+artifact wiring (candidate rendering, image assembly) without making any
+provider calls.
+
+Results are written with `geval_structural_score`, `geval_semantics_score`,
+and `geval_score` columns, where
+`geval_score = geval_structural_score + geval_semantics_score`.
+
+## Troubleshooting
+
+- **`RuntimeError: No task directories selected.`** — `tasks/` is empty or
+  missing. Make sure the task set has been placed at `tasks/` (see Quick
+  Start) before running any generation, eval, or judge command.
+- **Playwright / rendering errors** — see `DEVELOPER.md`.
+- **Fireworks `HTTP 404: Model not found, inaccessible, and/or not
+  deployed`** — the `--model` value isn't deployed on your Fireworks
+  account. Confirm the exact model path (`accounts/fireworks/models/...`)
+  from your Fireworks dashboard rather than reusing an example from this
+  README verbatim.
 
 ## Contributing
 

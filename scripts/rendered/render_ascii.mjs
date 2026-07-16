@@ -1,3 +1,6 @@
+// Renders a single .ascii file to a diagram-only PNG using headless Playwright/Chromium.
+// Invoked as: node scripts/rendered/render_ascii.mjs <input.ascii> <output.png>
+// Called from Python via scripts/rendered/render.py (subprocess) and scripts/judge/geval_support.py (candidate PNG rendering).
 import { readFile } from "node:fs/promises";
 import { chromium } from "playwright";
 

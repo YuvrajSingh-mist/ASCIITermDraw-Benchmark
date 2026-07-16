@@ -1,15 +1,17 @@
+"""DeepEval `BaseMetric` classes (structural + semantic) that wrap StructuredJudgeBackend, plus DeepEval LLMTestCase construction."""
 from __future__ import annotations
 
 from typing import Any
 
 from scripts.judge.geval_support import StructuredJudgeBackend, TaskArtifacts
-from scripts.judge.run_vlm_judge import (
+from scripts.judge.judge_schema import (
     semantics_score_from_observations,
     structural_score_from_observations,
 )
 
 
 def require_deepeval_base_metric() -> tuple[Any, Any]:
+    """Import deepeval's BaseMetric and LLMTestCase, or raise a friendly error if deepeval isn't installed."""
     try:
         from deepeval.metrics import BaseMetric
         from deepeval.test_case import LLMTestCase
@@ -21,19 +23,24 @@ def require_deepeval_base_metric() -> tuple[Any, Any]:
 
 
 def build_metric_classes() -> tuple[type[Any], type[Any]]:
+    """Build the StructuralJudgeMetric/SemanticJudgeMetric BaseMetric subclasses (defined dynamically since BaseMetric only exists once deepeval is importable)."""
     BaseMetric, LLMTestCase = require_deepeval_base_metric()
 
     class StructuralJudgeMetric(BaseMetric):
-        def __init__(self, backend: StructuredJudgeBackend, threshold: float = 1.0):
+        """DeepEval metric: harness-computed score from comparing the judge's structural observations against assertions.json."""
+
+        def __init__(self, backend: StructuredJudgeBackend, threshold: float = 1.0, round_index: int = 0):
             self.backend = backend
             self.threshold = threshold
+            self.round_index = round_index
             self.score = None
             self.success = None
             self.reason = None
             self.error = None
 
         def measure(self, test_case: LLMTestCase) -> float:
-            cached = self.backend.judge(test_case.name)
+            """Judge the task (or reuse the cached round) and score its structural observations."""
+            cached = self.backend.judge(test_case.name, self.round_index)
             structural_score, _ = structural_score_from_observations(
                 self.backend.artifacts_by_task_id[test_case.name].task_dir,
                 cached.result.structural_observations,
@@ -44,9 +51,11 @@ def build_metric_classes() -> tuple[type[Any], type[Any]]:
             return self.score
 
         async def a_measure(self, test_case: LLMTestCase) -> float:
+            """Async form required by BaseMetric; delegates to the synchronous measure()."""
             return self.measure(test_case)
 
         def is_successful(self) -> bool:
+            """Whether the last measured score met the threshold."""
             if self.error is not None:
                 self.success = False
             else:
@@ -58,16 +67,20 @@ def build_metric_classes() -> tuple[type[Any], type[Any]]:
             return "Structural Evidence Metric"
 
     class SemanticJudgeMetric(BaseMetric):
-        def __init__(self, backend: StructuredJudgeBackend, threshold: float = 1.0):
+        """DeepEval metric: the judge model's own direct semantics_score (connections, text placement, layout, spelling, arrow alignment)."""
+
+        def __init__(self, backend: StructuredJudgeBackend, threshold: float = 1.0, round_index: int = 0):
             self.backend = backend
             self.threshold = threshold
+            self.round_index = round_index
             self.score = None
             self.success = None
             self.reason = None
             self.error = None
 
         def measure(self, test_case: LLMTestCase) -> float:
-            cached = self.backend.judge(test_case.name)
+            """Judge the task (or reuse the cached round) and return its direct semantics_score."""
+            cached = self.backend.judge(test_case.name, self.round_index)
             semantics_score, _ = semantics_score_from_observations(
                 cached.result.semantics,
             )
@@ -77,9 +90,11 @@ def build_metric_classes() -> tuple[type[Any], type[Any]]:
             return self.score
 
         async def a_measure(self, test_case: LLMTestCase) -> float:
+            """Async form required by BaseMetric; delegates to the synchronous measure()."""
             return self.measure(test_case)
 
         def is_successful(self) -> bool:
+            """Whether the last measured score met the threshold."""
             if self.error is not None:
                 self.success = False
             else:
@@ -94,6 +109,7 @@ def build_metric_classes() -> tuple[type[Any], type[Any]]:
 
 
 def build_test_case(task_id: str, artifacts: TaskArtifacts) -> Any:
+    """Build the DeepEval LLMTestCase for a task (prompt as input, generated text as actual_output, reference.ascii as expected_output)."""
     _, LLMTestCase = require_deepeval_base_metric()
     return LLMTestCase(
         name=task_id,

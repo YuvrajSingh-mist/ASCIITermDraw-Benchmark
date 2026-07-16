@@ -23,6 +23,7 @@ C3_EXAMPLE = (
 
 
 def render_all(tasks_root: Path, oneshot_png: Path) -> None:
+    """Render every *.ascii file under tasks_root to a sibling .png, plus a fixed example diagram to oneshot_png."""
     ascii_files = sorted(tasks_root.rglob("*.ascii"))
     if not ascii_files:
         raise FileNotFoundError(f"No .ascii files found under {tasks_root}")
@@ -42,6 +43,7 @@ def render_all(tasks_root: Path, oneshot_png: Path) -> None:
 
 
 def main() -> None:
+    """CLI entrypoint: render every task's reference/source .ascii file plus the oneshot example PNG."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--tasks-root",

@@ -8,7 +8,6 @@ dependencies = [
   "requests>=2.32.0",
   "pydantic>=2.8.0",
   "openai>=1.35.0",
-  "instructor>=1.3.0",
   "anthropic>=0.57.1",
   "deepeval>=3.9.6",
 ]
@@ -17,7 +16,6 @@ dependencies = [
 eval = "scripts.eval:main"
 smoke = "scripts.smoke_generate:main"
 run-model = "scripts.run_model:main"
-judge = "scripts.judge.run_vlm_judge:main"
 judge-geval = "scripts.judge.run_geval_judge:main"
 
 [tool.uv]

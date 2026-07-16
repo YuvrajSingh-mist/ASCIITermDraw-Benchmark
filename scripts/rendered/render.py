@@ -13,6 +13,7 @@ NODE_RENDERER = REPO_ROOT / "scripts" / "rendered" / "render_ascii.mjs"
 
 
 def render(ascii_path: str | Path, out_path: str | Path) -> None:
+    """Render a single .ascii file to a PNG by shelling out to the Node/Playwright renderer."""
     ascii_file = Path(ascii_path).resolve()
     output_file = Path(out_path).resolve()
 
@@ -40,6 +41,7 @@ def render(ascii_path: str | Path, out_path: str | Path) -> None:
 
 
 def main() -> None:
+    """CLI entrypoint: render a single .ascii file to a .png given as positional args."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("ascii_path", help="Path to the input .ascii file")
     parser.add_argument("out_path", help="Path to the output .png file")

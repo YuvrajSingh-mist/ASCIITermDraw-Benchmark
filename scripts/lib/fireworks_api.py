@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Shared Fireworks Batch API helpers for TermDraw-Bench."""
+"""Fireworks synchronous chat-completions transport, .env loading, and tasks/ directory helpers shared across the generation and judging scripts."""
 from __future__ import annotations
 
 import json
@@ -9,29 +9,17 @@ import shutil
 import subprocess
 import time
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
-from urllib.parse import urlparse
-
-if TYPE_CHECKING:
-    import instructor
-    from openai import OpenAI
-    import requests
+from typing import Any
 
 
 API_ROOT = "https://api.fireworks.ai"
-TERMINAL_JOB_STATES = {"COMPLETED", "FAILED", "EXPIRED"}
 TASK_ID_RE = re.compile(r"^\d+\.\d+$")
 RETRYABLE_STATUS_CODES = {408, 409, 425, 429, 500, 502, 503, 504}
-TASK_CATEGORY_DIRS = {
-    "1": "box-layout-basics",
-    "2": "network-topology-diagrams",
-    "3": "diagram-editing",
-    "4": "software-architecture-diagrams",
-}
 ROOT = Path(__file__).resolve().parents[2]
 
 
 def _candidate_env_files() -> list[Path]:
+    """List every `.env.local`/`.env` path worth checking, nearest-first, deduplicated."""
     files: list[Path] = []
     seen: set[Path] = set()
 
@@ -47,6 +35,7 @@ def _candidate_env_files() -> list[Path]:
 
 
 def load_local_env() -> None:
+    """Populate os.environ from the first matching .env.local/.env file, without overwriting values already set."""
     for env_file in _candidate_env_files():
         if not env_file.exists():
             continue
@@ -64,43 +53,16 @@ def load_local_env() -> None:
 load_local_env()
 
 
-def _requests_module():
-    try:
-        import requests
-    except ModuleNotFoundError as exc:
-        raise RuntimeError(
-            "Missing Python dependency `requests`. "
-            "Install project dependencies with `uv sync`."
-        ) from exc
-    return requests
-
-
 def require_env(name: str) -> str:
+    """Return the named environment variable, or raise if it's missing/blank."""
     value = os.environ.get(name, "").strip()
     if not value:
         raise RuntimeError(f"Missing required environment variable: {name}")
     return value
 
 
-def create_instructor_client(api_key: str) -> "instructor.Instructor":
-    try:
-        import instructor
-        from openai import OpenAI
-    except ModuleNotFoundError as exc:
-        raise RuntimeError(
-            "Missing Instructor/OpenAI dependencies. "
-            "Install project dependencies with `uv sync`."
-        ) from exc
-
-    return instructor.from_openai(
-        OpenAI(
-            base_url=f"{API_ROOT}/inference/v1",
-            api_key=api_key,
-        )
-    )
-
-
 def _retry_sleep_seconds(response=None, attempt: int = 0) -> float:
+    """Pick a retry delay: honor a Retry-After header if present, else exponential backoff capped at 30s."""
     if response is not None:
         retry_after = response.headers.get("Retry-After")
         if retry_after:
@@ -111,87 +73,9 @@ def _retry_sleep_seconds(response=None, attempt: int = 0) -> float:
     return min(30.0, 1.5 * (2 ** attempt))
 
 
-def _request_with_retries(
-    session,
-    method: str,
-    url: str,
-    *,
-    max_retries: int,
-    timeout: int | float,
-    **kwargs: Any,
-):
-    requests = _requests_module()
-    last_error = None
-    for attempt in range(max_retries):
-        try:
-            response = session.request(method, url, timeout=timeout, **kwargs)
-        except (
-            requests.exceptions.Timeout,
-            requests.exceptions.ConnectionError,
-            requests.exceptions.ChunkedEncodingError,
-        ) as exc:
-            last_error = exc
-            if attempt == max_retries - 1:
-                break
-            delay = _retry_sleep_seconds(attempt=attempt)
-            print(
-                f"Retrying {method} {urlparse(url).path} after transport failure "
-                f"({attempt + 1}/{max_retries}, sleep={delay:.1f}s): {exc}"
-            )
-            time.sleep(delay)
-            continue
-
-        if response.status_code in RETRYABLE_STATUS_CODES and attempt < max_retries - 1:
-            delay = _retry_sleep_seconds(response=response, attempt=attempt)
-            print(
-                f"Retrying {method} {urlparse(url).path} after HTTP "
-                f"{response.status_code} ({attempt + 1}/{max_retries}, sleep={delay:.1f}s)"
-            )
-            time.sleep(delay)
-            continue
-
-        return response
-
-    raise RuntimeError(
-        f"Fireworks API {method} {url} failed after {max_retries} attempts: {last_error}"
-    ) from last_error
-
-
-def create_session(api_key: str) -> requests.Session:
-    requests = _requests_module()
-    session = requests.Session()
-    session.headers.update({"Authorization": f"Bearer {api_key}"})
-    return session
-
-
-def request_json(
-    session: requests.Session,
-    method: str,
-    url: str,
-    *,
-    max_retries: int = 5,
-    **kwargs: Any,
-) -> dict[str, Any]:
-    response = _request_with_retries(
-        session,
-        method,
-        url,
-        max_retries=max_retries,
-        timeout=120,
-        **kwargs,
-    )
-    if not response.ok:
-        snippet = response.text[:1000]
-        raise RuntimeError(
-            f"Fireworks API {method} {url} failed with "
-            f"{response.status_code}: {snippet}"
-        )
-    if not response.content:
-        return {}
-    return response.json()
-
-
 class CurlHTTPError(RuntimeError):
+    """An HTTP error response (status >= 400) from a curl-based request, with the status code and body attached."""
+
     def __init__(self, status_code: int, body: str):
         super().__init__(f"HTTP {status_code}: {body[:1000]}")
         self.status_code = status_code
@@ -205,6 +89,7 @@ def _curl_json_request(
     payload: dict[str, Any],
     timeout: int | float,
 ) -> dict[str, Any]:
+    """POST a JSON payload via the `curl` binary and return the parsed JSON response, raising CurlHTTPError on non-2xx."""
     curl = shutil.which("curl")
     if not curl:
         raise RuntimeError("Missing required system dependency: curl")
@@ -247,22 +132,31 @@ def chat_completion_with_retries(
     *,
     model: str,
     messages: list[dict[str, Any]],
-    max_tokens: int,
-    temperature: float,
-    top_p: float,
     reasoning_effort: str,
     network_retries: int,
+    max_tokens: int | None = None,
+    temperature: float | None = None,
+    top_p: float | None = None,
     timeout: int | float = 90,
     request_label: str = "chat completion",
 ) -> dict[str, Any]:
+    """Call Fireworks' synchronous chat-completions endpoint, retrying on retryable HTTP codes/timeouts/transport errors.
+
+    `max_tokens`/`temperature`/`top_p` are omitted from the request payload when
+    left as None, so the model falls back to its own defaults instead of a
+    hardcoded value.
+    """
     payload = {
         "model": model,
-        "temperature": temperature,
-        "max_tokens": max_tokens,
-        "top_p": top_p,
         "reasoning_effort": reasoning_effort,
         "messages": messages,
     }
+    if temperature is not None:
+        payload["temperature"] = temperature
+    if max_tokens is not None:
+        payload["max_tokens"] = max_tokens
+    if top_p is not None:
+        payload["top_p"] = top_p
     last_error = None
     for attempt in range(network_retries):
         try:
@@ -309,27 +203,14 @@ def chat_completion_with_retries(
     raise RuntimeError(f"No response received for {request_label}: {last_error}")
 
 
-def dataset_name(account_id: str, dataset_id: str) -> str:
-    if dataset_id.startswith("accounts/"):
-        return dataset_id
-    return f"accounts/{account_id}/datasets/{dataset_id}"
-
-
-def slugify(value: str) -> str:
-    slug = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
-    return slug or "run"
-
-
-def truncate_display_name(value: str, limit: int = 63) -> str:
-    return value[:limit]
-
-
 def task_sort_key(task_id: str) -> tuple[int, float]:
+    """Sort key for a task id like "2.11": (category as int, "category.minor" as float)."""
     category, remainder = task_id.split(".", 1)
     return int(category), float(f"{category}.{remainder}")
 
 
 def iter_task_dirs(tasks_dir: Path) -> list[Path]:
+    """List every task directory under tasks_dir (any dir named like a task id, e.g. "2.11"), sorted by task_sort_key."""
     return sorted(
         [
             path
@@ -340,240 +221,18 @@ def iter_task_dirs(tasks_dir: Path) -> list[Path]:
     )
 
 
-def create_dataset(
-    session: requests.Session,
-    account_id: str,
-    dataset_id: str,
-    display_name: str,
-    *,
-    example_count: int,
-    max_retries: int = 5,
-) -> dict[str, Any]:
-    url = f"{API_ROOT}/v1/accounts/{account_id}/datasets"
-    payload = {
-        "datasetId": dataset_id,
-        "dataset": {
-            "displayName": display_name,
-            "exampleCount": str(example_count),
-            "userUploaded": {},
-        },
-    }
-    response = _request_with_retries(
-        session,
-        "POST",
-        url,
-        max_retries=max_retries,
-        timeout=120,
-        json=payload,
-    )
-    if response.status_code == 409:
-        return {"datasetId": dataset_id, "already_exists": True}
-    if not response.ok:
-        snippet = response.text[:1000]
-        raise RuntimeError(
-            f"Fireworks API POST {url} failed with {response.status_code}: {snippet}"
-        )
-    return response.json() if response.content else {}
+def task_output_dir(outputs_dir: Path, task_dir: Path) -> Path:
+    """Mirror a task's `category/difficulty/task_id` layout under an outputs dir.
 
-
-def upload_dataset_file(
-    session: requests.Session,
-    account_id: str,
-    dataset_id: str,
-    file_path: Path,
-    *,
-    max_retries: int = 5,
-) -> dict[str, Any]:
-    url = f"{API_ROOT}/v1/accounts/{account_id}/datasets/{dataset_id}:upload"
-    response = None
-    for attempt in range(max_retries):
-        with file_path.open("rb") as handle:
-            files = {"file": (file_path.name, handle)}
-            response = _request_with_retries(
-                session,
-                "POST",
-                url,
-                max_retries=1,
-                timeout=300,
-                files=files,
-            )
-        if response.ok or response.status_code not in RETRYABLE_STATUS_CODES:
-            break
-        if attempt == max_retries - 1:
-            break
-        delay = _retry_sleep_seconds(response=response, attempt=attempt)
-        print(
-            f"Retrying dataset upload {urlparse(url).path} after HTTP "
-            f"{response.status_code} ({attempt + 1}/{max_retries}, sleep={delay:.1f}s)"
-        )
-        time.sleep(delay)
-    if not response.ok:
-        snippet = response.text[:1000]
-        raise RuntimeError(
-            f"Fireworks dataset upload failed with "
-            f"{response.status_code}: {snippet}"
-        )
-    if not response.content:
-        return {}
-    return response.json()
-
-
-def create_batch_job(
-    session: requests.Session,
-    account_id: str,
-    *,
-    job_id: str,
-    model: str,
-    input_dataset_id: str,
-    output_dataset_id: str,
-    inference_parameters: dict[str, Any],
-    display_name: str,
-    max_retries: int = 5,
-) -> dict[str, Any]:
-    url = f"{API_ROOT}/v1/accounts/{account_id}/batchInferenceJobs"
-    payload = {
-        "displayName": display_name,
-        "model": model,
-        "inputDatasetId": dataset_name(account_id, input_dataset_id),
-        "outputDatasetId": dataset_name(account_id, output_dataset_id),
-        "inferenceParameters": inference_parameters,
-    }
-    response = _request_with_retries(
-        session,
-        "POST",
-        url,
-        max_retries=max_retries,
-        timeout=120,
-        params={"batchInferenceJobId": job_id},
-        json=payload,
-    )
-    if response.status_code == 409:
-        return get_batch_job(session, account_id, job_id, max_retries=max_retries)
-    if not response.ok:
-        snippet = response.text[:1000]
-        raise RuntimeError(
-            f"Fireworks API POST {url} failed with {response.status_code}: {snippet}"
-        )
-    return response.json() if response.content else {}
-
-
-def get_batch_job(
-    session: requests.Session,
-    account_id: str,
-    job_id: str,
-    *,
-    max_retries: int = 5,
-) -> dict[str, Any]:
-    url = f"{API_ROOT}/v1/accounts/{account_id}/batchInferenceJobs/{job_id}"
-    return request_json(session, "GET", url, max_retries=max_retries)
-
-
-def wait_for_batch_job(
-    session: requests.Session,
-    account_id: str,
-    job_id: str,
-    *,
-    poll_interval: float,
-    max_retries: int = 5,
-) -> dict[str, Any]:
-    while True:
-        job = get_batch_job(session, account_id, job_id, max_retries=max_retries)
-        state = (job.get("state") or "").replace("JOB_STATE_", "")
-        progress = job.get("jobProgress") or {}
-        percent = progress.get("percent")
-        status = job.get("status") or {}
-        message = status.get("message", "")
-        if percent is None:
-            print(f"[{job_id}] state={state or 'UNKNOWN'}")
-        else:
-            print(f"[{job_id}] state={state or 'UNKNOWN'} percent={percent}")
-        if message:
-            print(f"[{job_id}] status={message}")
-        if state in TERMINAL_JOB_STATES:
-            return job
-        time.sleep(poll_interval)
-
-
-def get_dataset_download_urls(
-    session: requests.Session,
-    account_id: str,
-    dataset_id: str,
-    *,
-    max_retries: int = 5,
-) -> dict[str, str]:
-    url = (
-        f"{API_ROOT}/v1/accounts/{account_id}/datasets/"
-        f"{dataset_id}:getDownloadEndpoint"
-    )
-    payload = request_json(session, "GET", url, max_retries=max_retries)
-    urls = payload.get("filenameToSignedUrls") or {}
-    if not urls:
-        raise RuntimeError("Fireworks returned no downloadable output files.")
-    return urls
-
-
-def download_signed_files(
-    filename_to_url: dict[str, str],
-    destination_dir: Path,
-    *,
-    max_retries: int = 5,
-) -> list[Path]:
-    requests = _requests_module()
-    destination_dir.mkdir(parents=True, exist_ok=True)
-    downloaded: list[Path] = []
-    for remote_name, signed_url in filename_to_url.items():
-        local_name = Path(remote_name).name
-        local_path = destination_dir / local_name
-        last_error = None
-        response = None
-        for attempt in range(max_retries):
-            try:
-                response = requests.get(signed_url, timeout=300)
-            except (
-                requests.exceptions.Timeout,
-                requests.exceptions.ConnectionError,
-                requests.exceptions.ChunkedEncodingError,
-            ) as exc:
-                last_error = exc
-                if attempt == max_retries - 1:
-                    break
-                delay = _retry_sleep_seconds(attempt=attempt)
-                print(
-                    f"Retrying file download {local_name} after transport failure "
-                    f"({attempt + 1}/{max_retries}, sleep={delay:.1f}s): {exc}"
-                )
-                time.sleep(delay)
-                continue
-            if response.status_code in RETRYABLE_STATUS_CODES and attempt < max_retries - 1:
-                delay = _retry_sleep_seconds(response=response, attempt=attempt)
-                print(
-                    f"Retrying file download {local_name} after HTTP "
-                    f"{response.status_code} ({attempt + 1}/{max_retries}, sleep={delay:.1f}s)"
-                )
-                time.sleep(delay)
-                continue
-            break
-        if response is None:
-            raise RuntimeError(
-                f"Failed to download {local_name} after {max_retries} attempts: {last_error}"
-            ) from last_error
-        response.raise_for_status()
-        local_path.write_bytes(response.content)
-        downloaded.append(local_path)
-    return downloaded
-
-
-def read_jsonl(path: Path) -> list[dict[str, Any]]:
-    rows: list[dict[str, Any]] = []
-    for line in path.read_text().splitlines():
-        line = line.strip()
-        if not line:
-            continue
-        rows.append(json.loads(line))
-    return rows
+    `task_dir` is expected to be `<tasks_root>/<category>/<difficulty>/<task_id>`
+    (as returned by `iter_task_dirs`), so the last three path components are
+    reused directly without needing the tasks root.
+    """
+    return outputs_dir / task_dir.parent.parent.name / task_dir.parent.name / task_dir.name
 
 
 def _coerce_content(value: Any) -> str:
+    """Best-effort extraction of plain text from a chat-completion message `content` field, whatever shape it's in."""
     if value is None:
         return ""
     if isinstance(value, str):
@@ -595,6 +254,7 @@ def _coerce_content(value: Any) -> str:
 
 
 def extract_chat_content(row: dict[str, Any]) -> str:
+    """Pull the assistant's text reply out of a Fireworks chat-completion response, trying a few known response shapes."""
     candidates = [
         row.get("choices"),
         row.get("response", {}).get("body", {}).get("choices"),
@@ -619,7 +279,3 @@ def extract_chat_content(row: dict[str, Any]) -> str:
         "Could not find assistant content in response row: "
         f"{json.dumps(row)[:500]}"
     )
-
-
-def extract_batch_content(row: dict[str, Any]) -> str:
-    return extract_chat_content(row)

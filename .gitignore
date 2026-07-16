@@ -11,6 +11,10 @@ outputs/*
 !outputs/.gitignore
 results*.csv
 node_modules/
-termdraw_benchmark_spec.md
 outputs/
 tasks/
+scripts/benchmark/
+
+# Generated/internal docs — keep only README.md files tracked
+*.md
+!README.md

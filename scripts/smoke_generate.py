@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """
-Run a small synchronous Fireworks smoke test against TermDraw-Bench tasks.
-
-This is useful for quickly checking model behavior before paying the batch-job
-latency cost. It uses the same prompt construction as `scripts/run_model.py`
-and disables reasoning by default.
+Quick synchronous Fireworks smoke test against a sample of TermDraw-Bench
+tasks (the `smoke` console script) — useful for a fast sanity check before a
+full `run-model` run. Shares prompt construction and output layout with
+`scripts/run_model.py`; reasoning is disabled by default.
 """
 from __future__ import annotations
 
@@ -29,21 +28,18 @@ def run(
     *,
     model: str,
     tasks_dir: str,
-    oneshot_dir: str,
     outputs_dir: str,
     task_ids: list[str] | None,
     sample_count: int | None,
     seed: int,
-    max_tokens: int,
     temperature: float,
-    top_p: float,
     reasoning_effort: str,
     network_retries: int,
 ) -> None:
+    """Generate ASCII diagrams for a sample of tasks, print each result, and write outputs + a manifest.json."""
     api_key = require_env("FIREWORKS_API_KEY")
 
     tasks = Path(tasks_dir)
-    oneshot = Path(oneshot_dir)
     outputs = Path(outputs_dir)
     outputs.mkdir(parents=True, exist_ok=True)
 
@@ -72,7 +68,7 @@ def run(
 
     for task_dir in selected_task_dirs:
         task_id = task_dir.name
-        user_content = build_user_content(task_id, task_dir, oneshot)
+        user_content = build_user_content(task_id, task_dir)
         response = chat_completion_with_retries(
             api_key,
             model=model,
@@ -80,16 +76,14 @@ def run(
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_content},
             ],
-            max_tokens=max_tokens,
             temperature=temperature,
-            top_p=top_p,
             reasoning_effort=reasoning_effort,
             network_retries=network_retries,
             request_label=f"smoke test {task_id}",
         )
         text = extract_chat_content(response)
 
-        output_path, png_path = write_output_and_render_png(outputs, task_id, text)
+        output_path, png_path = write_output_and_render_png(outputs, task_dir, text)
         preview = text[:300].replace("\n", "\\n")
         print(f"=== {task_id} ===")
         print(text)
@@ -110,17 +104,15 @@ def run(
 
 
 def main() -> None:
+    """CLI entrypoint for `smoke`: parse args and run a sampled generation pass."""
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", required=True, help="Fireworks model path")
     parser.add_argument("--tasks", default="tasks")
-    parser.add_argument("--oneshot", default="oneshot")
     parser.add_argument("--outputs", required=True)
     parser.add_argument("--task-ids", help="Comma-separated task ids, for example 1.4,2.6,4.3")
     parser.add_argument("--sample-count", type=int, help="Randomly sample this many tasks.")
     parser.add_argument("--seed", type=int, default=7)
-    parser.add_argument("--max-tokens", type=int, default=768)
     parser.add_argument("--temperature", type=float, default=0.0)
-    parser.add_argument("--top-p", type=float, default=1.0)
     parser.add_argument("--reasoning-effort", default="none")
     parser.add_argument("--network-retries", type=int, default=5)
     args = parser.parse_args()
@@ -128,16 +120,13 @@ def main() -> None:
     run(
         model=args.model,
         tasks_dir=args.tasks,
-        oneshot_dir=args.oneshot,
         outputs_dir=args.outputs,
         task_ids=[item.strip() for item in args.task_ids.split(",") if item.strip()]
         if args.task_ids
         else None,
         sample_count=args.sample_count,
         seed=args.seed,
-        max_tokens=args.max_tokens,
         temperature=args.temperature,
-        top_p=args.top_p,
         reasoning_effort=args.reasoning_effort,
         network_retries=args.network_retries,
     )
