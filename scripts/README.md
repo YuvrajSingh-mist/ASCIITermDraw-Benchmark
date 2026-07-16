@@ -17,4 +17,4 @@ repository easier to navigate.
 If you add a new reusable helper, prefer `scripts/lib/`.
 If you add a new main workflow command, keep it at the top level of `scripts/` unless it clearly belongs to a focused sub-area such as `judge/` or `rendered/`.
 If you add a renderer backend, place it under `scripts/rendered/`.
-The checked-in `tasks/` dataset is the intended user-facing artifact. The `scripts/benchmark/` code exists as internal maintainer context, not as part of the normal dataset usage flow.
+The benchmark source-of-truth generation code lives under `scripts/benchmark/`. The published dataset can be distributed separately from the repo, so avoid coupling ordinary user workflows to rebuilding it locally.

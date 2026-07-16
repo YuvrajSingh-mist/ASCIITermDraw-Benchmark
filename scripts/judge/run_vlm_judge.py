@@ -70,15 +70,31 @@ class JudgeResult(BaseModel):
 SYSTEM_PROMPT = (
     "You are a strict ASCII-diagram benchmark judge. "
     "Return a valid JudgeResult object. "
-    "For structural judging, report observations only and let the harness score them. "
-    "For semantics, use only the binary fields requested in the prompt schema. "
+    "Structural judging means extracting factual evidence about the candidate diagram: "
+    "which required labels are present, how many entities are present, which required "
+    "edges are present, and for editing tasks which required edge labels and preserved "
+    "elements are present. Report only those observations and let the harness compare "
+    "them against the task assertions to compute the structural score. "
+    "Semantic judging means evaluating whether the candidate diagram actually follows "
+    "the requested architecture and visual intent: connections are correct, node text "
+    "is correct, text is centered, labels are spelled correctly, arrows are cleanly "
+    "aligned, and the overall layout matches the prompt and reference image. "
+    "Return both the binary semantic rubric fields and a direct `semantics_score` from "
+    "0.0 to 1.0 based on that semantic judgment. "
     "Keep `reason` concise."
 )
+
+ROOT = Path(__file__).resolve().parents[2]
+SHARED_JUDGE_CONTRACT_PATH = ROOT / "scripts" / "judge" / "shared_judge_contract.txt"
 
 
 def encode_image_data_url(image_path: Path) -> str:
     encoded = base64.b64encode(image_path.read_bytes()).decode("utf-8")
     return f"data:image/png;base64,{encoded}"
+
+
+def load_shared_judge_contract() -> str:
+    return SHARED_JUDGE_CONTRACT_PATH.read_text().strip()
 
 
 def render_ascii_to_png(ascii_text: str, output_path: Path) -> None:
@@ -223,12 +239,7 @@ def run(
             "{model_output}",
             output_text,
         )
-        prompt += (
-            "\n\nAlso include `semantics_score` as a float from 0.0 to 1.0."
-            " This score must be decided by you from the semantics rubric itself."
-            " Do not let the harness infer it from the binary semantics fields."
-            "\n\nReturn JSON that matches the required schema exactly."
-        )
+        prompt = f"{prompt}\n\n{load_shared_judge_contract()}"
         user_content: str | list[dict[str, Any]] = prompt
         if (task_dir / "source.ascii").exists():
             source_png = task_dir / "source.png"

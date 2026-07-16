@@ -1,0 +1,17 @@
+Scoring contract for this benchmark:
+
+1. `structural_observations` means factual evidence extraction only.
+Report which required labels you can see, the observed entity count, which required edges are present, and for editing tasks which required edge labels and preserved elements are present.
+The harness will compare that evidence against `assertions.json` to compute the structural score.
+
+2. `semantics` means your own visual and architectural judgment.
+Judge whether the connections are made properly, whether all text inside nodes is correct, whether text is centered, whether labels are spelled correctly, whether arrows are centered/aligned cleanly to the intended source and target, and whether the overall layout follows the prompt strictly.
+
+3. For semantic judging, use the task-specific rubric in a dynamic G-Eval style.
+The semantic criteria stay benchmark-wide, but the actual judgment must be specialized to this task prompt, assertions, source image when present, reference image, and candidate image.
+
+4. Also include `semantics_score` as a float from 0.0 to 1.0.
+This score must be decided by you from the semantics rubric itself.
+Do not let the harness infer it from the binary semantics fields.
+
+5. Return JSON that matches the required schema exactly.

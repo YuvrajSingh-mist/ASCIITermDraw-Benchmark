@@ -155,7 +155,7 @@ This uses the Pydantic / Instructor path and stores parsed JSON judgments in
 `outputs/.../judge_json/`. The judge now returns `structural_score`,
 `semantics_score`, and `score`, where `score = structural_score + semantics_score`.
 
-You can also run a multimodal `deepeval` GEval judge against rendered output PNGs:
+You can also run the OpenAI / Anthropic multimodal structured judge against rendered output PNGs:
 
 ```bash
 uv sync
