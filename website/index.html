@@ -49,7 +49,6 @@
       </ul>
       <div class="hero-btns pill-bar">
         <a href="./pages/leaderboard.html" class="btn btn-outline pill-btn">Leaderboard</a>
-        <a href="./pages/quickstart.html" class="btn btn-outline pill-btn">Try Yourself</a>
         <a href="https://huggingface.co/datasets/YuvrajSingh9886/asciitermdraw-bench-public" class="btn btn-outline pill-btn" target="_blank" rel="noopener">
           <span class="pill-icon" aria-hidden="true">&#129303;</span> Public Dataset
         </a>
@@ -88,47 +87,6 @@
       <div class="callout">
         <strong>Current benchmark size.</strong>
         <span id="stats-inline">Loading benchmark metadata...</span>
-      </div>
-    </div>
-  </section>
-
-  <section id="leaderboard-preview" aria-labelledby="heading-leaderboard-preview">
-    <div class="container viz-root">
-      <h2 class="section-title" id="heading-leaderboard-preview">Leaderboard</h2>
-      <div class="lb-disclaimer">
-        <strong>Placeholder data.</strong> Every model, organization, and score
-        below is fabricated to demonstrate the leaderboard's layout — see the
-        <a href="./pages/leaderboard.html">full leaderboard page</a> for the
-        same views at full width.
-      </div>
-
-      <div class="lb-tabs" role="tablist">
-        <button class="lb-tab active" data-panel="panel-mcq-home" role="tab">MCQ</button>
-        <button class="lb-tab" data-panel="panel-perf-dollar-home" role="tab">Perf/$</button>
-        <button class="lb-tab" data-panel="panel-timeline-home" role="tab">Timeline</button>
-        <button class="lb-tab" data-panel="panel-open-ended-home" role="tab">Open-Ended</button>
-      </div>
-
-      <div id="panel-mcq-home" class="lb-panel active">
-        <div id="mcq-table"></div>
-      </div>
-
-      <div id="panel-perf-dollar-home" class="lb-panel">
-        <div id="perf-dollar-chart" class="lb-chart-card">
-          <div class="lb-chart-card-inner"></div>
-          <div id="perf-dollar-legend" class="lb-legend"></div>
-        </div>
-      </div>
-
-      <div id="panel-timeline-home" class="lb-panel">
-        <div id="timeline-chart" class="lb-chart-card">
-          <div class="lb-chart-card-inner"></div>
-          <div id="timeline-legend" class="lb-legend"></div>
-        </div>
-      </div>
-
-      <div id="panel-open-ended-home" class="lb-panel">
-        <div id="open-ended-table"></div>
       </div>
     </div>
   </section>
@@ -348,7 +306,5 @@ uv run smoke \
 
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
-<script src="./assets/js/app.js"></script>
-<script src="./assets/js/leaderboard.js"></script>
-</body>
+<script src="./assets/js/app.js"></script></body>
 </html>

@@ -396,10 +396,7 @@ footer a:hover { color: var(--accent); }
   --lb-text:       #0b0b0b;
   --lb-text-sec:   #52514e;
   --lb-grid:       #e5e0d8;
-  --lb-series-1:   #2a78d6; /* Nimbus Labs */
-  --lb-series-2:   #008300; /* Continuum AI */
-  --lb-series-3:   #e87ba4; /* Vertex Systems */
-  --lb-series-4:   #9a9a9a; /* Other */
+  --lb-series-1:   #2a78d6;
 }
 @media (prefers-color-scheme: dark) {
   :root:where(:not([data-theme="light"])) .viz-root {
@@ -409,9 +406,6 @@ footer a:hover { color: var(--accent); }
     --lb-text-sec: #c3c2b7;
     --lb-grid:     #33322e;
     --lb-series-1: #3987e5;
-    --lb-series-2: #008300;
-    --lb-series-3: #d55181;
-    --lb-series-4: #8a8a86;
   }
 }
 :root[data-theme="dark"] .viz-root {
@@ -421,9 +415,6 @@ footer a:hover { color: var(--accent); }
   --lb-text-sec: #c3c2b7;
   --lb-grid:     #33322e;
   --lb-series-1: #3987e5;
-  --lb-series-2: #008300;
-  --lb-series-3: #d55181;
-  --lb-series-4: #8a8a86;
 }
 
 .lb-disclaimer {
@@ -483,23 +474,8 @@ table.lb-table td {
   color: var(--text);
 }
 
-table.lb-table tr.lb-row-reference td { color: var(--text-ter); font-style: italic; }
 table.lb-table tr.lb-row-rank1 td { background: var(--bg-subtle); }
 table.lb-table td.lb-rank { font-weight: 500; color: var(--accent); width: 4rem; }
-table.lb-table tr.lb-row-reference td.lb-rank { color: var(--text-ter); }
-
-.lb-new-badge {
-  display: inline-block;
-  font-size: 0.68rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #0ca30c;
-  background: rgba(12, 163, 12, 0.12);
-  border-radius: 2px;
-  padding: 0.1rem 0.4rem;
-  margin-left: 0.5rem;
-  vertical-align: middle;
-}
 
 .lb-chart-card {
   background: var(--lb-surface);
@@ -512,7 +488,6 @@ table.lb-table tr.lb-row-reference td.lb-rank { color: var(--text-ter); }
 .lb-chart-card .lb-axis-label { fill: var(--lb-text-sec); font-size: 11px; font-family: "Crimson Pro", Georgia, serif; }
 .lb-chart-card .lb-grid-line { stroke: var(--lb-grid); stroke-width: 1; }
 .lb-chart-card .lb-tick-label { fill: var(--lb-text-sec); font-size: 10.5px; }
-.lb-chart-card .lb-caption-label { fill: var(--lb-text); font-size: 11px; font-weight: 500; }
 
 .lb-dot {
   stroke: var(--lb-surface);
@@ -523,35 +498,6 @@ table.lb-table tr.lb-row-reference td.lb-rank { color: var(--text-ter); }
 .lb-hit {
   fill: transparent;
   cursor: pointer;
-}
-
-.lb-line {
-  fill: none;
-  stroke-width: 2;
-}
-
-.lb-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.1rem;
-  margin-top: 1rem;
-  padding-top: 0.9rem;
-  border-top: 1px solid var(--border-lt);
-}
-
-.lb-legend-item {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.82rem;
-  color: var(--text-sec);
-}
-
-.lb-legend-swatch {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  flex-shrink: 0;
 }
 
 .lb-tooltip {
