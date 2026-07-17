@@ -1,5 +1,5 @@
-+--------+                +----------------+                  +----------------+
-            upload video                      store raw file                    
+                                  
++--------+  upload video  +----------------+  store raw file  +----------------+                  
 | Client |--------------->| Upload Service |----------------->| Object Storage |
 +--------+                +----------------+                  +----------------+
                                        enqueue job                              
