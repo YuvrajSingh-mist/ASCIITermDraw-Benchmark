@@ -98,7 +98,7 @@ function renderPerfDollarChart() {
   for (const row of LEADERBOARD_ROWS) {
     const cx = xScale(row.price);
     const cy = yScale(row.score);
-    svg += `<circle class="lb-dot" cx="${cx}" cy="${cy}" r="6" fill="var(--lb-series-1)" />`;
+    svg += `<circle class="lb-dot" cx="${cx}" cy="${cy}" r="6" fill="var(--accent)" />`;
     svg += `<circle class="lb-hit" cx="${cx}" cy="${cy}" r="13" data-model="${row.model}" data-price="${row.price.toFixed(4)}" data-score="${row.score}" />`;
   }
   svg += `</svg>`;
