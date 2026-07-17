@@ -300,9 +300,10 @@ footer a:hover { color: var(--accent); }
 
 .public-example-img {
   display: block;
-  max-width: 100%;
-  height: auto;
-  max-height: 220px;
+  width: 100%;
+  height: 260px;
+  object-fit: contain;
+  background: #fff;
   border: 1px solid var(--border-lt);
   cursor: zoom-in;
   transition: opacity 0.15s ease;

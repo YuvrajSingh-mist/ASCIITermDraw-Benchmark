@@ -49,7 +49,16 @@ npm install
 npx playwright install chromium
 cp .env.example .env.local</code></pre>
       <pre><code class="language-bash">FIREWORKS_API_KEY=...
-FIREWORKS_ACCOUNT_ID=...</code></pre>
+FIREWORKS_ACCOUNT_ID=...
+OPENAI_API_KEY=...
+ANTHROPIC_API_KEY=...</code></pre>
+      <div class="prose">
+        <p>
+          Fireworks keys are for generation (below); you only need one of
+          <code>OPENAI_API_KEY</code>/<code>ANTHROPIC_API_KEY</code> depending
+          on which judge provider you use in the Scoring section.
+        </p>
+      </div>
     </div>
   </section>
 
@@ -68,6 +77,12 @@ FIREWORKS_ACCOUNT_ID=...</code></pre>
       <h2 class="section-title" id="heading-smoke">Smoke Test</h2>
       <div class="prose">
         <p>Run a synchronous shared-module spot check before spending time on full-benchmark batch inference.</p>
+        <p>
+          <code>--tasks tasks</code> requires the private task set (see the
+          <a href="./tasks.html">Tasks</a> page). Don't have it yet? Swap in
+          <code>--tasks public_dataset</code> to run this exact command
+          against the 12 public example tasks instead.
+        </p>
       </div>
       <pre><code class="language-bash">uv run smoke \
   --model accounts/fireworks/models/qwen3p7-plus \
