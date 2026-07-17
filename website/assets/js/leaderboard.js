@@ -84,7 +84,7 @@ function renderPerfDollarChart() {
   const xTicks = [0.01, 0.03, 0.1, 0.3, 1];
   const yTicks = [0, 25, 50, 75, 100];
 
-  let svg = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Score versus Fireworks generation cost per full benchmark run">`;
+  let svg = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Score (mean +/- stdev over 5 judge runs) versus Fireworks generation cost per full benchmark run">`;
 
   for (const t of yTicks) {
     const y = yScale(t);
@@ -101,6 +101,14 @@ function renderPerfDollarChart() {
   for (const row of LEADERBOARD_ROWS) {
     const cx = xScale(row.price);
     const cy = yScale(row.score);
+    const yTop = yScale(Math.min(100, row.score + row.scoreStdev));
+    const yBottom = yScale(Math.max(0, row.score - row.scoreStdev));
+    const capHalfWidth = 7;
+    // Whisker: mean +/- 1 stdev, not a true box plot (no quartiles/median
+    // available -- only mean and population stdev per model).
+    svg += `<line class="lb-whisker" x1="${cx}" y1="${yTop}" x2="${cx}" y2="${yBottom}" />`;
+    svg += `<line class="lb-whisker-cap" x1="${cx - capHalfWidth}" y1="${yTop}" x2="${cx + capHalfWidth}" y2="${yTop}" />`;
+    svg += `<line class="lb-whisker-cap" x1="${cx - capHalfWidth}" y1="${yBottom}" x2="${cx + capHalfWidth}" y2="${yBottom}" />`;
     svg += `<circle class="lb-dot" cx="${cx}" cy="${cy}" r="6" fill="var(--accent)" />`;
     svg += `<circle class="lb-hit" cx="${cx}" cy="${cy}" r="13" data-model="${row.model}" data-price="${row.price.toFixed(4)}" data-score="${row.score}" data-score-stdev="${row.scoreStdev}" />`;
   }

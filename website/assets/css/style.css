@@ -474,6 +474,18 @@ table.lb-table td.lb-rank { font-weight: 500; color: var(--accent); width: 4rem;
   cursor: pointer;
 }
 
+.lb-whisker {
+  stroke: var(--accent);
+  stroke-width: 2;
+  opacity: 0.45;
+}
+
+.lb-whisker-cap {
+  stroke: var(--accent);
+  stroke-width: 2;
+  opacity: 0.45;
+}
+
 .lb-hit {
   fill: transparent;
   cursor: pointer;
