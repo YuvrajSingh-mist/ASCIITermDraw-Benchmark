@@ -151,41 +151,27 @@
   <section id="anatomy" aria-labelledby="heading-anatomy">
     <div class="container">
       <h2 class="section-title" id="heading-anatomy">Benchmark Anatomy</h2>
-      <pre><code class="language-text">+-------------------------------------+
-| prompt.txt (+ source.png for edits) |
-+-------------------------------------+
-                   |
-                   v
-          +-----------------+
-          | model inference |
-          +-----------------+
-                   |
-                   v
-        +---------------------+
-        | ASCII output (.txt) |
-        +---------------------+
-                   |
-                   v
-      +------------------------+
-      | rendered candidate PNG |
-      +------------------------+
-                   |
-                   v
-       +----------------------+
-       | vlm_judge_prompt.txt |
-       |  + assertions.json   |
-       +----------------------+
-                   |
-                   v
-     +---------------------------+
-     | DeepEval BaseMetric judge |
-     |    (OpenAI / Anthropic)   |
-     +---------------------------+
-                   |
-                   v
-+------------------------------------+
-| results CSV / judge JSON artifacts |
-+------------------------------------+</code></pre>
+      <pre><code class="language-text">+--------------------------+     +-----------------+
+|        prompt.txt        |     | model inference |
+| (+ source.png for edits) | --&gt; |                 |
++--------------------------+     +-----------------+
+           |
+           v
++---------------------+     +------------------------+
+| ASCII output (.txt) | --&gt; | rendered candidate PNG |
++---------------------+     +------------------------+
+            |
+            v
++----------------------+     +---------------------------+
+| vlm_judge_prompt.txt |     | DeepEval BaseMetric judge |
+|  + assertions.json   | --&gt; |   (OpenAI / Anthropic)    |
++----------------------+     +---------------------------+
+            |
+            v
++----------------------+
+|    results CSV /     |
+| judge JSON artifacts |
++----------------------+</code></pre>
       <div class="prose">
         <p>
           Category 3 is multimodal: the model receives a rendered <code>source.png</code> and must apply a textual edit
@@ -194,63 +180,40 @@
       </div>
 
       <h3 class="subsection-title">Judge / GEval Process</h3>
-      <pre><code class="language-text">   +-------------------------------+
-   | candidate.png + reference.png |
-   +-------------------------------+
-                    |
-                    v
-        +----------------------+
-        | vlm_judge_prompt.txt |
-        |  + assertions.json   |
-        +----------------------+
-                    |
-                    v
-   +--------------------------------+
-   | DeepEval BaseMetric judge call |
-   |  (gpt-5.4 / claude-sonnet-5)   |
-   +--------------------------------+
-                    |
-                    v
-  +---------------------------------+
-  |           judge round           |
-  | (repeated N times, default N=5) |
-  +---------------------------------+
-                    |
-                    v
-   +--------------------------------+
-   |    structural_observations     |
-   | (labels, entities, edges seen) |
-   +--------------------------------+
-                    |
-                    v
-          +------------------+
-          | semantics score  |
-          | (0.0-1.0 rubric) |
-          +------------------+
-                    |
-                    v
-     +---------------------------+
-     |    vs. assertions.json    |
-     | -&gt; geval_structural_score |
-     +---------------------------+
-                    |
-                    v
-      +--------------------------+
-      |  averaged across rounds  |
-      | -&gt; geval_semantics_score |
-      +--------------------------+
-                    |
-                    v
-+--------------------------------------+
-| geval_score = structural + semantics |
-|    (max 2.0), mean/stdev per axis    |
-+--------------------------------------+
-                    |
-                    v
-    +-----------------------------+
-    | outputs/&lt;model&gt;/results.csv |
-    | + gval/result.json per task |
-    +-----------------------------+</code></pre>
+      <pre><code class="language-text">+-----------------+     +----------------------+
+| candidate.png + |     | vlm_judge_prompt.txt |
+|  reference.png  | --&gt; |  + assertions.json   |
++-----------------+     +----------------------+
+               |
+               v
++-----------------------------+     +------------------------+
+|         judge call          |     |      judge round       |
+| (gpt-5.4 / claude-sonnet-5) | --&gt; | (N times, default N=5) |
++-----------------------------+     +------------------------+
+              |
+              v
++---------------------------+     +------------------+
+|  structural_observations  |     | semantics score  |
+| (labels, entities, edges) | --&gt; | (0.0-1.0 rubric) |
++---------------------------+     +------------------+
+           |
+           v
++---------------------+     +------------------------+
+| vs. assertions.json |     | averaged across rounds |
+| -&gt; structural_score | --&gt; |   -&gt; semantics_score   |
++---------------------+     +------------------------+
+              |
+              v
++--------------------------+
+|       geval_score        |
+| = structural + semantics |
++--------------------------+
+               |
+               v
++-----------------------------+
+| outputs/&lt;model&gt;/results.csv |
+| + gval/result.json per task |
++-----------------------------+</code></pre>
       <div class="prose">
         <p>
           Every candidate is judged <code>num_judgments</code> times independently (not cached
