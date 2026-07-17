@@ -471,7 +471,7 @@
       "category_name": "Box Layout Basics",
       "difficulty": "easy",
       "task_id": "0.1",
-      "prompt": "- Draw an ASCII diagram illustrating a \"Browser\" box connected to a \"CDN\" box with a right-pointing arrow.\n- When arrows are required, make them centered and aligned cleanly to their source and target.",
+      "prompt": "- Draw an ASCII diagram illustrating a \"Browser\" box connected to a \"CDN\" box with a right-pointing arrow.",
       "img": "img/public-dataset/box-layout-basics-easy.png",
       "has_source": false
     },
@@ -480,7 +480,7 @@
       "category_name": "Box Layout Basics",
       "difficulty": "medium",
       "task_id": "0.2",
-      "prompt": "- Draw an ASCII diagram illustrating a \"Load Balancer\" box at the top.\n- Connect it downward to two boxes below: \"Worker-1\" on the left and \"Worker-2\" on the right.\n- When arrows are required, make them centered and aligned cleanly to their source and target.",
+      "prompt": "- Draw an ASCII diagram illustrating a \"Load Balancer\" box at the top.\n- Connect it downward to two boxes below: \"Worker-1\" on the left and \"Worker-2\" on the right.",
       "img": "img/public-dataset/box-layout-basics-medium.png",
       "has_source": false
     },
@@ -489,7 +489,7 @@
       "category_name": "Box Layout Basics",
       "difficulty": "hard",
       "task_id": "0.3",
-      "prompt": "- Draw an ASCII diagram illustrating one outer ASCII box labeled \"Browser Tab\".\n- Inside it, place two inner boxes side by side labeled \"DOM Tree\" and \"JS Engine\".\n- Center the text \"Event Loop\" below the two inner boxes but still inside the Browser Tab box.\n- When arrows are required, make them centered and aligned cleanly to their source and target.",
+      "prompt": "- Draw an ASCII diagram illustrating one outer ASCII box labeled \"Browser Tab\".\n- Inside it, place two inner boxes side by side labeled \"DOM Tree\" and \"JS Engine\".\n- Center the text \"Event Loop\" below the two inner boxes but still inside the Browser Tab box.",
       "img": "img/public-dataset/box-layout-basics-hard.png",
       "has_source": false
     },
@@ -498,7 +498,7 @@
       "category_name": "Diagram Editing",
       "difficulty": "easy",
       "task_id": "0.4",
-      "prompt": "- Draw an ASCII diagram illustrating add an \"Actuator\" box to the right of the Controller box.\n- Connect Controller to Actuator with a right-pointing arrow.\n- Do not change anything else.\n- Strictly apply only the requested edits and do not make any other changes outside them.\n- When arrows are required, make them centered and aligned cleanly to their source and target.",
+      "prompt": "- Draw an ASCII diagram illustrating add an \"Actuator\" box to the right of the Controller box.\n- Connect Controller to Actuator with a right-pointing arrow.\n- Do not change anything else.\n- Strictly apply only the requested edits and do not make any other changes outside them.",
       "img": "img/public-dataset/diagram-editing-easy.png",
       "has_source": true
     },
@@ -507,7 +507,7 @@
       "category_name": "Diagram Editing",
       "difficulty": "medium",
       "task_id": "0.5",
-      "prompt": "- Draw an ASCII diagram illustrating rename the \"Queue\" box to \"Message Queue\".\n- Label the arrow from Producer to Message Queue \"enqueue\".\n- Label the arrow from Message Queue to Consumer \"dequeue\".\n- Do not change anything else.\n- Strictly apply only the requested edits and do not make any other changes outside them.\n- When arrows are required, make them centered and aligned cleanly to their source and target.",
+      "prompt": "- Draw an ASCII diagram illustrating rename the \"Queue\" box to \"Message Queue\".\n- Label the arrow from Producer to Message Queue \"enqueue\".\n- Label the arrow from Message Queue to Consumer \"dequeue\".\n- Do not change anything else.\n- Strictly apply only the requested edits and do not make any other changes outside them.",
       "img": "img/public-dataset/diagram-editing-medium.png",
       "has_source": true
     },
@@ -516,7 +516,7 @@
       "category_name": "Diagram Editing",
       "difficulty": "hard",
       "task_id": "0.6",
-      "prompt": "- Draw an ASCII diagram illustrating insert a \"Cache\" box between API and Worker.\n- Replace the single \"Worker\" box with two boxes in parallel: \"Worker-1\" and \"Worker-2\", each fed by Cache.\n- Connect both Worker-1 and Worker-2 to the same \"DB\" box.\n- Do not change anything else.\n- Strictly apply only the requested edits and do not make any other changes outside them.\n- When arrows are required, make them centered and aligned cleanly to their source and target.",
+      "prompt": "- Draw an ASCII diagram illustrating insert a \"Cache\" box between API and Worker.\n- Replace the single \"Worker\" box with two boxes in parallel: \"Worker-1\" and \"Worker-2\", each fed by Cache.\n- Connect both Worker-1 and Worker-2 to the same \"DB\" box.\n- Do not change anything else.\n- Strictly apply only the requested edits and do not make any other changes outside them.",
       "img": "img/public-dataset/diagram-editing-hard.png",
       "has_source": true
     },
@@ -525,7 +525,7 @@
       "category_name": "Network Topology Diagrams",
       "difficulty": "easy",
       "task_id": "0.7",
-      "prompt": "- Draw an ASCII diagram illustrating a request path: \"User\" -> \"API Gateway\" -> \"Auth Service\" -> \"Backend\".\n- Linear chain left to right.\n- When arrows are required, make them centered and aligned cleanly to their source and target.",
+      "prompt": "- Draw an ASCII diagram illustrating a request path: \"User\" -> \"API Gateway\" -> \"Auth Service\" -> \"Backend\".\n- Linear chain left to right.",
       "img": "img/public-dataset/network-topology-diagrams-easy.png",
       "has_source": false
     },
@@ -534,7 +534,7 @@
       "category_name": "Network Topology Diagrams",
       "difficulty": "medium",
       "task_id": "0.8",
-      "prompt": "- Draw an ASCII diagram illustrating a two-level network tree.\n- At the top, place a \"Router\" box.\n- Connect Router down to two switches below it: \"Switch-A\" on the left and \"Switch-B\" on the right.\n- Connect Switch-A down to two hosts: \"Host-1\" and \"Host-2\".\n- Connect Switch-B down to two hosts: \"Host-3\" and \"Host-4\".\n- When arrows are required, make them centered and aligned cleanly to their source and target.",
+      "prompt": "- Draw an ASCII diagram illustrating a two-level network tree.\n- At the top, place a \"Router\" box.\n- Connect Router down to two switches below it: \"Switch-A\" on the left and \"Switch-B\" on the right.\n- Connect Switch-A down to two hosts: \"Host-1\" and \"Host-2\".\n- Connect Switch-B down to two hosts: \"Host-3\" and \"Host-4\".",
       "img": "img/public-dataset/network-topology-diagrams-medium.png",
       "has_source": false
     },
@@ -543,7 +543,7 @@
       "category_name": "Network Topology Diagrams",
       "difficulty": "hard",
       "task_id": "0.9",
-      "prompt": "- Draw an ASCII diagram illustrating a core-distribution-access network topology.\n- At the top, place a \"Core Switch\" box connected down to two distribution switches: \"Dist-A\" on the left and \"Dist-B\" on the right.\n- Draw a dashed horizontal redundant link directly between Dist-A and Dist-B, labeled \"backup link\".\n- Connect Dist-A down to an \"Access-1\" box, and Dist-B down to an \"Access-2\" box.\n- When arrows are required, make them centered and aligned cleanly to their source and target.",
+      "prompt": "- Draw an ASCII diagram illustrating a core-distribution-access network topology.\n- At the top, place a \"Core Switch\" box connected down to two distribution switches: \"Dist-A\" on the left and \"Dist-B\" on the right.\n- Draw a dashed horizontal redundant link directly between Dist-A and Dist-B, labeled \"backup link\".\n- Connect Dist-A down to an \"Access-1\" box, and Dist-B down to an \"Access-2\" box.",
       "img": "img/public-dataset/network-topology-diagrams-hard.png",
       "has_source": false
     },
@@ -552,7 +552,7 @@
       "category_name": "Software Architecture Diagrams",
       "difficulty": "easy",
       "task_id": "0.10",
-      "prompt": "- Draw an ASCII diagram illustrating \"IoT Sensor\" connected to \"MQTT Broker\" with an arrow labeled \"publish\".\n- \"MQTT Broker\" connects to \"Time-Series DB\" with an arrow labeled \"ingest\".\n- Linear chain left to right.\n- When arrows are required, make them centered and aligned cleanly to their source and target.",
+      "prompt": "- Draw an ASCII diagram illustrating \"IoT Sensor\" connected to \"MQTT Broker\" with an arrow labeled \"publish\".\n- \"MQTT Broker\" connects to \"Time-Series DB\" with an arrow labeled \"ingest\".\n- Linear chain left to right.",
       "img": "img/public-dataset/software-architecture-diagrams-easy.png",
       "has_source": false
     },
@@ -561,7 +561,7 @@
       "category_name": "Software Architecture Diagrams",
       "difficulty": "medium",
       "task_id": "0.11",
-      "prompt": "- Draw an ASCII diagram illustrating a URL shortener architecture.\n- \"Client\" connects to \"Shortener API\" with an arrow labeled \"shorten URL\".\n- \"Shortener API\" connects to \"Cache (Redis)\" with an arrow labeled \"cache lookup\".\n- \"Shortener API\" connects to \"Datastore\" with an arrow labeled \"persist mapping\".\n- \"Shortener API\" connects to \"Analytics Queue\" with an arrow labeled \"log click\".\n- \"Analytics Queue\" connects to \"Analytics Worker\" with an arrow labeled \"consume\".\n- When arrows are required, make them centered and aligned cleanly to their source and target.",
+      "prompt": "- Draw an ASCII diagram illustrating a URL shortener architecture.\n- \"Client\" connects to \"Shortener API\" with an arrow labeled \"shorten URL\".\n- \"Shortener API\" connects to \"Cache (Redis)\" with an arrow labeled \"cache lookup\".\n- \"Shortener API\" connects to \"Datastore\" with an arrow labeled \"persist mapping\".\n- \"Shortener API\" connects to \"Analytics Queue\" with an arrow labeled \"log click\".\n- \"Analytics Queue\" connects to \"Analytics Worker\" with an arrow labeled \"consume\".",
       "img": "img/public-dataset/software-architecture-diagrams-medium.png",
       "has_source": false
     },
@@ -570,7 +570,7 @@
       "category_name": "Software Architecture Diagrams",
       "difficulty": "hard",
       "task_id": "0.12",
-      "prompt": "- Draw an ASCII diagram illustrating a video upload and transcoding pipeline.\n- \"Client\" connects to \"Upload Service\" with an arrow labeled \"upload video\".\n- \"Upload Service\" connects to \"Object Storage\" with an arrow labeled \"store raw file\".\n- \"Upload Service\" connects to \"Transcode Queue\" with an arrow labeled \"enqueue job\".\n- \"Transcode Queue\" connects down to two workers, \"Transcoder-1\" and \"Transcoder-2\", each arrow labeled \"dequeue\".\n- \"Transcoder-1\" connects to \"CDN\" with an arrow labeled \"publish\".\n- \"Transcoder-2\" connects to \"Metadata DB\" with an arrow labeled \"write metadata\".\n- When arrows are required, make them centered and aligned cleanly to their source and target.",
+      "prompt": "- Draw an ASCII diagram illustrating a video upload and transcoding pipeline.\n- \"Client\" connects to \"Upload Service\" with an arrow labeled \"upload video\".\n- \"Upload Service\" connects to \"Object Storage\" with an arrow labeled \"store raw file\".\n- \"Upload Service\" connects to \"Transcode Queue\" with an arrow labeled \"enqueue job\".\n- \"Transcode Queue\" connects down to two workers, \"Transcoder-1\" and \"Transcoder-2\", each arrow labeled \"dequeue\".\n- \"Transcoder-1\" connects to \"CDN\" with an arrow labeled \"publish\".\n- \"Transcoder-2\" connects to \"Metadata DB\" with an arrow labeled \"write metadata\".",
       "img": "img/public-dataset/software-architecture-diagrams-hard.png",
       "has_source": false
     }

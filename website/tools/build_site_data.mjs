@@ -12,6 +12,7 @@ const OUT = join(ROOT, "website", "assets", "data", "site_data.json");
 // showing them on every public-example card would be repetitive, so the
 // website's trimmed prompt display drops these specific lines only.
 const PROMPT_DISPLAY_STRIP_LINES = new Set([
+  "When arrows are required, make them centered and aligned cleanly to their source and target.",
   "If an arrow has a label, place the label a little above the arrow rather than inside the arrow line.",
   "For any label or text inside a node, box, or icon, center it within that component whenever possible.",
   "Any component with incoming or outgoing arrows should be sized wide or tall enough to make those connections visually unambiguous, so it is clear where arrows originate and where they terminate.",
