@@ -17,6 +17,7 @@ eval = "scripts.eval:main"
 smoke = "scripts.smoke_generate:main"
 run-model = "scripts.run_model:main"
 judge-geval = "scripts.judge.run_geval_judge:main"
+compute-metrics = "scripts.judge.compute_metrics:main"
 
 [tool.uv]
 package = true

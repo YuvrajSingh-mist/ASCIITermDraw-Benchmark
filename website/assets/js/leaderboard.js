@@ -1,14 +1,18 @@
-// Leaderboard page. Real results, sourced from outputs/qwen3p7-plus/metrics.json
-// and outputs/qwen3p7-plus/manifest.json (both gitignored/private, so the
-// numbers are hand-copied here rather than fetched at build time). Update
-// these constants -- and add another entry to LEADERBOARD_ROWS -- whenever a
-// new model's results are published.
+// Leaderboard page. Real results, sourced from outputs/<model>/metrics.json
+// (via `uv run compute-metrics`) and outputs/<model>/manifest.json for cost
+// (both gitignored/private, so the numbers are hand-copied here rather than
+// fetched at build time). Update these constants -- and add another entry to
+// LEADERBOARD_ROWS -- whenever a new model's results are published.
 //
-// qwen3p7-plus, 80 tasks, num_judgments=5 (see outputs/qwen3p7-plus/results.csv):
-//   combined.mean = 1.3425, combined.stdev = 0.4577, max_possible 2.0
-//   -> 67.1% +/- 22.9% (population stdev over 80 per-task mean scores,
-//      each itself averaged across 5 judge rounds -- see metrics.json)
-//   generation_cost_usd (Fireworks, all 80 tasks) = 0.058589
+// final_score.mean/ci95 for each model, 80 tasks, num_judgments=5:
+//   qwen3p7-plus:  mean=0.6713, ci95=[0.6208, 0.7217] -> 67.1% +/- 5.1%
+//   minimax-m3:    mean=0.6693, ci95=[0.6195, 0.7192] -> 66.9% +/- 5.0%
+//   kimi-k2p6:     mean=0.5880, ci95=[0.5297, 0.6464] -> 58.8% +/- 5.8%
+// CI95 = 1.96 * sample_stdev / sqrt(80), using each of the 80 tasks as the
+// independent sampling unit (not the 400 judge rounds) -- see metrics.json's
+// final_score.ci95 and scripts/judge/compute_metrics.py.
+// generation_cost_usd (Fireworks, all 80 tasks): qwen3p7-plus=0.058589,
+// minimax-m3=0.055967, kimi-k2p6=0.258444.
 
 const LEADERBOARD_ROWS = [
   {
@@ -16,8 +20,24 @@ const LEADERBOARD_ROWS = [
     model: "qwen3p7-plus",
     org: "Alibaba (via Fireworks)",
     score: 67.1,
-    scoreStdev: 22.9,
+    scoreMargin: 5.1,
     price: 0.058589,
+  },
+  {
+    rank: "2nd",
+    model: "minimax-m3",
+    org: "MiniMax (via Fireworks)",
+    score: 66.9,
+    scoreMargin: 5.0,
+    price: 0.055967,
+  },
+  {
+    rank: "3rd",
+    model: "kimi-k2p6",
+    org: "Moonshot AI (via Fireworks)",
+    score: 58.8,
+    scoreMargin: 5.8,
+    price: 0.258444,
   },
 ];
 
@@ -26,7 +46,7 @@ function renderTable(containerId, rows) {
   root.innerHTML = `
     <table class="lb-table">
       <thead>
-        <tr><th>Rank</th><th>Model</th><th>Score (5 runs, mean &plusmn; stdev)</th><th>Organization</th></tr>
+        <tr><th>Rank</th><th>Model</th><th>Score (95% CI, 80 tasks)</th><th>Organization</th></tr>
       </thead>
       <tbody>
         ${rows
@@ -35,7 +55,7 @@ function renderTable(containerId, rows) {
               <tr class="${row.rank === "1st" ? "lb-row-rank1" : ""}">
                 <td class="lb-rank">${row.rank}</td>
                 <td>${row.model}</td>
-                <td>${row.score.toFixed(1)}% &plusmn; ${row.scoreStdev.toFixed(1)}%</td>
+                <td>${row.score.toFixed(1)}% &plusmn; ${row.scoreMargin.toFixed(1)}%</td>
                 <td>${row.org}</td>
               </tr>
             `
@@ -84,7 +104,7 @@ function renderPerfDollarChart() {
   const xTicks = [0.01, 0.03, 0.1, 0.3, 1];
   const yTicks = [0, 25, 50, 75, 100];
 
-  let svg = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Score (mean +/- stdev over 5 judge runs) versus Fireworks generation cost per full benchmark run">`;
+  let svg = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Score (mean, 95% confidence interval over 80 tasks) versus Fireworks generation cost per full benchmark run">`;
 
   for (const t of yTicks) {
     const y = yScale(t);
@@ -101,16 +121,17 @@ function renderPerfDollarChart() {
   for (const row of LEADERBOARD_ROWS) {
     const cx = xScale(row.price);
     const cy = yScale(row.score);
-    const yTop = yScale(Math.min(100, row.score + row.scoreStdev));
-    const yBottom = yScale(Math.max(0, row.score - row.scoreStdev));
+    const yTop = yScale(Math.min(100, row.score + row.scoreMargin));
+    const yBottom = yScale(Math.max(0, row.score - row.scoreMargin));
     const capHalfWidth = 7;
-    // Whisker: mean +/- 1 stdev, not a true box plot (no quartiles/median
-    // available -- only mean and population stdev per model).
+    // Whisker: 95% confidence interval on the mean (1.96 * sample_stdev /
+    // sqrt(80) over the 80 tasks), not a box plot -- no quartiles/median
+    // available, and this is an inferential CI, not a descriptive spread.
     svg += `<line class="lb-whisker" x1="${cx}" y1="${yTop}" x2="${cx}" y2="${yBottom}" />`;
     svg += `<line class="lb-whisker-cap" x1="${cx - capHalfWidth}" y1="${yTop}" x2="${cx + capHalfWidth}" y2="${yTop}" />`;
     svg += `<line class="lb-whisker-cap" x1="${cx - capHalfWidth}" y1="${yBottom}" x2="${cx + capHalfWidth}" y2="${yBottom}" />`;
     svg += `<circle class="lb-dot" cx="${cx}" cy="${cy}" r="6" fill="var(--accent)" />`;
-    svg += `<circle class="lb-hit" cx="${cx}" cy="${cy}" r="13" data-model="${row.model}" data-price="${row.price.toFixed(4)}" data-score="${row.score}" data-score-stdev="${row.scoreStdev}" />`;
+    svg += `<circle class="lb-hit" cx="${cx}" cy="${cy}" r="13" data-model="${row.model}" data-price="${row.price.toFixed(4)}" data-score="${row.score}" data-score-margin="${row.scoreMargin}" />`;
   }
   svg += `</svg>`;
 
@@ -125,7 +146,7 @@ function renderPerfDollarChart() {
         tooltip,
         targetRect.left - rect.left + targetRect.width / 2,
         targetRect.top - rect.top,
-        `<strong>${hit.dataset.score}% &plusmn; ${hit.dataset.scoreStdev}%</strong><span>${hit.dataset.model} &middot; $${hit.dataset.price}</span>`
+        `<strong>${hit.dataset.score}% &plusmn; ${hit.dataset.scoreMargin}%</strong><span>${hit.dataset.model} &middot; $${hit.dataset.price}</span>`
       );
     });
     hit.addEventListener("pointerleave", () => hideTooltip(tooltip));

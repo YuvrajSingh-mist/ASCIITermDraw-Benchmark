@@ -107,11 +107,15 @@
     <div class="container">
       <h2 class="section-title" id="heading-leaderboard">Leaderboard</h2>
       <div class="lb-disclaimer">
-        <strong>Early results.</strong> Only one model has been benchmarked so
-        far. Scores come from <code>outputs/qwen3p7-plus/metrics.json</code>
-        (mean combined structural + semantic score, averaged over 5 judge
-        rounds across all 80 tasks); cost is the Fireworks generation cost for
-        the full run. More rows will appear here as more models are
+        <strong>Early results.</strong> Score is each model's mean combined
+        structural + semantic score across all 80 tasks (5 judge rounds per
+        task), shown with a 95% confidence interval computed over the 80
+        tasks (not the judge rounds, which are repeated measurements of the
+        same task rather than independent samples). Cost is the Fireworks
+        generation cost for the full run. See
+        <code>outputs/&lt;model&gt;/metrics.json</code> and
+        <code>scripts/judge/compute_metrics.py</code> for the exact
+        methodology. More rows will appear here as more models are
         benchmarked.
       </div>
 
