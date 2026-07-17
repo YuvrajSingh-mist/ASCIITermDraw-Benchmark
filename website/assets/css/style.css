@@ -132,6 +132,46 @@ section:last-of-type { border-bottom: none; }
 .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--border); }
 .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
 
+.pill-btn { border-radius: 999px; }
+
+.pill-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.pill-icon svg { width: 100%; height: 100%; fill: currentColor; }
+
+.hero-note-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem 1.1rem;
+  max-width: 620px;
+  margin: 0 auto 1rem;
+  padding: 0;
+  font-size: 0.95rem;
+  color: var(--text-sec);
+  opacity: 0.9;
+}
+
+.hero-note-list li { position: relative; padding-left: 0.9rem; }
+
+.hero-note-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent-lt);
+}
+
 .section-title { font-size: 1.75rem; color: var(--text); margin-bottom: 1.4rem; }
 .subsection-title { font-size: 1.2rem; color: var(--text); margin: 1.75rem 0 0.6rem; font-weight: 400; }
 
@@ -348,10 +388,197 @@ footer a:hover { color: var(--accent); }
 
 .lightbox-close:hover { opacity: 1; }
 
+/* Leaderboard */
+
+.viz-root {
+  color-scheme: light;
+  --lb-surface:    #fcfcfb;
+  --lb-text:       #0b0b0b;
+  --lb-text-sec:   #52514e;
+  --lb-grid:       #e5e0d8;
+  --lb-series-1:   #2a78d6; /* Nimbus Labs */
+  --lb-series-2:   #008300; /* Continuum AI */
+  --lb-series-3:   #e87ba4; /* Vertex Systems */
+  --lb-series-4:   #9a9a9a; /* Other */
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) .viz-root {
+    color-scheme: dark;
+    --lb-surface:  #1a1a19;
+    --lb-text:     #ffffff;
+    --lb-text-sec: #c3c2b7;
+    --lb-grid:     #33322e;
+    --lb-series-1: #3987e5;
+    --lb-series-2: #008300;
+    --lb-series-3: #d55181;
+    --lb-series-4: #8a8a86;
+  }
+}
+:root[data-theme="dark"] .viz-root {
+  color-scheme: dark;
+  --lb-surface:  #1a1a19;
+  --lb-text:     #ffffff;
+  --lb-text-sec: #c3c2b7;
+  --lb-grid:     #33322e;
+  --lb-series-1: #3987e5;
+  --lb-series-2: #008300;
+  --lb-series-3: #d55181;
+  --lb-series-4: #8a8a86;
+}
+
+.lb-disclaimer {
+  font-size: 0.85rem;
+  color: var(--text-ter);
+  border-left: 2px solid var(--border);
+  padding: 0.6rem 0.9rem;
+  margin-bottom: 1.5rem;
+  background: var(--bg-subtle);
+}
+
+.lb-tabs {
+  display: inline-flex;
+  gap: 0.3rem;
+  padding: 0.3rem;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+}
+
+.lb-tab {
+  font-family: "Crimson Pro", Georgia, serif;
+  font-size: 0.88rem;
+  letter-spacing: 0.02em;
+  padding: 0.45rem 1.1rem;
+  border: none;
+  border-radius: 2px;
+  background: none;
+  color: var(--text-sec);
+  cursor: pointer;
+}
+
+.lb-tab:hover { color: var(--text); }
+.lb-tab.active { background: var(--accent); color: #fff; }
+
+.lb-panel { display: none; }
+.lb-panel.active { display: block; }
+
+table.lb-table { width: 100%; border-collapse: collapse; font-size: 0.93rem; }
+
+table.lb-table th {
+  text-align: left;
+  font-family: "Crimson Pro", Georgia, serif;
+  font-weight: 500;
+  font-size: 0.78rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-ter);
+  border-bottom: 1px solid var(--border);
+  padding: 0.6rem 0.9rem;
+}
+
+table.lb-table td {
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid var(--border-lt);
+  color: var(--text);
+}
+
+table.lb-table tr.lb-row-reference td { color: var(--text-ter); font-style: italic; }
+table.lb-table tr.lb-row-rank1 td { background: var(--bg-subtle); }
+table.lb-table td.lb-rank { font-weight: 500; color: var(--accent); width: 4rem; }
+table.lb-table tr.lb-row-reference td.lb-rank { color: var(--text-ter); }
+
+.lb-new-badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #0ca30c;
+  background: rgba(12, 163, 12, 0.12);
+  border-radius: 2px;
+  padding: 0.1rem 0.4rem;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+
+.lb-chart-card {
+  background: var(--lb-surface);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1.5rem 1.5rem 1rem;
+}
+
+.lb-chart-card svg { display: block; width: 100%; height: auto; overflow: visible; }
+.lb-chart-card .lb-axis-label { fill: var(--lb-text-sec); font-size: 11px; font-family: "Crimson Pro", Georgia, serif; }
+.lb-chart-card .lb-grid-line { stroke: var(--lb-grid); stroke-width: 1; }
+.lb-chart-card .lb-tick-label { fill: var(--lb-text-sec); font-size: 10.5px; }
+.lb-chart-card .lb-caption-label { fill: var(--lb-text); font-size: 11px; font-weight: 500; }
+
+.lb-dot {
+  stroke: var(--lb-surface);
+  stroke-width: 2;
+  cursor: pointer;
+}
+
+.lb-hit {
+  fill: transparent;
+  cursor: pointer;
+}
+
+.lb-line {
+  fill: none;
+  stroke-width: 2;
+}
+
+.lb-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.1rem;
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border-lt);
+}
+
+.lb-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--text-sec);
+}
+
+.lb-legend-swatch {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.lb-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--lb-text);
+  color: var(--lb-surface);
+  font-size: 0.8rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: 3px;
+  transform: translate(-50%, calc(-100% - 10px));
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+  z-index: 10;
+}
+
+.lb-tooltip.active { opacity: 1; }
+.lb-tooltip strong { font-weight: 600; }
+.lb-tooltip span { display: block; opacity: 0.75; font-size: 0.74rem; margin-top: 0.15rem; }
+
 @media (max-width: 740px) {
   nav { padding: 0 1rem; }
   .container { padding: 0 1rem; }
   .hero { padding: 4.25rem 0 3.5rem; }
   .hero h1 { font-size: 2.65rem; }
   .docs-list li { display: block; }
+  .lb-tabs { width: 100%; }
+  .lb-tab { flex: 1; text-align: center; }
 }

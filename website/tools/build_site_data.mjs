@@ -51,8 +51,21 @@ const CATEGORY_META = {
     dir: "software-architecture-diagrams",
     name: "Software Architecture Diagrams",
     description:
-      "Canonical architecture sketches such as gateways, pipelines, feeds, rate limiters, and storage systems.",
+      "Real-world system architectures — API gateways, event pipelines, feeds, rate limiters, and storage layers — as they'd actually be sketched on a whiteboard.",
   },
+};
+
+// tasks/ is private and not shipped to CI (see .gitignore), so a public build
+// has no way to count real tasks per category. These are the true, static
+// counts from the actual benchmark (verified against the private tasks/
+// tree) -- used only as a fallback when tasks/ isn't present, so the public
+// site still reports real numbers instead of zeros. Per-task content (which
+// *is* private) is never substituted -- only these aggregate counts.
+const STATIC_TASK_COUNTS = {
+  "box-layout-basics": { easy: 10, medium: 5, hard: 5 },
+  "network-topology-diagrams": { easy: 10, medium: 5, hard: 5 },
+  "diagram-editing": { easy: 10, medium: 5, hard: 5 },
+  "software-architecture-diagrams": { easy: 10, medium: 5, hard: 5 },
 };
 
 function readText(path) {
@@ -173,13 +186,33 @@ function build() {
         };
       });
 
-    totalTasks += tasks.length;
+    let difficulty = { easy: 0, medium: 0, hard: 0 };
+    for (const task of tasks) {
+      if (task.path.includes("/easy/")) difficulty.easy += 1;
+      if (task.path.includes("/medium/")) difficulty.medium += 1;
+      if (task.path.includes("/hard/")) difficulty.hard += 1;
+    }
+    let count = tasks.length;
+    let usedFallback = false;
+    if (count === 0 && STATIC_TASK_COUNTS[meta.dir]) {
+      difficulty = { ...STATIC_TASK_COUNTS[meta.dir] };
+      count = difficulty.easy + difficulty.medium + difficulty.hard;
+      usedFallback = true;
+    }
+
+    totalTasks += count;
+    if (usedFallback && meta.dir === "diagram-editing") {
+      // Every diagram-editing task is image-conditioned (has a source.ascii);
+      // real has_source detection is unavailable without the private tree.
+      totalEditTasks += count;
+    }
     categories.push({
       id: categoryId,
       slug: meta.dir,
       name: meta.name,
       description: meta.description,
-      count: tasks.length,
+      count,
+      difficulty,
       tasks,
     });
   }

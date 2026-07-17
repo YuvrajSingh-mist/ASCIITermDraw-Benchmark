@@ -24,6 +24,7 @@
   <span class="nav-title">ASCIITermDraw-Bench</span>
   <div class="nav-links">
     <a href="./pages/tasks.html">Tasks</a>
+    <a href="./pages/leaderboard.html">Leaderboard</a>
     <a href="#documentation">Documentation</a>
     <a href="./pages/quickstart.html">Quick Start</a>
   </div>
@@ -35,17 +36,28 @@
       <h1>ASCIITermDraw-Bench</h1>
       <p class="hero-subtitle">ASCII Diagram Generation and Editing Benchmark</p>
       <p class="hero-desc">
-        Evaluate whether a model can actually draw in plain text. ASCIITermDraw-Bench measures box layout,
+        Evaluate whether a model can generate ASCII diagrams in plain text. ASCIITermDraw-Bench measures box layout,
         topology construction, software architecture sketching, and image-conditioned ASCII editing with
         task directories, rendered references, structural checks, and model-specific judge prompts.
       </p>
-      <p class="hero-desc hero-note">
-        The benchmark is built as a publishable repository artifact: organized task categories, reproducible
-        generators, Playwright rendering, Fireworks batch inference, and structured JSON judging.
-      </p>
-      <div class="hero-btns">
-        <a href="#overview" class="btn btn-primary">Overview</a>
-        <a href="./pages/quickstart.html" class="btn btn-outline">Quick Start</a>
+      <ul class="hero-note-list">
+        <li>Organized task categories</li>
+        <li>Reproducible generators</li>
+        <li>Playwright rendering</li>
+        <li>Fireworks batch inference</li>
+        <li>Structured JSON judging</li>
+      </ul>
+      <div class="hero-btns pill-bar">
+        <a href="./pages/leaderboard.html" class="btn btn-outline pill-btn">Leaderboard</a>
+        <a href="./pages/quickstart.html" class="btn btn-outline pill-btn">Try Yourself</a>
+        <a href="https://huggingface.co/datasets/YuvrajSingh9886/asciitermdraw-bench-public" class="btn btn-outline pill-btn" target="_blank" rel="noopener">
+          <span class="pill-icon" aria-hidden="true">&#129303;</span> Public Dataset
+        </a>
+        <a href="https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark" class="btn btn-outline pill-btn" target="_blank" rel="noopener">
+          <span class="pill-icon" aria-hidden="true">
+            <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+          </span> Code
+        </a>
       </div>
     </div>
   </div>
@@ -61,14 +73,62 @@
         </p>
         <p>
           The benchmark covers four families of tasks: box layout basics, network topology diagrams,
-          diagram editing from source images, and canonical software architecture sketches. Every task ships
-          with a prompt, a reference ASCII artifact, machine-readable assertions, and a task-specific VLM
-          judge prompt used by the DeepEval-based judge.
+          diagram editing from source images, and real-world software architecture sketches. Every task ships
+          with a prompt, a reference ASCII artifact, and machine-readable assertions.
+        </p>
+        <p>
+          Every candidate diagram is judged, not just eyeballed: a DeepEval <code>BaseMetric</code> judge
+          (OpenAI or Anthropic) scores each candidate against the reference on two axes — a
+          <strong>structural score</strong> (do the required labels, entities, and edges actually appear,
+          checked against machine-readable assertions) and a <strong>semantic score</strong> (does the layout,
+          spacing, and connection routing actually match the prompt) — averaged over multiple judge rounds and
+          combined into the final <code>geval_score</code>.
         </p>
       </div>
       <div class="callout">
         <strong>Current benchmark size.</strong>
         <span id="stats-inline">Loading benchmark metadata...</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="leaderboard-preview" aria-labelledby="heading-leaderboard-preview">
+    <div class="container viz-root">
+      <h2 class="section-title" id="heading-leaderboard-preview">Leaderboard</h2>
+      <div class="lb-disclaimer">
+        <strong>Placeholder data.</strong> Every model, organization, and score
+        below is fabricated to demonstrate the leaderboard's layout — see the
+        <a href="./pages/leaderboard.html">full leaderboard page</a> for the
+        same views at full width.
+      </div>
+
+      <div class="lb-tabs" role="tablist">
+        <button class="lb-tab active" data-panel="panel-mcq-home" role="tab">MCQ</button>
+        <button class="lb-tab" data-panel="panel-perf-dollar-home" role="tab">Perf/$</button>
+        <button class="lb-tab" data-panel="panel-timeline-home" role="tab">Timeline</button>
+        <button class="lb-tab" data-panel="panel-open-ended-home" role="tab">Open-Ended</button>
+      </div>
+
+      <div id="panel-mcq-home" class="lb-panel active">
+        <div id="mcq-table"></div>
+      </div>
+
+      <div id="panel-perf-dollar-home" class="lb-panel">
+        <div id="perf-dollar-chart" class="lb-chart-card">
+          <div class="lb-chart-card-inner"></div>
+          <div id="perf-dollar-legend" class="lb-legend"></div>
+        </div>
+      </div>
+
+      <div id="panel-timeline-home" class="lb-panel">
+        <div id="timeline-chart" class="lb-chart-card">
+          <div class="lb-chart-card-inner"></div>
+          <div id="timeline-legend" class="lb-legend"></div>
+        </div>
+      </div>
+
+      <div id="panel-open-ended-home" class="lb-panel">
+        <div id="open-ended-table"></div>
       </div>
     </div>
   </section>
@@ -85,10 +145,7 @@
         </thead>
         <tbody id="category-table-body"></tbody>
       </table>
-      <p class="muted-note">
-        This table is generated from the real repository tree, so the website stays aligned with the
-        benchmark that contributors actually run.
-      </p>
+     
     </div>
   </section>
 
@@ -96,20 +153,20 @@
     <div class="container">
       <h2 class="section-title" id="heading-anatomy">Benchmark Anatomy</h2>
       <pre><code class="language-text">prompt.txt + source.png?  -->  model inference  -->  ASCII output (.txt)
-                                             |
-                                             +--> rendered candidate PNG
-                                             |
-                                             +--> vlm_judge_prompt.txt + assertions.json
-                                             |    -> DeepEval BaseMetric judge (OpenAI/Anthropic)
-                                             |    -> geval_structural_score + geval_semantics_score
-                                             |
-                                             +--> results CSV / judge JSON artifacts</code></pre>
+                                                                                          |
+                                                                                          +--> rendered candidate PNG
+                                                                                          |
+                                                                                          +--> vlm_judge_prompt.txt + assertions.json
+                                                                                          |    DeepEval BaseMetric judge (OpenAI/Anthropic)
+                                                                                          |    Structural + Semantic Scores 
+                                                                                          |
+                                                                                          +--> results CSV / judge JSON artifacts</code></pre>
       <div class="prose">
         <p>
           Category 3 is multimodal: the model receives a rendered <code>source.png</code> and must apply a textual edit
           instruction while still returning plain ASCII. The remaining categories are text-to-ASCII generation tasks.
         </p>
-      </div>
+      </div
     </div>
   </section>
 
@@ -281,6 +338,7 @@ uv run smoke \
   <div class="container">
     <div class="footer-links">
       <a href="./pages/tasks.html">Tasks</a>
+      <a href="./pages/leaderboard.html">Leaderboard</a>
       <a href="#documentation">Documentation</a>
       <a href="./pages/quickstart.html">Quick Start</a>
     </div>
@@ -291,5 +349,6 @@ uv run smoke \
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
 <script src="./assets/js/app.js"></script>
+<script src="./assets/js/leaderboard.js"></script>
 </body>
 </html>

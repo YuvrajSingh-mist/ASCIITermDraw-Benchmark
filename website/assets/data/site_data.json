@@ -14,6 +14,11 @@
       "name": "Box Layout Basics",
       "description": "Single boxes, rows, columns, arrows, lanes, and spacing-sensitive ASCII layout tasks.",
       "count": 20,
+      "difficulty": {
+        "easy": 10,
+        "medium": 5,
+        "hard": 5
+      },
       "tasks": [
         {
           "task_id": "1.1",
@@ -123,6 +128,11 @@
       "name": "Network Topology Diagrams",
       "description": "Distributed systems, clusters, buses, data flows, and topology-heavy connection diagrams.",
       "count": 20,
+      "difficulty": {
+        "easy": 10,
+        "medium": 5,
+        "hard": 5
+      },
       "tasks": [
         {
           "task_id": "2.1",
@@ -232,6 +242,11 @@
       "name": "Diagram Editing",
       "description": "Image-to-text edit tasks where a model must transform an existing ASCII diagram correctly.",
       "count": 20,
+      "difficulty": {
+        "easy": 10,
+        "medium": 5,
+        "hard": 5
+      },
       "tasks": [
         {
           "task_id": "3.1",
@@ -339,8 +354,13 @@
       "id": "4",
       "slug": "software-architecture-diagrams",
       "name": "Software Architecture Diagrams",
-      "description": "Canonical architecture sketches such as gateways, pipelines, feeds, rate limiters, and storage systems.",
+      "description": "Real-world system architectures — API gateways, event pipelines, feeds, rate limiters, and storage layers — as they'd actually be sketched on a whiteboard.",
       "count": 20,
+      "difficulty": {
+        "easy": 10,
+        "medium": 5,
+        "hard": 5
+      },
       "tasks": [
         {
           "task_id": "4.1",

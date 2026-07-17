@@ -35,16 +35,6 @@ function renderCategoryTable(categories) {
     .join("");
 }
 
-function difficultyCounts(tasks) {
-  const counts = { easy: 0, medium: 0, hard: 0 };
-  for (const task of tasks) {
-    if (task.path.includes("/easy/")) counts.easy += 1;
-    if (task.path.includes("/medium/")) counts.medium += 1;
-    if (task.path.includes("/hard/")) counts.hard += 1;
-  }
-  return counts;
-}
-
 function renderBenchmarkSummary(categories) {
   const root = document.getElementById("benchmark-summary-body");
   if (!root) {
@@ -52,7 +42,7 @@ function renderBenchmarkSummary(categories) {
   }
   root.innerHTML = categories
     .map((category) => {
-      const counts = difficultyCounts(category.tasks);
+      const counts = category.difficulty || { easy: 0, medium: 0, hard: 0 };
       return `
         <tr>
           <td>${category.name}</td>

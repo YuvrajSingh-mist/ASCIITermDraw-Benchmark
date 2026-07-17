@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ASCIITermDraw-Bench  -  Leaderboard</title>
+  <meta name="description" content="ASCIITermDraw-Bench leaderboard: model rankings, cost-vs-performance, and score-over-time views.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<nav aria-label="Main navigation">
+  <span class="nav-title">ASCIITermDraw-Bench</span>
+  <div class="nav-links">
+    <a href="../index.html">Overview</a>
+    <a href="./tasks.html">Tasks</a>
+    <a href="./leaderboard.html">Leaderboard</a>
+    <a href="./quickstart.html">Quick Start</a>
+  </div>
+</nav>
+
+<main>
+  <div class="hero">
+    <div class="container">
+      <h1>Leaderboard</h1>
+      <p class="hero-subtitle">Rankings, Cost vs. Performance, and Trends</p>
+    </div>
+  </div>
+
+  <section id="leaderboard" aria-labelledby="heading-leaderboard">
+    <div class="container viz-root">
+      <div class="lb-disclaimer">
+        <strong>Placeholder data.</strong> Every model, organization, and score
+        on this page is fabricated to demonstrate the leaderboard's layout —
+        none of it reflects a real run. Real results live in
+        <code>outputs/&lt;model&gt;/results.csv</code> and
+        <code>metrics.json</code> once enough models have been benchmarked to
+        publish a comparison.
+      </div>
+
+      <div class="lb-tabs" role="tablist">
+        <button class="lb-tab active" data-panel="panel-mcq" role="tab">MCQ</button>
+        <button class="lb-tab" data-panel="panel-perf-dollar" role="tab">Perf/$</button>
+        <button class="lb-tab" data-panel="panel-timeline" role="tab">Timeline</button>
+        <button class="lb-tab" data-panel="panel-open-ended" role="tab">Open-Ended</button>
+      </div>
+
+      <div id="panel-mcq" class="lb-panel active">
+        <div id="mcq-table"></div>
+      </div>
+
+      <div id="panel-perf-dollar" class="lb-panel">
+        <div id="perf-dollar-chart" class="lb-chart-card">
+          <div class="lb-chart-card-inner"></div>
+          <div id="perf-dollar-legend" class="lb-legend"></div>
+        </div>
+      </div>
+
+      <div id="panel-timeline" class="lb-panel">
+        <div id="timeline-chart" class="lb-chart-card">
+          <div class="lb-chart-card-inner"></div>
+          <div id="timeline-legend" class="lb-legend"></div>
+        </div>
+      </div>
+
+      <div id="panel-open-ended" class="lb-panel">
+        <div id="open-ended-table"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-links">
+      <a href="../index.html">Overview</a>
+      <a href="./tasks.html">Tasks</a>
+      <a href="./leaderboard.html">Leaderboard</a>
+      <a href="./quickstart.html">Quick Start</a>
+    </div>
+    <p><strong>ASCIITermDraw-Bench</strong> &nbsp;&middot;&nbsp; Leaderboard (placeholder data) &nbsp;&middot;&nbsp; GitHub Pages ready</p>
+  </div>
+</footer>
+
+<script src="../assets/js/leaderboard.js"></script>
+</body>
+</html>
