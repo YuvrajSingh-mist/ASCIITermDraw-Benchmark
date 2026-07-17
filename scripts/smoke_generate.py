@@ -18,6 +18,7 @@ from scripts.lib.fireworks_api import (
 )
 from scripts.run_model import (
     SYSTEM_PROMPT,
+    build_readable_final_prompt,
     build_user_content,
     select_task_dirs,
     write_output_and_render_png,
@@ -37,11 +38,11 @@ def run(
     network_retries: int,
 ) -> None:
     """Generate ASCII diagrams for a sample of tasks, print each result, and write outputs + a manifest.json."""
-    api_key = require_env("FIREWORKS_API_KEY")
-
-    tasks = Path(tasks_dir)
-    outputs = Path(outputs_dir)
+    outputs = Path(outputs_dir) / model.rstrip("/").rsplit("/", 1)[-1]
     outputs.mkdir(parents=True, exist_ok=True)
+
+    api_key = require_env("FIREWORKS_API_KEY")
+    tasks = Path(tasks_dir)
 
     selected_task_dirs = select_task_dirs(
         tasks,
@@ -54,8 +55,7 @@ def run(
 
     system_prompt = (
         SYSTEM_PROMPT
-        + " Thinking/reasoning is disabled for this request. "
-        + "If you are about to output anything other than ASCII diagram text, stop and output only the diagram."
+        + " If you are about to output anything other than ASCII diagram text, stop and output only the diagram."
     )
 
     manifest = {
@@ -82,8 +82,9 @@ def run(
             request_label=f"smoke test {task_id}",
         )
         text = extract_chat_content(response)
+        final_prompt = build_readable_final_prompt(system_prompt, user_content)
 
-        output_path, png_path = write_output_and_render_png(outputs, task_dir, text)
+        output_path, png_path = write_output_and_render_png(outputs, task_dir, text, final_prompt)
         preview = text[:300].replace("\n", "\\n")
         print(f"=== {task_id} ===")
         print(text)

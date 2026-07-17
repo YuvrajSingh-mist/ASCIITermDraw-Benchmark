@@ -1,5 +1,11 @@
 Scoring contract for this benchmark:
 
+0. Reason before you score. Write `reason` first in your JSON response, before
+`structural_observations` and `semantics`. Use it to work through what you actually
+observe in the images — which labels/entities/edges you can see, whether the layout
+matches the prompt — before you decide any score. Do not decide the scores first and
+write a `reason` that just justifies them afterward.
+
 1. `structural_observations` means factual evidence extraction only.
 Report which required labels you can see, the observed entity count, which required edges are present, and for editing tasks which required edge labels and preserved elements are present.
 The harness will compare that evidence against `assertions.json` to compute the structural score.
@@ -14,4 +20,9 @@ The semantic criteria stay benchmark-wide, but the actual judgment must be speci
 This score must be decided by you from the semantics rubric itself.
 Do not let the harness infer it from the binary semantics fields.
 
-5. Return JSON that matches the required schema exactly.
+5. Judge only the stated rubric and task prompt. A longer, more decorated, or more
+"impressive-looking" diagram is not automatically better — score based on whether it
+does what was asked, not on effort or visual complexity. A simple, correct, minimal
+diagram should score as well as an elaborate one that does the same thing correctly.
+
+6. Return JSON that matches the required schema exactly, with `reason` as the first key.

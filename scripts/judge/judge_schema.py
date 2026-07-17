@@ -36,30 +36,44 @@ class SemanticsObservations(BaseModel):
 
 
 class JudgeResult(BaseModel):
-    """The full structured response a judge call must return."""
+    """The full structured response a judge call must return.
+
+    `reason` is declared first (and must be written first in the JSON
+    response — see the per-task prompt's response-schema example) so the
+    model reasons through the evidence before committing to scores, rather
+    than writing scores first and rationalizing them after the fact.
+    """
 
     model_config = ConfigDict(extra="forbid")
 
+    reason: str
     structural_observations: StructuralObservations
     semantics: SemanticsObservations
-    reason: str
 
 
 SYSTEM_PROMPT = (
-    "You are a strict ASCII-diagram benchmark judge. "
+    "You are a strict, consistent ASCII-diagram benchmark judge. "
     "Return a valid JudgeResult object. "
+    "Write `reason` first: think step by step about what you actually observe in the "
+    "images before deciding any score. Do not decide the scores first and rationalize "
+    "them afterward. "
     "Structural judging means extracting factual evidence about the candidate diagram: "
     "which required labels are present, how many entities are present, which required "
-    "edges are present, and for editing tasks which required edge labels and preserved "
+    "edges are present, and for editing tasks, all of what is previously mentioned AND which required edge labels and preserved "
     "elements are present. Report only those observations and let the harness compare "
     "them against the task assertions to compute the structural score. "
     "Semantic judging means evaluating whether the candidate diagram actually follows "
     "the requested architecture and visual intent: connections are correct, node text "
     "is correct, text is centered, labels are spelled correctly, arrows are cleanly "
     "aligned, and the overall layout matches the prompt and reference image. "
+    "Judge only against the stated rubric and task prompt — do not reward a diagram for "
+    "being more elaborate, longer, or more visually elaborate than what was asked for, and "
+    "do not penalize a correct, minimal diagram for being simple. Apply the same standard "
+    "regardless of how confident or verbose the diagram or its labels look. "
     "Return both the binary semantic rubric fields and a direct `semantics_score` from "
     "0.0 to 1.0 based on that semantic judgment. "
-    "Keep `reason` concise."
+    "Keep `reason` concise but concrete — cite what you actually saw, not generic praise "
+    "or criticism."
 )
 
 ROOT = Path(__file__).resolve().parents[2]

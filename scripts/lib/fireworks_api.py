@@ -137,14 +137,17 @@ def chat_completion_with_retries(
     max_tokens: int | None = None,
     temperature: float | None = None,
     top_p: float | None = None,
+    seed: int | None = None,
     timeout: int | float = 90,
     request_label: str = "chat completion",
 ) -> dict[str, Any]:
     """Call Fireworks' synchronous chat-completions endpoint, retrying on retryable HTTP codes/timeouts/transport errors.
 
-    `max_tokens`/`temperature`/`top_p` are omitted from the request payload when
-    left as None, so the model falls back to its own defaults instead of a
-    hardcoded value.
+    `max_tokens`/`temperature`/`top_p`/`seed` are omitted from the request payload
+    when left as None, so the model falls back to its own defaults instead of a
+    hardcoded value. `seed` is best-effort determinism per Fireworks' own docs
+    (same caveat as OpenAI's seed param) — it narrows but doesn't guarantee
+    bit-identical outputs across calls, especially at larger max_tokens.
     """
     payload = {
         "model": model,
@@ -157,6 +160,8 @@ def chat_completion_with_retries(
         payload["max_tokens"] = max_tokens
     if top_p is not None:
         payload["top_p"] = top_p
+    if seed is not None:
+        payload["seed"] = seed
     last_error = None
     for attempt in range(network_retries):
         try:
@@ -278,4 +283,44 @@ def extract_chat_content(row: dict[str, Any]) -> str:
     raise RuntimeError(
         "Could not find assistant content in response row: "
         f"{json.dumps(row)[:500]}"
+    )
+
+
+def extract_usage(row: dict[str, Any]) -> dict[str, int] | None:
+    """Pull token usage out of a Fireworks chat-completion response, trying the same nesting shapes as extract_chat_content. Returns None if no usage block is present."""
+    candidates = [
+        row.get("usage"),
+        row.get("response", {}).get("body", {}).get("usage"),
+        row.get("body", {}).get("usage"),
+        row.get("result", {}).get("response", {}).get("body", {}).get("usage"),
+        row.get("result", {}).get("body", {}).get("usage"),
+    ]
+    for usage in candidates:
+        if not usage:
+            continue
+        return {
+            "prompt_tokens": int(usage.get("prompt_tokens", 0)),
+            "completion_tokens": int(usage.get("completion_tokens", 0)),
+            "total_tokens": int(usage.get("total_tokens", 0)),
+        }
+    return None
+
+
+def estimate_cost_usd(
+    *,
+    input_tokens: int,
+    output_tokens: int,
+    input_price_per_million: float | None,
+    output_price_per_million: float | None,
+) -> float | None:
+    """Convert token counts to a dollar cost, given caller-supplied per-million-token prices.
+
+    Returns None (rather than guessing) when no price was supplied — model pricing
+    changes over time, so this never hardcodes a rate the caller didn't provide.
+    """
+    if input_price_per_million is None or output_price_per_million is None:
+        return None
+    return (
+        input_tokens / 1_000_000 * input_price_per_million
+        + output_tokens / 1_000_000 * output_price_per_million
     )

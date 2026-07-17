@@ -20,7 +20,9 @@ from typing import Any
 
 from scripts.lib.fireworks_api import (
     chat_completion_with_retries,
+    estimate_cost_usd,
     extract_chat_content,
+    extract_usage,
     iter_task_dirs,
     require_env,
     task_output_dir,
@@ -35,6 +37,17 @@ SYSTEM_PROMPT = (
     "Return only the final diagram. No markdown fences. No explanation. "
     "Do not reveal reasoning or thinking. Start directly with ASCII."
 )
+
+# Per-model Fireworks serverless pricing defaults (USD per 1M tokens), keyed
+# by the model's short name (the part after the last "/" in its Fireworks
+# path). Only used when --input-price-per-million/--output-price-per-million
+# are not passed on the CLI; fully overridable. Source: docs.fireworks.ai/serverless/pricing
+# (checked 2026-07-17).
+MODEL_PRICING_DEFAULTS: dict[str, tuple[float, float]] = {
+    "qwen3p7-plus": (0.40, 1.60),
+    "minimax-m3": (0.30, 1.20),
+    "kimi-k2p6": (0.95, 4.00),
+}
 
 
 def encode_image_data_url(image_path: Path) -> str:
@@ -76,6 +89,26 @@ def build_user_content(task_id: str, task_dir: Path) -> str | list[dict[str, Any
     ]
 
 
+def build_readable_final_prompt(system_prompt: str, user_content: str | list[dict[str, Any]]) -> str:
+    """Build a human-readable stand-in for the generation request, for saving to ground_truth/final_prompt.txt.
+
+    The real API call still sends user_content as-is (with the real inline
+    base64 image for category 3 tasks); this just avoids dumping that raw
+    base64 data URL into the saved record via json.dumps.
+    """
+    if isinstance(user_content, list):
+        parts: list[str] = []
+        for block in user_content:
+            if block.get("type") == "text":
+                parts.append(block["text"])
+            elif block.get("type") == "image_url":
+                parts.append("[image attached — see source.png in this folder]")
+        user_text = "\n\n".join(parts)
+    else:
+        user_text = user_content
+    return f"SYSTEM:\n{system_prompt}\n\nUSER:\n{user_text}"
+
+
 def select_task_dirs(
     tasks_dir: Path,
     *,
@@ -104,14 +137,46 @@ def select_task_dirs(
     return task_dirs
 
 
-def write_output_and_render_png(outputs_dir: Path, task_dir: Path, text: str) -> tuple[Path, Path]:
-    """Write a task's generated ASCII text under outputs_dir (mirroring the tasks/ layout) and render it to a PNG alongside it."""
+def write_output_and_render_png(outputs_dir: Path, task_dir: Path, text: str, final_prompt: str = "") -> tuple[Path, Path]:
+    """Write a task's generated ASCII text under outputs_dir (mirroring the tasks/ layout), render it to a PNG alongside it, and set up gval/ + ground_truth/ for judging.
+
+    Rendering failures (e.g. a runaway/degenerate generation too large for
+    Chromium to screenshot) are logged and swallowed rather than raised, so
+    one bad task doesn't abort the rest of the batch — the .txt is still
+    written either way.
+    """
+    import shutil
+
     target_dir = task_output_dir(outputs_dir, task_dir)
     target_dir.mkdir(parents=True, exist_ok=True)
     output_path = target_dir / f"{task_dir.name}.txt"
     png_path = target_dir / f"{task_dir.name}.png"
     output_path.write_text(text.strip() + "\n")
-    render_ascii_file_to_png(output_path, png_path)
+    try:
+        render_ascii_file_to_png(output_path, png_path)
+    except Exception as exc:
+        line_count = text.count("\n") + 1
+        print(
+            f"WARNING: failed to render PNG for {task_dir.name} "
+            f"({line_count} lines, {len(text)} chars — likely a degenerate/runaway generation): {exc}"
+        )
+
+    # ground_truth/  — reference files for the judge (per-task)
+    gt_dir = target_dir / "ground_truth"
+    gt_dir.mkdir(parents=True, exist_ok=True)
+    for src_name in ("reference.png", "prompt.txt", "assertions.json"):
+        src = task_dir / src_name
+        if src.exists():
+            shutil.copy2(src, gt_dir / src_name)
+    source_png = task_dir / "source.png"
+    if source_png.exists():
+        shutil.copy2(source_png, gt_dir / "source.png")
+    if final_prompt:
+        (gt_dir / "final_prompt.txt").write_text(final_prompt)
+
+    # gval/  — ready for judge results (per-task)
+    (target_dir / "gval").mkdir(parents=True, exist_ok=True)
+
     return output_path, png_path
 
 
@@ -125,12 +190,23 @@ def run(
     seed: int,
     reasoning_effort: str,
     temperature: float,
+    max_tokens: int | None,
+    input_price_per_million: float | None = None,
+    output_price_per_million: float | None = None,
+    generation_seed: int | None = None,
 ) -> None:
     """Generate ASCII diagrams for the selected tasks and write outputs + a manifest.json."""
+    model_short_name = model_name.rstrip("/").rsplit("/", 1)[-1]
+    outputs = Path(outputs_dir) / model_short_name
+    outputs.mkdir(parents=True, exist_ok=True)
+
+    if input_price_per_million is None and output_price_per_million is None:
+        input_price_per_million, output_price_per_million = MODEL_PRICING_DEFAULTS.get(
+            model_short_name, (None, None)
+        )
+
     api_key = require_env("FIREWORKS_API_KEY")
     tasks = Path(tasks_dir)
-    outputs = Path(outputs_dir)
-    outputs.mkdir(parents=True, exist_ok=True)
 
     selected_task_dirs = select_task_dirs(
         tasks,
@@ -143,19 +219,25 @@ def run(
 
     system_prompt = (
         SYSTEM_PROMPT
-        + " Thinking/reasoning is disabled for this request. "
-        + "If you are about to output anything other than ASCII diagram text, stop and output only the diagram."
+        + " If you are about to output anything other than ASCII diagram text, stop and output only the diagram."
     )
 
     manifest = {
         "model": model_name,
         "reasoning_effort": reasoning_effort,
         "network_retries": network_retries,
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+        "generation_seed": generation_seed,
         "tasks": [task_dir.name for task_dir in selected_task_dirs],
         "results": [],
     }
 
     written = 0
+    total_input_tokens = 0
+    total_output_tokens = 0
+    total_cost_usd = 0.0
+    cost_known = input_price_per_million is not None and output_price_per_million is not None
     for task_dir in selected_task_dirs:
         task_id = task_dir.name
         user_content = build_user_content(task_id, task_dir)
@@ -167,26 +249,52 @@ def run(
                 {"role": "user", "content": user_content},
             ],
             temperature=temperature,
+            max_tokens=max_tokens,
+            seed=generation_seed,
             reasoning_effort=reasoning_effort,
             network_retries=network_retries,
             request_label=f"generation {task_id}",
         )
         text = extract_chat_content(response)
-        output_path, png_path = write_output_and_render_png(outputs, task_dir, text)
+        usage = extract_usage(response)
+        final_prompt = build_readable_final_prompt(system_prompt, user_content)
+        output_path, png_path = write_output_and_render_png(outputs, task_dir, text, final_prompt)
         written += 1
-        print(f"Done: {task_id}")
 
-        manifest["results"].append(
-            {
-                "task_id": task_id,
-                "output_file": str(output_path),
-                "png_file": str(png_path),
-                "transport": "fireworks-chat-completions",
-            }
-        )
+        result: dict[str, Any] = {
+            "task_id": task_id,
+            "output_file": str(output_path),
+            "png_file": str(png_path),
+            "transport": "fireworks-chat-completions",
+        }
+        cost_note = ""
+        if usage is not None:
+            result["input_tokens"] = usage["prompt_tokens"]
+            result["output_tokens"] = usage["completion_tokens"]
+            result["total_tokens"] = usage["total_tokens"]
+            total_input_tokens += usage["prompt_tokens"]
+            total_output_tokens += usage["completion_tokens"]
+            task_cost = estimate_cost_usd(
+                input_tokens=usage["prompt_tokens"],
+                output_tokens=usage["completion_tokens"],
+                input_price_per_million=input_price_per_million,
+                output_price_per_million=output_price_per_million,
+            )
+            if task_cost is not None:
+                result["cost_usd"] = task_cost
+                total_cost_usd += task_cost
+                cost_note = f", cost=${task_cost:.4f}"
+        manifest["results"].append(result)
+        print(f"Done: {task_id}{cost_note}")
+
+    manifest["total_input_tokens"] = total_input_tokens
+    manifest["total_output_tokens"] = total_output_tokens
+    if cost_known:
+        manifest["total_cost_usd"] = total_cost_usd
 
     (outputs / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
-    print(f"Wrote {written} outputs to {outputs}")
+    cost_summary = f", total cost=${total_cost_usd:.4f}" if cost_known else ""
+    print(f"Wrote {written} outputs to {outputs}{cost_summary}")
 
 
 def main() -> None:
@@ -210,13 +318,39 @@ def main() -> None:
         type=int,
         help="Randomly sample this many tasks from the selected task set.",
     )
-    parser.add_argument("--seed", type=int, default=7)
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=7,
+        help="Local RNG seed for --sample-count task selection only. Not sent to the Fireworks API — see --generation-seed for that.",
+    )
     parser.add_argument(
         "--reasoning-effort",
         default="none",
         help="Fireworks reasoning control for generation. Defaults to 'none'.",
     )
     parser.add_argument("--temperature", type=float, default=0.0)
+    parser.add_argument(
+        "--max-tokens",
+        type=int,
+        default=4096,
+        help="Cap on generated tokens per task, so a degenerate/repetition-looping generation can't grow unbounded. Pass 0 to disable (use the model's own default/max).",
+    )
+    parser.add_argument(
+        "--generation-seed",
+        type=int,
+        help="Fireworks `seed` param for best-effort deterministic sampling on the generation call. Omitted by default (provider's own behavior). Not a hard reproducibility guarantee per Fireworks/OpenAI's own docs.",
+    )
+    parser.add_argument(
+        "--input-price-per-million",
+        type=float,
+        help="USD price per 1M input tokens for the generation model, to compute cost_usd. Known models (e.g. qwen3p7-plus) have built-in defaults; this flag overrides.",
+    )
+    parser.add_argument(
+        "--output-price-per-million",
+        type=float,
+        help="USD price per 1M output tokens for the generation model, to compute cost_usd. Known models (e.g. qwen3p7-plus) have built-in defaults; this flag overrides.",
+    )
     args = parser.parse_args()
     run(
         args.model,
@@ -230,6 +364,10 @@ def main() -> None:
         args.seed,
         args.reasoning_effort,
         args.temperature,
+        args.max_tokens or None,
+        args.input_price_per_million,
+        args.output_price_per_million,
+        args.generation_seed,
     )
 
 

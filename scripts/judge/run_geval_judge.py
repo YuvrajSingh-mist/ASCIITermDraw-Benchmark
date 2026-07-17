@@ -15,33 +15,19 @@ from pathlib import Path
 
 from scripts.lib.fireworks_api import iter_task_dirs, task_output_dir
 from scripts.judge.geval_metrics import build_metric_classes, build_test_case
-from scripts.judge.geval_support import StructuredJudgeBackend, build_task_artifacts
+from scripts.judge.geval_support import (
+    MODEL_PRICING_DEFAULTS,
+    StructuredJudgeBackend,
+    build_task_artifacts,
+    estimate_cost_usd,
+    gval_task_dir,
+)
 from scripts.judge.judge_schema import (
     load_csv_rows,
     save_csv_rows,
     semantics_score_from_observations,
     structural_score_from_observations,
 )
-
-
-def estimate_cost_usd(
-    *,
-    input_tokens: int,
-    output_tokens: int,
-    input_price_per_million: float | None,
-    output_price_per_million: float | None,
-) -> float | None:
-    """Convert token counts to a dollar cost, given caller-supplied per-million-token prices.
-
-    Returns None (rather than guessing) when no price was supplied — model pricing
-    changes over time, so this never hardcodes a rate.
-    """
-    if input_price_per_million is None or output_price_per_million is None:
-        return None
-    return (
-        input_tokens / 1_000_000 * input_price_per_million
-        + output_tokens / 1_000_000 * output_price_per_million
-    )
 
 
 def run(
@@ -55,6 +41,7 @@ def run(
     task_id: str | None,
     sample_count: int | None,
     num_judgments: int,
+    judge_temperature: float | None,
     input_price_per_million: float | None,
     output_price_per_million: float | None,
     dry_run: bool,
@@ -88,12 +75,19 @@ def run(
     existing = load_csv_rows(results)
     rows_by_task = {row["task_id"]: row for row in existing if row.get("task_id")}
 
+    if input_price_per_million is None and output_price_per_million is None:
+        input_price_per_million, output_price_per_million = MODEL_PRICING_DEFAULTS.get(
+            (provider.lower(), model.lower()), (None, None)
+        )
+
     StructuralJudgeMetric, SemanticJudgeMetric = build_metric_classes()
     backend = StructuredJudgeBackend(
         provider=provider,
         model=model,
         max_retries=max_retries,
         artifacts_by_task_id=artifacts_by_task_id,
+        outputs_dir=outputs,
+        temperature=judge_temperature,
     )
 
     for task_id_value, artifacts in artifacts_by_task_id.items():
@@ -153,6 +147,14 @@ def run(
         structural_components = {key: statistics.mean(values) for key, values in structural_components_by_key.items()}
         semantics_components = {key: statistics.mean(values) for key, values in semantics_components_by_key.items()}
 
+        # Computed directly from the paired per-round sums rather than via
+        # sqrt(stdev_structural**2 + stdev_semantics**2): the two scores come
+        # from the same judge call each round, so they aren't independent,
+        # and this way the true round-to-round covariance (whatever it is)
+        # is captured automatically instead of assumed away.
+        total_scores = [s + m for s, m in zip(structural_scores, semantics_scores)]
+        stdev_total = statistics.pstdev(total_scores)
+
         total_score = mean_structural + mean_semantics
         passed = mean_structural >= 0.9999 and mean_semantics >= 0.9999
         cost_usd = estimate_cost_usd(
@@ -172,6 +174,7 @@ def run(
         row["geval_structural_stdev"] = f"{stdev_structural:.4f}"
         row["geval_semantics_stdev"] = f"{stdev_semantics:.4f}"
         row["geval_score"] = f"{total_score:.4f}"
+        row["geval_score_stdev"] = f"{stdev_total:.4f}"
         row["geval_passed"] = str(passed).lower()
         row["geval_reason"] = reasons[-1]
         row["geval_input_tokens"] = str(total_input_tokens)
@@ -184,9 +187,9 @@ def run(
         for key, value in semantics_components.items():
             row[f"geval_semantics_{key}"] = f"{value:.4f}"
 
-        output_json_dir = outputs / "judge_geval_json"
-        output_json_dir.mkdir(parents=True, exist_ok=True)
-        (output_json_dir / f"{task_id_value}.json").write_text(
+        gval_dir = gval_task_dir(outputs, artifacts.task_dir)
+        gval_dir.mkdir(parents=True, exist_ok=True)
+        (gval_dir / "result.json").write_text(
             json.dumps(
                 {
                     "provider": provider,
@@ -197,6 +200,8 @@ def run(
                     "mean_semantics_score": mean_semantics,
                     "stdev_structural_score": stdev_structural,
                     "stdev_semantics_score": stdev_semantics,
+                    "mean_total_score": total_score,
+                    "stdev_total_score": stdev_total,
                     "total_input_tokens": total_input_tokens,
                     "total_output_tokens": total_output_tokens,
                     "cost_usd": cost_usd,
@@ -236,18 +241,23 @@ def main() -> None:
     parser.add_argument(
         "--num-judgments",
         type=int,
-        default=1,
-        help="Repeat the judge call this many times per task and report mean/stdev, to average out judge-model noise.",
+        default=5,
+        help="Repeat the judge call this many times per task and report mean/stdev, to average out judge-model noise. Default 10, matching common LLM-as-judge reliability practice.",
+    )
+    parser.add_argument(
+        "--judge-temperature",
+        type=float,
+        help="Override the judge model's sampling temperature (otherwise left at the provider's default). Raise this to widen the spread across --num-judgments rounds.",
     )
     parser.add_argument(
         "--input-price-per-million",
         type=float,
-        help="USD price per 1M input tokens for the judge model, to compute geval_cost_usd. Omit to skip cost estimation (token counts are always reported).",
+        help="USD price per 1M input tokens for the judge model, to compute geval_cost_usd. Known models (gpt-5.4, claude-sonnet-5) have built-in defaults; this flag overrides.",
     )
     parser.add_argument(
         "--output-price-per-million",
         type=float,
-        help="USD price per 1M output tokens for the judge model, to compute geval_cost_usd.",
+        help="USD price per 1M output tokens for the judge model, to compute geval_cost_usd. Known models (gpt-5.4, claude-sonnet-5) have built-in defaults; this flag overrides.",
     )
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
@@ -261,6 +271,7 @@ def main() -> None:
         task_id=args.task_id,
         sample_count=args.sample_count,
         num_judgments=args.num_judgments,
+        judge_temperature=args.judge_temperature,
         input_price_per_million=args.input_price_per_million,
         output_price_per_million=args.output_price_per_million,
         dry_run=args.dry_run,

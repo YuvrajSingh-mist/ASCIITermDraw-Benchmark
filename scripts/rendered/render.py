@@ -8,7 +8,17 @@ import subprocess
 from pathlib import Path
 
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+def _find_repo_root() -> Path:
+    """Walk up from this file until we find pyproject.toml — the real project root."""
+    current = Path(__file__).resolve().parent
+    for _ in range(10):
+        if (current / "pyproject.toml").exists():
+            return current
+        current = current.parent
+    raise RuntimeError("Could not find project root (no pyproject.toml found up to 10 levels).")
+
+
+REPO_ROOT = _find_repo_root()
 NODE_RENDERER = REPO_ROOT / "scripts" / "rendered" / "render_ascii.mjs"
 
 

@@ -1,1 +1,1 @@
-"""Shared helpers (Fireworks transport, L1 assertion checker) used across the generation, eval, and judge scripts."""
+"""Shared Fireworks transport/env-loading helpers used across the generation and judge scripts."""

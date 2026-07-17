@@ -16,7 +16,7 @@ const text = await readFile(input, "utf8");
 
 const browser = await chromium.launch({
   headless: true,
-  args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu"],
 });
 const page = await browser.newPage({ deviceScaleFactor: 2 });
 
@@ -55,6 +55,20 @@ const html = `<!doctype html>
 </html>`;
 
 await page.setContent(html, { waitUntil: "load" });
-await page.locator("pre").screenshot({ path: output });
+
+// Resize the viewport to exactly fit the rendered content, then take a
+// normal (non-fullPage) screenshot. Chromium's CDP fullPage capture can
+// fail with "Unable to capture screenshot" on large diagrams (a known
+// Playwright/Chromium bug); a viewport-sized capture is a single bounded
+// call and doesn't hit it.
+const box = await page.evaluate(() => ({
+  width: Math.ceil(document.body.scrollWidth),
+  height: Math.ceil(document.body.scrollHeight),
+}));
+await page.setViewportSize({
+  width: Math.max(1, box.width),
+  height: Math.max(1, box.height),
+});
+await page.screenshot({ path: output });
 await browser.close();
 console.log(`Rendered ${input} -> ${output}`);
