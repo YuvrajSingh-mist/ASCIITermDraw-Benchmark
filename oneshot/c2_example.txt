@@ -1,7 +1,0 @@
-EXAMPLE PROMPT:
-Draw a simple client-server diagram: one "Browser" box connecting with an arrow to one "Web Server" box.
-
-EXAMPLE OUTPUT:
-+-----------+          +------------+
-|  Browser  |--------->| Web Server |
-+-----------+          +------------+

@@ -1,7 +1,0 @@
-EXAMPLE PROMPT:
-Draw two boxes "Alpha" and "Beta" connected left-to-right with an arrow.
-
-EXAMPLE OUTPUT:
-+---------+     +--------+
-|  Alpha  |---->|  Beta  |
-+---------+     +--------+
