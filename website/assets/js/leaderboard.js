@@ -5,7 +5,9 @@
 // new model's results are published.
 //
 // qwen3p7-plus, 80 tasks, num_judgments=5 (see outputs/qwen3p7-plus/results.csv):
-//   combined.mean = 1.3425 / max_possible 2.0 -> 67.1%
+//   combined.mean = 1.3425, combined.stdev = 0.4577, max_possible 2.0
+//   -> 67.1% +/- 22.9% (population stdev over 80 per-task mean scores,
+//      each itself averaged across 5 judge rounds -- see metrics.json)
 //   generation_cost_usd (Fireworks, all 80 tasks) = 0.058589
 
 const LEADERBOARD_ROWS = [
@@ -14,6 +16,7 @@ const LEADERBOARD_ROWS = [
     model: "qwen3p7-plus",
     org: "Alibaba (via Fireworks)",
     score: 67.1,
+    scoreStdev: 22.9,
     price: 0.058589,
   },
 ];
@@ -23,7 +26,7 @@ function renderTable(containerId, rows) {
   root.innerHTML = `
     <table class="lb-table">
       <thead>
-        <tr><th>Rank</th><th>Model</th><th>Score (AVG@5)</th><th>Organization</th></tr>
+        <tr><th>Rank</th><th>Model</th><th>Score (5 runs, mean &plusmn; stdev)</th><th>Organization</th></tr>
       </thead>
       <tbody>
         ${rows
@@ -32,7 +35,7 @@ function renderTable(containerId, rows) {
               <tr class="${row.rank === "1st" ? "lb-row-rank1" : ""}">
                 <td class="lb-rank">${row.rank}</td>
                 <td>${row.model}</td>
-                <td>${row.score.toFixed(1)}%</td>
+                <td>${row.score.toFixed(1)}% &plusmn; ${row.scoreStdev.toFixed(1)}%</td>
                 <td>${row.org}</td>
               </tr>
             `
@@ -99,7 +102,7 @@ function renderPerfDollarChart() {
     const cx = xScale(row.price);
     const cy = yScale(row.score);
     svg += `<circle class="lb-dot" cx="${cx}" cy="${cy}" r="6" fill="var(--accent)" />`;
-    svg += `<circle class="lb-hit" cx="${cx}" cy="${cy}" r="13" data-model="${row.model}" data-price="${row.price.toFixed(4)}" data-score="${row.score}" />`;
+    svg += `<circle class="lb-hit" cx="${cx}" cy="${cy}" r="13" data-model="${row.model}" data-price="${row.price.toFixed(4)}" data-score="${row.score}" data-score-stdev="${row.scoreStdev}" />`;
   }
   svg += `</svg>`;
 
@@ -114,7 +117,7 @@ function renderPerfDollarChart() {
         tooltip,
         targetRect.left - rect.left + targetRect.width / 2,
         targetRect.top - rect.top,
-        `<strong>${hit.dataset.score}%</strong><span>${hit.dataset.model} &middot; $${hit.dataset.price}</span>`
+        `<strong>${hit.dataset.score}% &plusmn; ${hit.dataset.scoreStdev}%</strong><span>${hit.dataset.model} &middot; $${hit.dataset.price}</span>`
       );
     });
     hit.addEventListener("pointerleave", () => hideTooltip(tooltip));
