@@ -7,13 +7,6 @@ async function loadData() {
   return response.json();
 }
 
-const FEATURED_TASK_IDS = {
-  "box-layout-basics": "1.10",
-  "network-topology-diagrams": "2.17",
-  "diagram-editing": "3.16",
-  "software-architecture-diagrams": "4.14",
-};
-
 function renderStatsInline(stats) {
   const root = document.getElementById("stats-inline");
   if (!root) {
@@ -78,93 +71,83 @@ function escapeHtml(text) {
     .replaceAll(">", "&gt;");
 }
 
-function difficultyLabel(task) {
-  if (task.path.includes("/easy/")) return "Easy";
-  if (task.path.includes("/medium/")) return "Medium";
-  return "Hard";
-}
-
-function renderFeaturedTasks(categories) {
-  const root = document.getElementById("featured-task-grid");
-  if (!root) {
+function attachLightbox() {
+  const overlay = document.getElementById("lightbox-overlay");
+  const overlayImg = document.getElementById("lightbox-image");
+  const closeBtn = overlay ? overlay.querySelector(".lightbox-close") : null;
+  if (!overlay || !overlayImg) {
     return;
   }
-  const featured = categories
-    .map((category) => ({
-      category,
-      task:
-        category.tasks.find(
-          (task) => task.task_id === FEATURED_TASK_IDS[category.slug]
-        ) || category.tasks[0],
-    }))
-    .filter((entry) => entry.task);
 
-  root.innerHTML = featured
-    .map(
-      ({ category, task }) => `
-        <article class="task-card">
-          <div class="task-card-header">
-            <span class="task-card-id">${task.task_id}</span>
-            <span class="task-meta">${category.name}  -  ${difficultyLabel(task)}</span>
-          </div>
-          <h3>${task.title}</h3>
-          <p>${task.prompt}</p>
-          <pre><code>${escapeHtml(task.preview)}</code></pre>
-        </article>
-      `
-    )
-    .join("");
+  function open(img) {
+    overlayImg.src = img.src;
+    overlayImg.alt = img.alt;
+    overlay.classList.add("active");
+    overlay.setAttribute("aria-hidden", "false");
+  }
+
+  function close() {
+    overlay.classList.remove("active");
+    overlay.setAttribute("aria-hidden", "true");
+    overlayImg.src = "";
+  }
+
+  for (const img of document.querySelectorAll("img.lightbox-trigger")) {
+    img.addEventListener("click", () => open(img));
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener("click", close);
+  }
+  overlay.addEventListener("click", (event) => {
+    if (event.target === overlay) {
+      close();
+    }
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && overlay.classList.contains("active")) {
+      close();
+    }
+  });
 }
 
-function taskMarkup(task, category) {
-  const difficulty = difficultyLabel(task);
+function assetsBasePath() {
+  const dataPath = document.body.dataset.siteData || "./assets/data/site_data.json";
+  return dataPath.replace("assets/data/site_data.json", "assets/");
+}
+
+function capitalize(word) {
+  return word.charAt(0).toUpperCase() + word.slice(1);
+}
+
+function publicExampleMarkup(example, base) {
   return `
-    <article class="task-item" data-search="${[
-      task.task_id,
-      task.title,
-      task.prompt,
-      category.name,
-      category.slug,
-      difficulty,
-      task.path,
-    ]
-      .join(" ")
-      .toLowerCase()}">
-      <div class="task-head">
-        <span class="task-id">${task.task_id}</span>
-        <span class="task-title">${task.title}</span>
+    <article class="public-example">
+      <div class="public-example-meta">
+        <span class="public-example-cat">${example.category_name} <span class="public-example-id">${example.task_id}</span></span>
+        <span class="public-example-diff">${capitalize(example.difficulty)}${example.has_source ? "  -  image-conditioned edit" : ""}</span>
       </div>
-      <div class="task-meta">
-        ${category.name}  -  ${difficulty}  -  ${task.path}${task.has_source ? "  -  image-conditioned edit" : ""}
-      </div>
-      <div class="task-prompt">${task.prompt}</div>
-      <pre><code>${escapeHtml(task.preview)}</code></pre>
+      <pre class="public-example-prompt"><code>${escapeHtml(example.prompt)}</code></pre>
+      <img
+        class="public-example-img lightbox-trigger"
+        src="${base}${example.img}"
+        alt="${escapeHtml(example.category_name)} — ${example.difficulty} example diagram"
+        loading="lazy"
+      />
     </article>
   `;
 }
 
-function renderTasks(categories) {
-  const root = document.getElementById("task-list");
-  if (!root) {
+// Renders a list of public_examples into any container using the same card
+// markup/styling, so the homepage's featured examples and the Tasks page's
+// full example list look identical apart from which examples are included.
+function renderPublicExampleList(containerId, examples) {
+  const root = document.getElementById(containerId);
+  if (!root || !examples) {
     return;
   }
-  root.innerHTML = categories
-    .flatMap((category) => category.tasks.map((task) => taskMarkup(task, category)))
-    .join("");
-}
-
-function attachFilter() {
-  const input = document.getElementById("task-filter");
-  if (!input) {
-    return;
-  }
-  const items = [...document.querySelectorAll(".task-item")];
-  input.addEventListener("input", () => {
-    const query = input.value.trim().toLowerCase();
-    for (const item of items) {
-      item.style.display = !query || item.dataset.search.includes(query) ? "" : "none";
-    }
-  });
+  const base = assetsBasePath();
+  root.innerHTML = examples.map((example) => publicExampleMarkup(example, base)).join("");
 }
 
 loadData()
@@ -172,21 +155,20 @@ loadData()
     renderStatsInline(data.stats);
     renderCategoryTable(data.categories);
     renderBenchmarkSummary(data.categories);
-    renderFeaturedTasks(data.categories);
-    renderTasks(data.categories);
-    attachFilter();
+    renderPublicExampleList(
+      "featured-examples-list",
+      (data.public_examples || []).filter((example) => example.difficulty === "hard")
+    );
+    renderPublicExampleList("public-examples-list", data.public_examples);
+    attachLightbox();
   })
   .catch((error) => {
     const statsRoot = document.getElementById("stats-inline");
-    const taskRoot = document.getElementById("task-list");
     const summaryRoot = document.getElementById("benchmark-summary-body");
     if (statsRoot) {
       statsRoot.textContent = error.message;
     }
     if (summaryRoot) {
       summaryRoot.innerHTML = `<tr><td colspan="3">${error.message}</td></tr>`;
-    }
-    if (taskRoot) {
-      taskRoot.innerHTML = `<article class="task-item"><div class="task-prompt">${error.message}</div></article>`;
     }
   });

@@ -1,0 +1,48 @@
+{
+  "required_labels": [
+    "Client",
+    "API",
+    "Cache",
+    "Worker-1",
+    "Worker-2",
+    "DB"
+  ],
+  "forbidden_labels": [
+    "Worker"
+  ],
+  "entity_count": 6,
+  "required_edges": [
+    {
+      "from": "Client",
+      "to": "API"
+    },
+    {
+      "from": "API",
+      "to": "Cache"
+    },
+    {
+      "from": "Cache",
+      "to": "Worker-1"
+    },
+    {
+      "from": "Cache",
+      "to": "Worker-2"
+    },
+    {
+      "from": "Worker-1",
+      "to": "DB"
+    },
+    {
+      "from": "Worker-2",
+      "to": "DB"
+    }
+  ],
+  "editing": {
+    "required_edge_labels": [],
+    "preserved_elements": [
+      "Client",
+      "API",
+      "DB"
+    ]
+  }
+}

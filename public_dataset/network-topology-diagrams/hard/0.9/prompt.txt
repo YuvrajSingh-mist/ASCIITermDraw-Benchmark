@@ -1,0 +1,11 @@
+- Draw an ASCII diagram illustrating a core-distribution-access network topology.
+- At the top, place a "Core Switch" box connected down to two distribution switches: "Dist-A" on the left and "Dist-B" on the right.
+- Draw a dashed horizontal redundant link directly between Dist-A and Dist-B, labeled "backup link".
+- Connect Dist-A down to an "Access-1" box, and Dist-B down to an "Access-2" box.
+- When arrows are required, make them centered and aligned cleanly to their source and target.
+- If an arrow has a label, place the label a little above the arrow rather than inside the arrow line.
+- For any label or text inside a node, box, or icon, center it within that component whenever possible.
+- Any component with incoming or outgoing arrows should be sized wide or tall enough to make those connections visually unambiguous, so it is clear where arrows originate and where they terminate.
+- If one component fans out to multiple arrows, or multiple arrows converge into one component, its width or height should clearly support those attachment points.
+- Return only the final ASCII diagram in plain text.
+- Do not include markdown fences, explanations, or any extra text.

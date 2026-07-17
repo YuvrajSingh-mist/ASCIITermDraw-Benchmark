@@ -1,0 +1,14 @@
+- Draw an ASCII diagram illustrating a video upload and transcoding pipeline.
+- "Client" connects to "Upload Service" with an arrow labeled "upload video".
+- "Upload Service" connects to "Object Storage" with an arrow labeled "store raw file".
+- "Upload Service" connects to "Transcode Queue" with an arrow labeled "enqueue job".
+- "Transcode Queue" connects down to two workers, "Transcoder-1" and "Transcoder-2", each arrow labeled "dequeue".
+- "Transcoder-1" connects to "CDN" with an arrow labeled "publish".
+- "Transcoder-2" connects to "Metadata DB" with an arrow labeled "write metadata".
+- When arrows are required, make them centered and aligned cleanly to their source and target.
+- If an arrow has a label, place the label a little above the arrow rather than inside the arrow line.
+- For any label or text inside a node, box, or icon, center it within that component whenever possible.
+- Any component with incoming or outgoing arrows should be sized wide or tall enough to make those connections visually unambiguous, so it is clear where arrows originate and where they terminate.
+- If one component fans out to multiple arrows, or multiple arrows converge into one component, its width or height should clearly support those attachment points.
+- Return only the final ASCII diagram in plain text.
+- Do not include markdown fences, explanations, or any extra text.

@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>TermDraw-Bench  -  Quick Start</title>
-  <meta name="description" content="Quick start guide for setting up, rendering, generating, and judging TermDraw-Bench.">
+  <title>ASCIITermDraw-Bench  -  Quick Start</title>
+  <meta name="description" content="Quick start guide for setting up, rendering, generating, and judging ASCIITermDraw-Bench.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
@@ -14,7 +14,7 @@
 <body>
 
 <nav aria-label="Main navigation">
-  <span class="nav-title">TermDraw-Bench</span>
+  <span class="nav-title">ASCIITermDraw-Bench</span>
   <div class="nav-links">
     <a href="../index.html">Overview</a>
     <a href="./tasks.html">Tasks</a>
@@ -29,7 +29,7 @@
       <p class="hero-subtitle">Setup, Rendering, Generation, and Judging</p>
       <p class="hero-desc">
         This page mirrors the benchmark workflow in the repository: create the environment, render PNG references,
-        run a smoke test, launch batch generation, run the assertion cross-check, and then run structured VLM judging.
+        run a smoke test, run full generation, and then run the DeepEval judge.
       </p>
       <div class="hero-btns">
         <a href="#setup" class="btn btn-primary">Setup</a>
@@ -44,9 +44,7 @@
       <div class="prose">
         <p>Install Python and Node dependencies, then create a local credential file. Scripts auto-load <code>.env.local</code> and <code>.env</code>.</p>
       </div>
-      <pre><code class="language-bash">python3.10 -m venv .venv
-.venv/bin/python -m pip install --upgrade pip
-.venv/bin/python -m pip install requests pydantic openai instructor
+      <pre><code class="language-bash">uv sync
 npm install
 npx playwright install chromium
 cp .env.example .env.local</code></pre>
@@ -61,7 +59,7 @@ FIREWORKS_ACCOUNT_ID=...</code></pre>
       <div class="prose">
         <p>Render every <code>.ascii</code> artifact into a diagram-only PNG so image-conditioned edit tasks have consistent source images.</p>
       </div>
-      <pre><code class="language-bash">.venv/bin/python scripts/rendered/render_all.py</code></pre>
+      <pre><code class="language-bash">uv run python -m scripts.rendered.render_all</code></pre>
     </div>
   </section>
 
@@ -71,10 +69,9 @@ FIREWORKS_ACCOUNT_ID=...</code></pre>
       <div class="prose">
         <p>Run a synchronous shared-module spot check before spending time on full-benchmark batch inference.</p>
       </div>
-      <pre><code class="language-bash">.venv/bin/python scripts/smoke_generate.py \
+      <pre><code class="language-bash">uv run smoke \
   --model accounts/fireworks/models/qwen3p7-plus \
   --tasks tasks \
-  --oneshot oneshot \
   --outputs outputs/smoke-qwen3p7-plus \
   --sample-count 5 \
   --seed 7 \
@@ -85,15 +82,14 @@ FIREWORKS_ACCOUNT_ID=...</code></pre>
 
   <section id="batch" aria-labelledby="heading-batch">
     <div class="container">
-      <h2 class="section-title" id="heading-batch">Batch Generation</h2>
+      <h2 class="section-title" id="heading-batch">Full Generation</h2>
       <div class="prose">
-        <p>Run the full benchmark with Fireworks batch inference. Category 3 tasks automatically attach source images.</p>
+        <p>Run the full benchmark via Fireworks' synchronous chat-completions transport (one request per task). Category 3 tasks automatically attach source images.</p>
       </div>
-      <pre><code class="language-bash">.venv/bin/python scripts/run_model.py \
+      <pre><code class="language-bash">uv run run-model \
   --model accounts/fireworks/models/your-vision-model \
   --tasks tasks \
   --outputs outputs/your-run \
-  --oneshot oneshot \
   --reasoning-effort none \
   --network-retries 5</code></pre>
     </div>
@@ -103,17 +99,15 @@ FIREWORKS_ACCOUNT_ID=...</code></pre>
     <div class="container">
       <h2 class="section-title" id="heading-score">Scoring</h2>
       <div class="prose">
-        <p>Run the assertion-based structural cross-check first, then VLM judging with structured JSON output where the main score is <code>structural_score + semantics_score</code>.</p>
+        <p>Judging goes through DeepEval <code>BaseMetric</code> against OpenAI or Anthropic, with structured JSON output where the main score is <code>geval_structural_score + geval_semantics_score</code>. This is the only scoring path — there is no separate deterministic/text-heuristic step.</p>
       </div>
-      <pre><code class="language-bash">.venv/bin/python scripts/eval.py \
-  --outputs outputs/your-run \
-  --tasks tasks \
-  --results results_your_run.csv</code></pre>
-      <pre><code class="language-bash">.venv/bin/python scripts/judge/run_vlm_judge.py \
-  --model accounts/fireworks/models/your-judge-model \
+      <pre><code class="language-bash">uv run judge-geval \
+  --provider openai \
+  --model your-judge-model \
   --tasks tasks \
   --outputs outputs/your-run \
-  --results results_your_run.csv</code></pre>
+  --results results_your_run.csv \
+  --num-judgments 10</code></pre>
     </div>
   </section>
 
@@ -136,7 +130,7 @@ FIREWORKS_ACCOUNT_ID=...</code></pre>
       <a href="./tasks.html">Tasks</a>
       <a href="#setup">Quick Start</a>
     </div>
-    <p><strong>TermDraw-Bench</strong> &nbsp;&middot;&nbsp; Quick start workflow &nbsp;&middot;&nbsp; Fireworks-ready benchmark</p>
+    <p><strong>ASCIITermDraw-Bench</strong> &nbsp;&middot;&nbsp; Quick start workflow &nbsp;&middot;&nbsp; Fireworks-ready benchmark</p>
   </div>
 </footer>
 

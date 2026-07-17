@@ -15,6 +15,6 @@ outputs/
 tasks/
 scripts/benchmark/
 
-# Generated/internal docs — keep only README.md files tracked
+# Generated/internal docs — keep only the single root README.md tracked
 *.md
-!README.md
+!/README.md

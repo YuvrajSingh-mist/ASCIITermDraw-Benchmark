@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>TermDraw-Bench  -  Tasks</title>
-  <meta name="description" content="Detailed published task inventory for TermDraw-Bench, including categories, prompts, previews, and difficulty buckets.">
+  <title>ASCIITermDraw-Bench  -  Tasks</title>
+  <meta name="description" content="Public example tasks for ASCIITermDraw-Bench — one easy, medium, and hard task per category, in the same format as the private benchmark.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
@@ -14,10 +14,10 @@
 <body data-site-data="../assets/data/site_data.json">
 
 <nav aria-label="Main navigation">
-  <span class="nav-title">TermDraw-Bench</span>
+  <span class="nav-title">ASCIITermDraw-Bench</span>
   <div class="nav-links">
     <a href="../index.html">Overview</a>
-    <a href="#task-browser">Tasks</a>
+    <a href="./tasks.html">Tasks</a>
     <a href="./quickstart.html">Quick Start</a>
   </div>
 </nav>
@@ -26,41 +26,47 @@
   <div class="hero">
     <div class="container">
       <h1>Tasks</h1>
-      <p class="hero-subtitle">Detailed Benchmark Inventory</p>
+      <p class="hero-subtitle">Public Example Tasks</p>
       <p class="hero-desc">
-        Browse every published task in the benchmark with its category, difficulty bucket, prompt text,
-        repository path, and a reference ASCII preview.
+        The real 80-task benchmark corpus is private — it's the held-out evaluation set. These
+        12 tasks are separate, hand-authored public examples in the exact same format (one
+        easy, medium, and hard task per category), so anyone can see what a task looks like
+        and run the tooling without access to the private set.
       </p>
       <div class="hero-btns">
-        <a href="#task-browser" class="btn btn-primary">Open Task Browser</a>
+        <a href="#public-examples" class="btn btn-primary">Browse Examples</a>
         <a href="../index.html" class="btn btn-outline">Back to Overview</a>
       </div>
     </div>
   </div>
 
-  <section id="task-browser" aria-labelledby="heading-task-browser">
+  <section id="public-examples" aria-labelledby="heading-public-examples">
     <div class="container">
-      <h2 class="section-title" id="heading-task-browser">Task Browser</h2>
+      <h2 class="section-title" id="heading-public-examples">Public Examples</h2>
       <div class="prose">
-        <p>The listing below is generated from the benchmark repository itself, so the published page reflects the actual task tree contributors and evaluators use.</p>
+        <p>
+          Every task in <code>public_dataset/</code>, grouped by category and difficulty.
+          Click a diagram to view it full size.
+        </p>
       </div>
-      <div class="filter-wrap">
-        <label for="task-filter">Search by task id, category, difficulty, path, or prompt</label>
-        <input id="task-filter" type="search" placeholder="e.g. 4.14, topology, medium, kafka, gateway">
-      </div>
-      <div id="task-list" class="task-list"></div>
+      <div id="public-examples-list" class="public-example-list"></div>
     </div>
   </section>
 </main>
+
+<div id="lightbox-overlay" class="lightbox-overlay" role="dialog" aria-modal="true" aria-hidden="true">
+  <button type="button" class="lightbox-close" aria-label="Close">&times;</button>
+  <img id="lightbox-image" src="" alt="" />
+</div>
 
 <footer>
   <div class="container">
     <div class="footer-links">
       <a href="../index.html">Overview</a>
-      <a href="#task-browser">Tasks</a>
+      <a href="./tasks.html">Tasks</a>
       <a href="./quickstart.html">Quick Start</a>
     </div>
-    <p><strong>TermDraw-Bench</strong> &nbsp;&middot;&nbsp; Detailed task inventory &nbsp;&middot;&nbsp; GitHub Pages ready</p>
+    <p><strong>ASCIITermDraw-Bench</strong> &nbsp;&middot;&nbsp; Public example tasks &nbsp;&middot;&nbsp; GitHub Pages ready</p>
   </div>
 </footer>
 

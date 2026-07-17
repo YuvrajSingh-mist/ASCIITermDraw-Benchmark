@@ -1,0 +1,10 @@
+- Draw an ASCII diagram illustrating one outer ASCII box labeled "Browser Tab".
+- Inside it, place two inner boxes side by side labeled "DOM Tree" and "JS Engine".
+- Center the text "Event Loop" below the two inner boxes but still inside the Browser Tab box.
+- When arrows are required, make them centered and aligned cleanly to their source and target.
+- If an arrow has a label, place the label a little above the arrow rather than inside the arrow line.
+- For any label or text inside a node, box, or icon, center it within that component whenever possible.
+- Any component with incoming or outgoing arrows should be sized wide or tall enough to make those connections visually unambiguous, so it is clear where arrows originate and where they terminate.
+- If one component fans out to multiple arrows, or multiple arrows converge into one component, its width or height should clearly support those attachment points.
+- Return only the final ASCII diagram in plain text.
+- Do not include markdown fences, explanations, or any extra text.

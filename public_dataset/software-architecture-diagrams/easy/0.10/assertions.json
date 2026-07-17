@@ -1,0 +1,26 @@
+{
+  "required_labels": [
+    "IoT Sensor",
+    "MQTT Broker",
+    "Time-Series DB",
+    "publish",
+    "ingest"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 3,
+  "required_edges": [
+    {
+      "from": "IoT Sensor",
+      "to": "MQTT Broker"
+    },
+    {
+      "from": "MQTT Broker",
+      "to": "Time-Series DB"
+    }
+  ],
+  "required_edge_labels": [
+    "publish",
+    "ingest"
+  ],
+  "preserved_elements": []
+}

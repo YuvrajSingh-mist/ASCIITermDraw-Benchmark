@@ -1,0 +1,41 @@
+{
+  "required_labels": [
+    "Router",
+    "Switch-A",
+    "Switch-B",
+    "Host-1",
+    "Host-2",
+    "Host-3",
+    "Host-4"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 7,
+  "required_edges": [
+    {
+      "from": "Router",
+      "to": "Switch-A"
+    },
+    {
+      "from": "Router",
+      "to": "Switch-B"
+    },
+    {
+      "from": "Switch-A",
+      "to": "Host-1"
+    },
+    {
+      "from": "Switch-A",
+      "to": "Host-2"
+    },
+    {
+      "from": "Switch-B",
+      "to": "Host-3"
+    },
+    {
+      "from": "Switch-B",
+      "to": "Host-4"
+    }
+  ],
+  "required_edge_labels": [],
+  "preserved_elements": []
+}

@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>TermDraw-Bench  -  ASCII Diagram Generation and Editing Benchmark</title>
-  <meta name="description" content="TermDraw-Bench is a benchmark for ASCII diagram generation and editing across 80 tasks, with Fireworks-ready batch generation, structural scoring, and VLM judging.">
+  <title>ASCIITermDraw-Bench  -  ASCII Diagram Generation and Editing Benchmark</title>
+  <meta name="description" content="ASCIITermDraw-Bench is a benchmark for ASCII diagram generation and editing across 80 tasks, with Fireworks-ready batch generation, structural scoring, and VLM judging.">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="TermDraw-Bench  -  ASCII Diagram Generation and Editing Benchmark">
+  <meta property="og:title" content="ASCIITermDraw-Bench  -  ASCII Diagram Generation and Editing Benchmark">
   <meta property="og:description" content="Evaluate whether models can actually draw in plain text with box-layout, topology, architecture, and diagram-editing tasks.">
-  <meta property="og:url" content="https://example.com/termdraw-bench/">
-  <meta property="og:site_name" content="TermDraw-Bench">
+  <meta property="og:url" content="https://example.com/asciitermdraw-bench/">
+  <meta property="og:site_name" content="ASCIITermDraw-Bench">
   <meta property="twitter:card" content="summary_large_image">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,7 +21,7 @@
 <body>
 
 <nav aria-label="Main navigation">
-  <span class="nav-title">TermDraw-Bench</span>
+  <span class="nav-title">ASCIITermDraw-Bench</span>
   <div class="nav-links">
     <a href="./pages/tasks.html">Tasks</a>
     <a href="#documentation">Documentation</a>
@@ -32,10 +32,10 @@
 <main>
   <div class="hero">
     <div class="container">
-      <h1>TermDraw-Bench</h1>
+      <h1>ASCIITermDraw-Bench</h1>
       <p class="hero-subtitle">ASCII Diagram Generation and Editing Benchmark</p>
       <p class="hero-desc">
-        Evaluate whether a model can actually draw in plain text. TermDraw-Bench measures box layout,
+        Evaluate whether a model can actually draw in plain text. ASCIITermDraw-Bench measures box layout,
         topology construction, software architecture sketching, and image-conditioned ASCII editing with
         task directories, rendered references, structural checks, and model-specific judge prompts.
       </p>
@@ -55,15 +55,15 @@
       <h2 class="section-title" id="heading-overview">Overview</h2>
       <div class="prose">
         <p>
-          <strong>TermDraw-Bench</strong> is a benchmark for structured ASCII diagram generation and editing.
+          <strong>ASCIITermDraw-Bench</strong> is a benchmark for structured ASCII diagram generation and editing.
           Instead of grading models on prose quality alone, it checks whether they can place labels, preserve
           spacing, route arrows, maintain topology, and make constrained edits to an existing diagram.
         </p>
         <p>
           The benchmark covers four families of tasks: box layout basics, network topology diagrams,
           diagram editing from source images, and canonical software architecture sketches. Every task ships
-          with a prompt, a reference ASCII artifact, machine-readable L1 assertions, and a task-specific VLM
-          judge prompt for L2 evaluation.
+          with a prompt, a reference ASCII artifact, machine-readable assertions, and a task-specific VLM
+          judge prompt used by the DeepEval-based judge.
         </p>
       </div>
       <div class="callout">
@@ -86,7 +86,7 @@
         <tbody id="category-table-body"></tbody>
       </table>
       <p class="muted-note">
-        The task browser is generated from the real repository tree, so the website stays aligned with the
+        This table is generated from the real repository tree, so the website stays aligned with the
         benchmark that contributors actually run.
       </p>
     </div>
@@ -96,12 +96,14 @@
     <div class="container">
       <h2 class="section-title" id="heading-anatomy">Benchmark Anatomy</h2>
       <pre><code class="language-text">prompt.txt + source.png?  -->  model inference  -->  ASCII output (.txt)
-                                             | 
-                                             +--> L1 assertions.json score
                                              |
-                                             +--> L2 vlm_judge_prompt.txt score
+                                             +--> rendered candidate PNG
                                              |
-                                             +--> combined CSV / judge JSON artifacts</code></pre>
+                                             +--> vlm_judge_prompt.txt + assertions.json
+                                             |    -> DeepEval BaseMetric judge (OpenAI/Anthropic)
+                                             |    -> geval_structural_score + geval_semantics_score
+                                             |
+                                             +--> results CSV / judge JSON artifacts</code></pre>
       <div class="prose">
         <p>
           Category 3 is multimodal: the model receives a rendered <code>source.png</code> and must apply a textual edit
@@ -126,10 +128,9 @@ npm install
 npx playwright install chromium
 cp .env.example .env.local
 
-python3 scripts/smoke_generate.py \
+uv run smoke \
   --model accounts/fireworks/models/qwen3p7-plus \
   --tasks tasks \
-  --oneshot oneshot \
   --outputs outputs/smoke-qwen3p7-plus \
   --sample-count 5 \
   --seed 7 \
@@ -154,15 +155,17 @@ python3 scripts/smoke_generate.py \
 
       <h3 class="subsection-title">Evaluation Pipeline</h3>
       <div class="callout">
-        <strong>Two-layer scoring.</strong>
-        L1 uses structural assertions to catch hard format and topology failures. L2 uses task-specific VLM prompts
-        with structured JSON output to score semantic correctness more holistically.
+        <strong>Single-path scoring.</strong>
+        A DeepEval <code>BaseMetric</code> judge (OpenAI or Anthropic) reports a structural score (assertion
+        checks verified against the rendered image) and a semantic score (task-specific rubric) per task —
+        <code>geval_score = geval_structural_score + geval_semantics_score</code>. There is no separate
+        deterministic/text-heuristic scoring step.
       </div>
       <div class="prose">
         <ul>
           <li><strong>Playwright PNG rendering</strong>  -  reference ASCII artifacts are rendered as diagram-only images for editing tasks and visual inspection.</li>
-          <li><strong>Fireworks batch generation</strong>  -  benchmark-wide inference is wired for batch runs with reasoning disabled and network retries for transport failures.</li>
-          <li><strong>Pydantic / Instructor judging</strong>  -  smaller synchronous judge runs can use schema-constrained JSON validation.</li>
+          <li><strong>Fireworks generation</strong>  -  model responses and rendered PNGs only; Fireworks is not used for judging.</li>
+          <li><strong>Repeated judging</strong>  -  each task can be judged multiple times (default 10) with mean/stdev reported, to separate real quality differences from judge-scoring noise.</li>
           <li><strong>Repository-first organization</strong>  -  task directories, scripts, outputs, and website metadata are all arranged for extension and public contribution.</li>
         </ul>
       </div>
@@ -172,26 +175,38 @@ python3 scripts/smoke_generate.py \
   <section id="examples" aria-labelledby="heading-examples">
     <div class="container">
       <h2 class="section-title" id="heading-examples">Example Tasks</h2>
-      <div class="task-grid" id="featured-task-grid"></div>
+      <div class="prose" style="margin-bottom: 1rem;">
+        <p>
+          One hard-difficulty task per category, from the public
+          <code>public_dataset/</code> sample set — the same format as the
+          private benchmark. Click a diagram to view it full size, or see
+          every public example on the <a href="./pages/tasks.html">Tasks</a> page.
+        </p>
+      </div>
+      <div class="public-example-list" id="featured-examples-list"></div>
     </div>
   </section>
+
+  <div id="lightbox-overlay" class="lightbox-overlay" role="dialog" aria-modal="true" aria-hidden="true">
+    <button type="button" class="lightbox-close" aria-label="Close">&times;</button>
+    <img id="lightbox-image" src="" alt="" />
+  </div>
 
   <section id="technical" aria-labelledby="heading-technical">
     <div class="container">
       <h2 class="section-title" id="heading-technical">Technical Details</h2>
       <div class="prose">
         <p>
-          TermDraw-Bench is designed to be regenerated and audited from source. The task corpus is produced from
-          <code>generate_benchmark.py</code>, task assets live in named category directories, and the website data is built from
+          ASCIITermDraw-Bench is designed to be regenerated and audited from source. The task corpus is produced from
+          <code>scripts/benchmark/build.py</code>, task assets live in named category directories, and the website data is built from
           the repository tree rather than from hand-maintained content.
         </p>
 
         <h3 class="subsection-title" style="margin-top: 1rem;">Inference and Scoring</h3>
         <ul>
           <li><strong>Smoke generation</strong>  -  synchronous shared-module Fireworks calls for fast spot checks on a random subset of tasks.</li>
-          <li><strong>Batch generation</strong>  -  dataset-backed Fireworks jobs for full-benchmark runs across all tasks.</li>
-          <li><strong>L1 checker</strong>  -  label recall, entity count, edge presence, and format compliance derived from <code>assertions.json</code>.</li>
-          <li><strong>L2 judge</strong>  -  task-specific prompts that request structured JSON outputs using Fireworks batch or Instructor-backed synchronous calls.</li>
+          <li><strong>Full generation</strong>  -  the same synchronous Fireworks transport, run across all tasks.</li>
+          <li><strong>DeepEval judge</strong>  -  a custom <code>BaseMetric</code> against OpenAI or Anthropic; structural score verifies visual evidence against <code>assertions.json</code>, semantic score comes from a task-specific rubric prompt.</li>
         </ul>
 
         <h3 class="subsection-title">Assets and Rendering</h3>
@@ -269,7 +284,7 @@ python3 scripts/smoke_generate.py \
       <a href="#documentation">Documentation</a>
       <a href="./pages/quickstart.html">Quick Start</a>
     </div>
-    <p><strong>TermDraw-Bench</strong> &nbsp;&middot;&nbsp; ASCII diagram generation and editing benchmark &nbsp;&middot;&nbsp; GitHub Pages ready</p>
+    <p><strong>ASCIITermDraw-Bench</strong> &nbsp;&middot;&nbsp; ASCII diagram generation and editing benchmark &nbsp;&middot;&nbsp; GitHub Pages ready</p>
   </div>
 </footer>
 

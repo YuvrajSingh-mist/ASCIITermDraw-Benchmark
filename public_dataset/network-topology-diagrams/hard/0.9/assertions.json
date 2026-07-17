@@ -1,0 +1,32 @@
+{
+  "required_labels": [
+    "Core Switch",
+    "Dist-A",
+    "Dist-B",
+    "Access-1",
+    "Access-2",
+    "backup link"
+  ],
+  "forbidden_labels": [],
+  "entity_count": 5,
+  "required_edges": [
+    {
+      "from": "Core Switch",
+      "to": "Dist-A"
+    },
+    {
+      "from": "Core Switch",
+      "to": "Dist-B"
+    },
+    {
+      "from": "Dist-A",
+      "to": "Access-1"
+    },
+    {
+      "from": "Dist-B",
+      "to": "Access-2"
+    }
+  ],
+  "required_edge_labels": [],
+  "preserved_elements": []
+}
