@@ -4,13 +4,17 @@
 // fetched at build time). Update these constants -- and add another entry to
 // LEADERBOARD_ROWS -- whenever a new model's results are published.
 //
-// final_score.mean/ci95 for each model, 80 tasks, num_judgments=5:
-//   qwen3p7-plus:  mean=0.6713, ci95=[0.6208, 0.7217] -> 67.1% +/- 5.1%
-//   minimax-m3:    mean=0.6693, ci95=[0.6195, 0.7192] -> 66.9% +/- 5.0%
-//   kimi-k2p6:     mean=0.5880, ci95=[0.5297, 0.6464] -> 58.8% +/- 5.8%
-// CI95 = 1.96 * sample_stdev / sqrt(80), using each of the 80 tasks as the
-// independent sampling unit (not the 400 judge rounds) -- see metrics.json's
-// final_score.ci95 and scripts/judge/compute_metrics.py.
+// Per model, 80 tasks, num_judgments=5 (see outputs/<model>/metrics.json):
+//   final_score.mean/ci95 (95% CI, 80 tasks as the independent sampling unit,
+//     not the 400 judge rounds -- see scripts/judge/compute_metrics.py):
+//     qwen3p7-plus:  0.6713 +/- 0.0505 -> 67.1% +/- 5.1%
+//     minimax-m3:    0.6693 +/- 0.0499 -> 66.9% +/- 5.0%
+//     kimi-k2p6:     0.5880 +/- 0.0583 -> 58.8% +/- 5.8%
+//   structural.mean/stdev, semantics.mean/stdev (population stdev over every
+//     judge round across all tasks -- descriptive spread, not a CI):
+//     qwen3p7-plus:  structural=0.7679+/-0.2842  semantics=0.5746+/-0.2284
+//     minimax-m3:    structural=0.7767+/-0.2836  semantics=0.5620+/-0.2221
+//     kimi-k2p6:     structural=0.6794+/-0.3185  semantics=0.4967+/-0.2602
 // generation_cost_usd (Fireworks, all 80 tasks): qwen3p7-plus=0.058589,
 // minimax-m3=0.055967, kimi-k2p6=0.258444.
 
@@ -19,27 +23,36 @@ const LEADERBOARD_ROWS = [
     rank: "1st",
     model: "qwen3p7-plus",
     org: "Alibaba (via Fireworks)",
-    score: 67.1,
-    scoreMargin: 5.1,
     price: 0.058589,
+    final: { score: 67.1, margin: 5.1 },
+    structural: { score: 76.8, margin: 28.4 },
+    semantics: { score: 57.5, margin: 22.8 },
   },
   {
     rank: "2nd",
     model: "minimax-m3",
     org: "MiniMax (via Fireworks)",
-    score: 66.9,
-    scoreMargin: 5.0,
     price: 0.055967,
+    final: { score: 66.9, margin: 5.0 },
+    structural: { score: 77.7, margin: 28.4 },
+    semantics: { score: 56.2, margin: 22.2 },
   },
   {
     rank: "3rd",
     model: "kimi-k2p6",
     org: "Moonshot AI (via Fireworks)",
-    score: 58.8,
-    scoreMargin: 5.8,
     price: 0.258444,
+    final: { score: 58.8, margin: 5.8 },
+    structural: { score: 67.9, margin: 31.9 },
+    semantics: { score: 49.7, margin: 26.0 },
   },
 ];
+
+const METRICS = {
+  final: { label: "Final", statLabel: "mean, 95% CI" },
+  structural: { label: "Structural", statLabel: "mean &plusmn; stdev" },
+  semantics: { label: "Semantics", statLabel: "mean &plusmn; stdev" },
+};
 
 function renderTable(containerId, rows) {
   const root = document.getElementById(containerId);
@@ -55,7 +68,7 @@ function renderTable(containerId, rows) {
               <tr class="${row.rank === "1st" ? "lb-row-rank1" : ""}">
                 <td class="lb-rank">${row.rank}</td>
                 <td>${row.model}</td>
-                <td>${row.score.toFixed(1)}% &plusmn; ${row.scoreMargin.toFixed(1)}%</td>
+                <td>${row.final.score.toFixed(1)}% &plusmn; ${row.final.margin.toFixed(1)}%</td>
                 <td>${row.org}</td>
               </tr>
             `
@@ -67,6 +80,8 @@ function renderTable(containerId, rows) {
 }
 
 function makeTooltip(card) {
+  const existing = card.querySelector(".lb-tooltip");
+  if (existing) existing.remove();
   const tooltip = document.createElement("div");
   tooltip.className = "lb-tooltip";
   card.style.position = "relative";
@@ -83,6 +98,26 @@ function showTooltip(tooltip, x, y, html) {
 
 function hideTooltip(tooltip) {
   tooltip.classList.remove("active");
+}
+
+let currentChartMetric = "final";
+
+function renderMetricToggle(card) {
+  const root = card.querySelector(".lb-metric-toggle");
+  if (!root) return;
+  root.innerHTML = Object.entries(METRICS)
+    .map(
+      ([key, meta]) => `
+        <button class="lb-metric-btn${key === currentChartMetric ? " active" : ""}" data-metric="${key}">${meta.label}</button>
+      `
+    )
+    .join("");
+  for (const btn of root.querySelectorAll(".lb-metric-btn")) {
+    btn.addEventListener("click", () => {
+      currentChartMetric = btn.dataset.metric;
+      renderPerfDollarChart();
+    });
+  }
 }
 
 function renderPerfDollarChart() {
@@ -104,7 +139,9 @@ function renderPerfDollarChart() {
   const xTicks = [0.01, 0.03, 0.1, 0.3, 1];
   const yTicks = [0, 25, 50, 75, 100];
 
-  let svg = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Score (mean, 95% confidence interval over 80 tasks) versus Fireworks generation cost per full benchmark run">`;
+  const metricMeta = METRICS[currentChartMetric];
+
+  let svg = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${metricMeta.label} score (${metricMeta.statLabel.replace(/&plusmn;/g, "+/-")}) versus Fireworks generation cost per full benchmark run">`;
 
   for (const t of yTicks) {
     const y = yScale(t);
@@ -116,26 +153,29 @@ function renderPerfDollarChart() {
     svg += `<text class="lb-tick-label" x="${x}" y="${height - margin.bottom + 16}" text-anchor="middle">$${t}</text>`;
   }
   svg += `<text class="lb-axis-label" x="${margin.left + plotW / 2}" y="${height - 6}" text-anchor="middle">$ per full benchmark run, generation only (log) &nbsp;&middot;&nbsp; cheaper &#8592; &#8594; more expensive</text>`;
-  svg += `<text class="lb-axis-label" transform="translate(12 ${margin.top + plotH / 2}) rotate(-90)" text-anchor="middle">Score (%)</text>`;
+  svg += `<text class="lb-axis-label" transform="translate(12 ${margin.top + plotH / 2}) rotate(-90)" text-anchor="middle">${metricMeta.label} score (%)</text>`;
 
   for (const row of LEADERBOARD_ROWS) {
+    const point = row[currentChartMetric];
     const cx = xScale(row.price);
-    const cy = yScale(row.score);
-    const yTop = yScale(Math.min(100, row.score + row.scoreMargin));
-    const yBottom = yScale(Math.max(0, row.score - row.scoreMargin));
+    const cy = yScale(point.score);
+    const yTop = yScale(Math.min(100, point.score + point.margin));
+    const yBottom = yScale(Math.max(0, point.score - point.margin));
     const capHalfWidth = 7;
-    // Whisker: 95% confidence interval on the mean (1.96 * sample_stdev /
-    // sqrt(80) over the 80 tasks), not a box plot -- no quartiles/median
-    // available, and this is an inferential CI, not a descriptive spread.
+    // Whisker: for "final" this is a 95% CI on the mean (1.96 *
+    // sample_stdev / sqrt(80) over the 80 tasks); for structural/semantics
+    // it's +/-1 population stdev (descriptive spread, not an inferential
+    // CI). Either way, not a box plot -- no quartiles/median available.
     svg += `<line class="lb-whisker" x1="${cx}" y1="${yTop}" x2="${cx}" y2="${yBottom}" />`;
     svg += `<line class="lb-whisker-cap" x1="${cx - capHalfWidth}" y1="${yTop}" x2="${cx + capHalfWidth}" y2="${yTop}" />`;
     svg += `<line class="lb-whisker-cap" x1="${cx - capHalfWidth}" y1="${yBottom}" x2="${cx + capHalfWidth}" y2="${yBottom}" />`;
     svg += `<circle class="lb-dot" cx="${cx}" cy="${cy}" r="6" fill="var(--accent)" />`;
-    svg += `<circle class="lb-hit" cx="${cx}" cy="${cy}" r="13" data-model="${row.model}" data-price="${row.price.toFixed(4)}" data-score="${row.score}" data-score-margin="${row.scoreMargin}" />`;
+    svg += `<circle class="lb-hit" cx="${cx}" cy="${cy}" r="13" data-model="${row.model}" data-price="${row.price.toFixed(4)}" data-score="${point.score}" data-score-margin="${point.margin}" data-stat-label="${metricMeta.statLabel}" />`;
   }
   svg += `</svg>`;
 
   card.querySelector(".lb-chart-card-inner").innerHTML = svg;
+  renderMetricToggle(card);
   const tooltip = makeTooltip(card);
 
   for (const hit of card.querySelectorAll(".lb-hit")) {
