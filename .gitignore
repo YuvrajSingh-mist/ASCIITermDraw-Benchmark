@@ -13,6 +13,7 @@ results*.csv
 node_modules/
 outputs/
 tasks/
+public_dataset/
 scripts/benchmark/
 
 # Generated/internal docs — keep only the single root README.md tracked
