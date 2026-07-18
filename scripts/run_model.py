@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Full-run ASCII diagram generation for TermDraw-Bench tasks (the `run-model`
-console script), via Fireworks' synchronous chat-completions API.
+console script), via OpenRouter's synchronous chat-completions API.
 
 Category 3 tasks are sent as multimodal requests using `source.png`.
 All other categories are sent as text-only chat completion requests.
@@ -18,7 +18,7 @@ import random
 from pathlib import Path
 from typing import Any
 
-from scripts.lib.fireworks_api import (
+from scripts.lib.openrouter_api import (
     chat_completion_with_retries,
     estimate_cost_usd,
     extract_chat_content,
@@ -38,15 +38,15 @@ SYSTEM_PROMPT = (
     "Do not reveal reasoning or thinking. Start directly with ASCII."
 )
 
-# Per-model Fireworks serverless pricing defaults (USD per 1M tokens), keyed
-# by the model's short name (the part after the last "/" in its Fireworks
-# path). Only used when --input-price-per-million/--output-price-per-million
-# are not passed on the CLI; fully overridable. Source: docs.fireworks.ai/serverless/pricing
-# (checked 2026-07-17).
+# Per-model OpenRouter pricing defaults (USD per 1M tokens), keyed by the
+# model's short name (the part after the last "/" in its OpenRouter model
+# slug). Only used when --input-price-per-million/--output-price-per-million
+# are not passed on the CLI; fully overridable. Source: openrouter.ai model
+# pages (checked 2026-07-18).
 MODEL_PRICING_DEFAULTS: dict[str, tuple[float, float]] = {
-    "qwen3p7-plus": (0.40, 1.60),
+    "qwen3.7-plus": (0.32, 1.28),
     "minimax-m3": (0.30, 1.20),
-    "kimi-k2p6": (0.95, 4.00),
+    "kimi-k2.6": (0.66, 3.41),
 }
 
 
@@ -191,6 +191,7 @@ def run(
     reasoning_effort: str,
     temperature: float,
     max_tokens: int | None,
+    top_p: float | None = 0.95,
     input_price_per_million: float | None = None,
     output_price_per_million: float | None = None,
     generation_seed: int | None = None,
@@ -205,7 +206,7 @@ def run(
             model_short_name, (None, None)
         )
 
-    api_key = require_env("FIREWORKS_API_KEY")
+    api_key = require_env("OPENROUTER_API_KEY")
     tasks = Path(tasks_dir)
 
     selected_task_dirs = select_task_dirs(
@@ -228,6 +229,7 @@ def run(
         "network_retries": network_retries,
         "temperature": temperature,
         "max_tokens": max_tokens,
+        "top_p": top_p,
         "generation_seed": generation_seed,
         "tasks": [task_dir.name for task_dir in selected_task_dirs],
         "results": [],
@@ -250,6 +252,7 @@ def run(
             ],
             temperature=temperature,
             max_tokens=max_tokens,
+            top_p=top_p,
             seed=generation_seed,
             reasoning_effort=reasoning_effort,
             network_retries=network_retries,
@@ -265,7 +268,7 @@ def run(
             "task_id": task_id,
             "output_file": str(output_path),
             "png_file": str(png_path),
-            "transport": "fireworks-chat-completions",
+            "transport": "openrouter-chat-completions",
         }
         cost_note = ""
         if usage is not None:
@@ -274,15 +277,20 @@ def run(
             result["total_tokens"] = usage["total_tokens"]
             total_input_tokens += usage["prompt_tokens"]
             total_output_tokens += usage["completion_tokens"]
-            task_cost = estimate_cost_usd(
-                input_tokens=usage["prompt_tokens"],
-                output_tokens=usage["completion_tokens"],
-                input_price_per_million=input_price_per_million,
-                output_price_per_million=output_price_per_million,
-            )
+            # Prefer OpenRouter's own reported per-request cost (provider-side
+            # computed, not an estimate) over the MODEL_PRICING_DEFAULTS table.
+            task_cost = usage.get("real_cost_usd")
+            if task_cost is None:
+                task_cost = estimate_cost_usd(
+                    input_tokens=usage["prompt_tokens"],
+                    output_tokens=usage["completion_tokens"],
+                    input_price_per_million=input_price_per_million,
+                    output_price_per_million=output_price_per_million,
+                )
             if task_cost is not None:
                 result["cost_usd"] = task_cost
                 total_cost_usd += task_cost
+                cost_known = True
                 cost_note = f", cost=${task_cost:.4f}"
         manifest["results"].append(result)
         print(f"Done: {task_id}{cost_note}")
@@ -300,7 +308,7 @@ def run(
 def main() -> None:
     """CLI entrypoint for `run-model`: parse args and run generation."""
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", required=True, help="Fireworks model path")
+    parser.add_argument("--model", required=True, help="OpenRouter model slug, e.g. qwen/qwen3.7-plus")
     parser.add_argument("--tasks", default="tasks")
     parser.add_argument("--outputs", required=True)
     parser.add_argument(
@@ -322,12 +330,12 @@ def main() -> None:
         "--seed",
         type=int,
         default=7,
-        help="Local RNG seed for --sample-count task selection only. Not sent to the Fireworks API — see --generation-seed for that.",
+        help="Local RNG seed for --sample-count task selection only. Not sent to the OpenRouter API — see --generation-seed for that.",
     )
     parser.add_argument(
         "--reasoning-effort",
         default="none",
-        help="Fireworks reasoning control for generation. Defaults to 'none'.",
+        help="OpenRouter reasoning effort control for generation. Defaults to 'none'.",
     )
     parser.add_argument("--temperature", type=float, default=0.0)
     parser.add_argument(
@@ -337,19 +345,25 @@ def main() -> None:
         help="Cap on generated tokens per task, so a degenerate/repetition-looping generation can't grow unbounded. Pass 0 to disable (use the model's own default/max).",
     )
     parser.add_argument(
+        "--top-p",
+        type=float,
+        default=0.95,
+        help="Nucleus sampling cutoff for generation. Defaults to 0.95; pass 0 to omit and use the model's own default.",
+    )
+    parser.add_argument(
         "--generation-seed",
         type=int,
-        help="Fireworks `seed` param for best-effort deterministic sampling on the generation call. Omitted by default (provider's own behavior). Not a hard reproducibility guarantee per Fireworks/OpenAI's own docs.",
+        help="OpenRouter `seed` param for best-effort deterministic sampling on the generation call. Omitted by default (provider's own behavior). Not a hard reproducibility guarantee -- provider-dependent.",
     )
     parser.add_argument(
         "--input-price-per-million",
         type=float,
-        help="USD price per 1M input tokens for the generation model, to compute cost_usd. Known models (e.g. qwen3p7-plus) have built-in defaults; this flag overrides.",
+        help="USD price per 1M input tokens for the generation model, to compute cost_usd if OpenRouter doesn't report its own usage.cost. Known models (e.g. qwen3.7-plus) have built-in defaults; this flag overrides.",
     )
     parser.add_argument(
         "--output-price-per-million",
         type=float,
-        help="USD price per 1M output tokens for the generation model, to compute cost_usd. Known models (e.g. qwen3p7-plus) have built-in defaults; this flag overrides.",
+        help="USD price per 1M output tokens for the generation model, to compute cost_usd if OpenRouter doesn't report its own usage.cost. Known models (e.g. qwen3.7-plus) have built-in defaults; this flag overrides.",
     )
     args = parser.parse_args()
     run(
@@ -365,6 +379,7 @@ def main() -> None:
         args.reasoning_effort,
         args.temperature,
         args.max_tokens or None,
+        args.top_p or None,
         args.input_price_per_million,
         args.output_price_per_million,
         args.generation_seed,

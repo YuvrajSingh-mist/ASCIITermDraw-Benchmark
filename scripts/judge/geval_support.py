@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from scripts.lib.fireworks_api import require_env, task_output_dir
+from scripts.lib.openrouter_api import require_env, task_output_dir
 from scripts.judge.judge_schema import (
     JudgeResult,
     SYSTEM_PROMPT,

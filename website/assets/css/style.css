@@ -399,6 +399,12 @@ footer a:hover { color: var(--accent); }
   background: var(--bg-subtle);
 }
 
+.lb-empty {
+  font-size: 0.9rem;
+  color: var(--text-ter);
+  padding: 1.5rem 0;
+}
+
 .lb-tabs {
   display: inline-flex;
   gap: 0.3rem;

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Quick synchronous Fireworks smoke test against a sample of TermDraw-Bench
+Quick synchronous OpenRouter smoke test against a sample of TermDraw-Bench
 tasks (the `smoke` console script) — useful for a fast sanity check before a
 full `run-model` run. Shares prompt construction and output layout with
 `scripts/run_model.py`; reasoning is disabled by default.
@@ -11,7 +11,7 @@ import argparse
 import json
 from pathlib import Path
 
-from scripts.lib.fireworks_api import (
+from scripts.lib.openrouter_api import (
     chat_completion_with_retries,
     extract_chat_content,
     require_env,
@@ -34,6 +34,8 @@ def run(
     sample_count: int | None,
     seed: int,
     temperature: float,
+    max_tokens: int | None,
+    top_p: float | None,
     reasoning_effort: str,
     network_retries: int,
 ) -> None:
@@ -41,7 +43,7 @@ def run(
     outputs = Path(outputs_dir) / model.rstrip("/").rsplit("/", 1)[-1]
     outputs.mkdir(parents=True, exist_ok=True)
 
-    api_key = require_env("FIREWORKS_API_KEY")
+    api_key = require_env("OPENROUTER_API_KEY")
     tasks = Path(tasks_dir)
 
     selected_task_dirs = select_task_dirs(
@@ -77,6 +79,8 @@ def run(
                 {"role": "user", "content": user_content},
             ],
             temperature=temperature,
+            max_tokens=max_tokens,
+            top_p=top_p,
             reasoning_effort=reasoning_effort,
             network_retries=network_retries,
             request_label=f"smoke test {task_id}",
@@ -96,7 +100,7 @@ def run(
                 "output_file": str(output_path),
                 "png_file": str(png_path),
                 "preview": preview,
-                "transport": "fireworks-chat-completions",
+                "transport": "openrouter-chat-completions",
             }
         )
 
@@ -107,13 +111,25 @@ def run(
 def main() -> None:
     """CLI entrypoint for `smoke`: parse args and run a sampled generation pass."""
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", required=True, help="Fireworks model path")
+    parser.add_argument("--model", required=True, help="OpenRouter model slug, e.g. qwen/qwen3.7-plus")
     parser.add_argument("--tasks", default="tasks")
     parser.add_argument("--outputs", required=True)
     parser.add_argument("--task-ids", help="Comma-separated task ids, for example 1.4,2.6,4.3")
     parser.add_argument("--sample-count", type=int, help="Randomly sample this many tasks.")
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--temperature", type=float, default=0.0)
+    parser.add_argument(
+        "--max-tokens",
+        type=int,
+        default=4096,
+        help="Cap on generated tokens per task. Pass 0 to disable (use the model's own default/max) -- without a cap, insufficient account credit for the model's max output can cause an HTTP 402.",
+    )
+    parser.add_argument(
+        "--top-p",
+        type=float,
+        default=0.95,
+        help="Nucleus sampling cutoff for generation. Defaults to 0.95; pass 0 to omit and use the model's own default.",
+    )
     parser.add_argument("--reasoning-effort", default="none")
     parser.add_argument("--network-retries", type=int, default=5)
     args = parser.parse_args()
@@ -128,6 +144,8 @@ def main() -> None:
         sample_count=args.sample_count,
         seed=args.seed,
         temperature=args.temperature,
+        max_tokens=args.max_tokens or None,
+        top_p=args.top_p or None,
         reasoning_effort=args.reasoning_effort,
         network_retries=args.network_retries,
     )

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fireworks synchronous chat-completions transport, .env loading, and tasks/ directory helpers shared across the generation and judging scripts."""
+"""OpenRouter synchronous chat-completions transport, .env loading, and tasks/ directory helpers shared across the generation and judging scripts."""
 from __future__ import annotations
 
 import json
@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 
 
-API_ROOT = "https://api.fireworks.ai"
+API_ROOT = "https://openrouter.ai/api"
 TASK_ID_RE = re.compile(r"^\d+\.\d+$")
 RETRYABLE_STATUS_CODES = {408, 409, 425, 429, 500, 502, 503, 504}
 ROOT = Path(__file__).resolve().parents[2]
@@ -108,6 +108,10 @@ def _curl_json_request(
             "Accept: application/json",
             "-H",
             "User-Agent: TermDraw-Bench/1.0",
+            "-H",
+            "HTTP-Referer: https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark",
+            "-H",
+            "X-Title: ASCIITermDraw-Bench",
             "-d",
             json.dumps(payload),
             "-w",
@@ -141,19 +145,27 @@ def chat_completion_with_retries(
     timeout: int | float = 90,
     request_label: str = "chat completion",
 ) -> dict[str, Any]:
-    """Call Fireworks' synchronous chat-completions endpoint, retrying on retryable HTTP codes/timeouts/transport errors.
+    """Call OpenRouter's synchronous chat-completions endpoint, retrying on retryable HTTP codes/timeouts/transport errors.
 
     `max_tokens`/`temperature`/`top_p`/`seed` are omitted from the request payload
     when left as None, so the model falls back to its own defaults instead of a
-    hardcoded value. `seed` is best-effort determinism per Fireworks' own docs
-    (same caveat as OpenAI's seed param) — it narrows but doesn't guarantee
-    bit-identical outputs across calls, especially at larger max_tokens.
+    hardcoded value. `seed` is best-effort determinism (provider-dependent, not
+    a hard guarantee) — it narrows but doesn't guarantee bit-identical outputs
+    across calls, especially at larger max_tokens. `reasoning_effort` of "none"
+    sends OpenRouter's unified `{"reasoning": {"enabled": false}}` -- some
+    models (e.g. Qwen3.7-Plus) reason by default even with no `reasoning` field
+    at all, silently inflating completion tokens/cost, so this has to be sent
+    explicitly rather than just omitted. Any other value ("low"/"medium"/"high")
+    is passed through as `{"reasoning": {"effort": reasoning_effort}}`.
     """
     payload = {
         "model": model,
-        "reasoning_effort": reasoning_effort,
         "messages": messages,
     }
+    if reasoning_effort and reasoning_effort != "none":
+        payload["reasoning"] = {"effort": reasoning_effort}
+    else:
+        payload["reasoning"] = {"enabled": False}
     if temperature is not None:
         payload["temperature"] = temperature
     if max_tokens is not None:
@@ -167,7 +179,7 @@ def chat_completion_with_retries(
         try:
             return _curl_json_request(
                 api_key,
-                url=f"{API_ROOT}/inference/v1/chat/completions",
+                url=f"{API_ROOT}/v1/chat/completions",
                 payload=payload,
                 timeout=timeout,
             )
@@ -182,7 +194,7 @@ def chat_completion_with_retries(
                 time.sleep(delay)
                 continue
             raise RuntimeError(
-                f"Fireworks {request_label} failed with HTTP {exc.status_code}: "
+                f"OpenRouter {request_label} failed with HTTP {exc.status_code}: "
                 f"{exc.body[:1500]}"
             ) from exc
         except subprocess.TimeoutExpired as exc:
@@ -259,7 +271,7 @@ def _coerce_content(value: Any) -> str:
 
 
 def extract_chat_content(row: dict[str, Any]) -> str:
-    """Pull the assistant's text reply out of a Fireworks chat-completion response, trying a few known response shapes."""
+    """Pull the assistant's text reply out of an OpenRouter chat-completion response, trying a few known response shapes."""
     candidates = [
         row.get("choices"),
         row.get("response", {}).get("body", {}).get("choices"),
@@ -286,8 +298,13 @@ def extract_chat_content(row: dict[str, Any]) -> str:
     )
 
 
-def extract_usage(row: dict[str, Any]) -> dict[str, int] | None:
-    """Pull token usage out of a Fireworks chat-completion response, trying the same nesting shapes as extract_chat_content. Returns None if no usage block is present."""
+def extract_usage(row: dict[str, Any]) -> dict[str, Any] | None:
+    """Pull token usage (and OpenRouter's own reported dollar cost, if present) out of a chat-completion response, trying the same nesting shapes as extract_chat_content. Returns None if no usage block is present.
+
+    OpenRouter reports the real per-request cost directly as `usage.cost` (a
+    provider-side computed number, not an estimate) -- this is preferred over
+    MODEL_PRICING_DEFAULTS-based estimation whenever it's present.
+    """
     candidates = [
         row.get("usage"),
         row.get("response", {}).get("body", {}).get("usage"),
@@ -298,11 +315,14 @@ def extract_usage(row: dict[str, Any]) -> dict[str, int] | None:
     for usage in candidates:
         if not usage:
             continue
-        return {
+        result: dict[str, Any] = {
             "prompt_tokens": int(usage.get("prompt_tokens", 0)),
             "completion_tokens": int(usage.get("completion_tokens", 0)),
             "total_tokens": int(usage.get("total_tokens", 0)),
         }
+        if usage.get("cost") is not None:
+            result["real_cost_usd"] = float(usage["cost"])
+        return result
     return None
 
 

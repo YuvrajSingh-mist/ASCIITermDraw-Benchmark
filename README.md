@@ -8,8 +8,8 @@ It ships as a normal GitHub-style repository with:
 - `80` private tasks across `4` categories (`tasks/`, not distributed publicly)
 - `12` public example tasks (`public_dataset/`) — same format, fully runnable,
   safe to look at
-- Fireworks-based generation (model responses + rendered PNGs only —
-  Fireworks is not used for judging)
+- OpenRouter-based generation (model responses + rendered PNGs only —
+  OpenRouter is not used for judging)
 - a DeepEval `BaseMetric` judge against OpenAI/Anthropic — the only scoring
   path (`geval_*` scores); there is no separate deterministic/text-heuristic
   scoring step
@@ -20,7 +20,7 @@ It ships as a normal GitHub-style repository with:
 ```bash
 uv sync
 cp .env.example .env
-# put your Fireworks / OpenAI / Anthropic keys in .env
+# put your OpenRouter / OpenAI / Anthropic keys in .env
 ```
 
 Rendering ASCII diagrams to PNG uses Node + Playwright. See `DEVELOPER.md`
@@ -30,10 +30,10 @@ Rendering ASCII diagrams to PNG uses Node + Playwright. See `DEVELOPER.md`
 uv run python -m scripts.rendered.render_all
 ```
 
-`--model` must be a model actually deployed on your Fireworks account —
-placeholder-looking names (`your-model`, `qwen3-vl-8b-instruct`, etc.) will
-404. `qwen3p7-plus` is a real, currently-working example; verify your own
-account's available models before a large run.
+`--model` must be a valid OpenRouter model slug (e.g. `qwen/qwen3.7-plus`,
+`minimax/minimax-m3`, `moonshotai/kimi-k2.6`) — check
+[openrouter.ai/models](https://openrouter.ai/models) for the exact slug
+before a large run; placeholder-looking names will 404.
 
 ## Public Dataset
 
@@ -51,7 +51,7 @@ documentation sample:
 
 ```bash
 uv run run-model \
-  --model accounts/fireworks/models/qwen3p7-plus \
+  --model qwen/qwen3.7-plus \
   --tasks public_dataset \
   --outputs outputs/public_demo
 
@@ -59,7 +59,7 @@ uv run judge-geval \
   --provider openai \
   --model gpt-5.4 \
   --tasks public_dataset \
-  --outputs outputs/public_demo/qwen3p7-plus \
+  --outputs outputs/public_demo/qwen3.7-plus \
   --results outputs/public_demo/results.csv \
   --num-judgments 5
 ```
@@ -129,7 +129,7 @@ checkout of `tasks/` for the real benchmark.
 
 ```bash
 uv run run-model \
-  --model accounts/fireworks/models/your-model \
+  --model qwen/qwen3.7-plus \
   --tasks tasks/ \
   --outputs outputs/ \
   --reasoning-effort none \
@@ -138,16 +138,20 @@ uv run run-model \
 
 Category 3 (`diagram-editing`) requests attach `source.png` as multimodal
 image input; other categories are text-only. Reasoning is disabled by
-default (`reasoning_effort=none`). Generation cost/token usage is written to
-`manifest.json` under the output directory when known pricing is available
-for the model (built-in default for `qwen3p7-plus`; otherwise pass
-`--input-price-per-million`/`--output-price-per-million`).
+default (`reasoning_effort=none`) — sent explicitly as
+`{"reasoning": {"enabled": false}}`, since some models reason by default even
+with no `reasoning` field at all. Generation cost/token usage is written to
+`manifest.json` under the output directory: OpenRouter reports the real
+per-request cost directly (`usage.cost`), used in preference to the
+built-in per-model price defaults (`qwen3.7-plus`, `minimax-m3`,
+`kimi-k2.6`) or an explicit `--input-price-per-million`/
+`--output-price-per-million`.
 
 For a quick smoke test instead of a full run:
 
 ```bash
 uv run smoke \
-  --model accounts/fireworks/models/your-model \
+  --model qwen/qwen3.7-plus \
   --tasks tasks/ \
   --outputs outputs/smoke \
   --sample-count 5 \
@@ -160,7 +164,7 @@ per selected task — and `outputs/<run>/<model-name>/manifest.json` (the last
 segment of `--model` is auto-appended to `--outputs`).
 
 Judging is OpenAI/Anthropic only, via DeepEval `BaseMetric` against rendered
-output PNGs — Fireworks is used purely for generation, not judging, and this
+output PNGs — OpenRouter is used purely for generation, not judging, and this
 is the only scoring path in the repo:
 
 ```bash
@@ -201,11 +205,11 @@ built-in pricing defaults; for other judge models pass
   subdirectories matching a task-id pattern (`\d+\.\d+`). Try
   `--tasks public_dataset` first to confirm the pipeline itself works.
 - **Playwright / rendering errors** — see `DEVELOPER.md`.
-- **Fireworks `HTTP 404: Model not found, inaccessible, and/or not
-  deployed`** — the `--model` value isn't deployed on your Fireworks
-  account. Confirm the exact model path (`accounts/fireworks/models/...`)
-  from your Fireworks dashboard rather than reusing an example from this
-  README verbatim.
+- **OpenRouter `HTTP 404: No endpoints found for <model>`** — the
+  `--model` value isn't a real OpenRouter model slug. Confirm the exact
+  slug (e.g. `qwen/qwen3.7-plus`, not `qwen3p7-plus`) at
+  [openrouter.ai/models](https://openrouter.ai/models) rather than reusing
+  an example from this README verbatim.
 
 ## Contributing
 

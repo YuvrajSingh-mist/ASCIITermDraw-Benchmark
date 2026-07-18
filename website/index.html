@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ASCIITermDraw-Bench  -  ASCII Diagram Generation and Editing Benchmark</title>
-  <meta name="description" content="ASCIITermDraw-Bench is a benchmark for ASCII diagram generation and editing across 80 tasks, with Fireworks-ready batch generation, structural scoring, and VLM judging.">
+  <meta name="description" content="ASCIITermDraw-Bench is a benchmark for ASCII diagram generation and editing across 80 tasks spanning domains like topology, clusters, real-world applications, and diagram editing.">
   <meta property="og:type" content="website">
   <meta property="og:title" content="ASCIITermDraw-Bench  -  ASCII Diagram Generation and Editing Benchmark">
-  <meta property="og:description" content="Evaluate whether models can actually draw in plain text with box-layout, topology, architecture, and diagram-editing tasks.">
+  <meta property="og:description" content="Evaluate whether models can actually draw in plain text, with box-layout, topology, architecture, and diagram-editing tasks.">
   <meta property="og:url" content="https://example.com/asciitermdraw-bench/">
   <meta property="og:site_name" content="ASCIITermDraw-Bench">
   <meta property="twitter:card" content="summary_large_image">
@@ -38,13 +38,13 @@
       <p class="hero-desc">
         Evaluate whether a model can generate ASCII diagrams in plain text. ASCIITermDraw-Bench measures box layout,
         topology construction, software architecture sketching, and image-conditioned ASCII editing with
-        task directories, rendered references, structural checks, and model-specific judge prompts.
+        tasks spanning real world applications, topologies, clusters, and diagram editing in increasing level of difficulty evaluated using structural and semantic based scoring, and model-specific LLM-As-A-Judge prompts.
       </p>
       <ul class="hero-note-list">
         <li>Organized task categories</li>
         <li>Reproducible generators</li>
         <li>Playwright rendering</li>
-        <li>Fireworks batch inference</li>
+        <li>OpenRouter batch inference</li>
         <li>Structured JSON judging</li>
       </ul>
       <div class="hero-btns pill-bar">
@@ -80,18 +80,23 @@
         <p>
           <strong>ASCIITermDraw-Bench</strong> is a benchmark for structured ASCII diagram generation and editing.
           Instead of grading models on prose quality alone, it checks whether they can place labels, preserve
-          spacing, route arrows, maintain topology, and make constrained edits to an existing diagram.
+          spacing, route arrows, maintain overall structure, and make constrained edits to an existing diagram.
+        </p>
+        <p>The benchmark covers four families of tasks:</p>
+        <ul class="task-family-list">
+          <li><strong>Box Layout Basics</strong> — <em>single boxes, rows, columns, arrows, and spacing-sensitive layout</em></li>
+          <li><strong>Network Topology Diagrams</strong> — <em>clusters, buses, data flows, and connection topology</em></li>
+          <li><strong>Diagram Editing</strong> — <em>image-conditioned edits applied to an existing ASCII diagram</em></li>
+          <li><strong>Software Architecture Diagrams</strong> — <em>real-world gateways, pipelines, feeds, and storage layers</em></li>
+        </ul>
+        <p>
+          Every task ships with a prompt, a reference ASCII artifact (a PNG to be rendered), and structured assertions.
         </p>
         <p>
-          The benchmark covers four families of tasks: box layout basics, network topology diagrams,
-          diagram editing from source images, and real-world software architecture sketches. Every task ships
-          with a prompt, a reference ASCII artifact, and machine-readable assertions.
-        </p>
-        <p>
-          Every candidate diagram is judged, not just eyeballed: a DeepEval <code>BaseMetric</code> judge
+          Every candidate diagram is judged through LLM-As-A-Judge pipeline: a DeepEval <code>BaseMetric</code> judge
           (OpenAI or Anthropic) scores each candidate against the reference on two axes — a
           <strong>structural score</strong> (do the required labels, entities, and edges actually appear,
-          checked against machine-readable assertions) and a <strong>semantic score</strong> (does the layout,
+          checked against structured assertions) and a <strong>semantic score</strong> (does the layout,
           spacing, and connection routing actually match the prompt) — averaged over multiple judge rounds and
           combined into the final <code>geval_score</code>.
         </p>
@@ -107,16 +112,16 @@
     <div class="container">
       <h2 class="section-title" id="heading-leaderboard">Leaderboard</h2>
       <div class="lb-disclaimer">
-        <strong>Early results.</strong> Score is each model's mean combined
-        structural + semantic score across all 80 tasks (5 judge rounds per
-        task), shown with a 95% confidence interval computed over the 80
-        tasks (not the judge rounds, which are repeated measurements of the
-        same task rather than independent samples). Cost is the Fireworks
-        generation cost for the full run. See
+        <strong>No results yet on the current backend.</strong> Generation
+        moved from Fireworks to OpenRouter; scores will be each model's mean
+        combined structural + semantic score across all 80 tasks (5 judge
+        rounds per task), shown with a 95% confidence interval computed over
+        the 80 tasks (not the judge rounds, which are repeated measurements
+        of the same task rather than independent samples). Cost will be the
+        OpenRouter generation cost for the full run. See
         <code>outputs/&lt;model&gt;/metrics.json</code> and
-        <code>scripts/judge/compute_metrics.py</code> for the exact
-        methodology. More rows will appear here as more models are
-        benchmarked.
+        <a href="https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark/blob/master/scripts/judge/compute_metrics.py"><code>scripts/judge/compute_metrics.py</code></a> for the exact
+        methodology once rows are published.
       </div>
 
       <div class="lb-tabs" role="tablist">
@@ -230,32 +235,6 @@
     </div>
   </section>
 
-  <section id="quickstart" aria-labelledby="heading-quickstart">
-    <div class="container">
-      <h2 class="section-title" id="heading-quickstart">Quick Start</h2>
-      <div class="prose">
-        <p>Set up the repository, render references, and run a Fireworks smoke test with commands ready to copy.</p>
-      </div>
-      <div style="margin-top: 1rem;">
-        <a href="./pages/quickstart.html" class="btn btn-outline">Open Setup Guide</a>
-      </div>
-      <pre style="margin-top: 1.5rem;"><code class="language-bash">uv venv
-uv sync
-npm install
-npx playwright install chromium
-cp .env.example .env.local
-
-uv run smoke \
-  --model accounts/fireworks/models/qwen3p7-plus \
-  --tasks tasks \
-  --outputs outputs/smoke-qwen3p7-plus \
-  --sample-count 5 \
-  --seed 7 \
-  --reasoning-effort none \
-  --network-retries 5</code></pre>
-    </div>
-  </section>
-
   <section id="features" aria-labelledby="heading-features">
     <div class="container">
       <h2 class="section-title" id="heading-features">Key Features</h2>
@@ -281,8 +260,8 @@ uv run smoke \
       <div class="prose">
         <ul>
           <li><strong>Playwright PNG rendering</strong>  -  reference ASCII artifacts are rendered as diagram-only images for editing tasks and visual inspection.</li>
-          <li><strong>Fireworks generation</strong>  -  model responses and rendered PNGs only; Fireworks is not used for judging.</li>
-          <li><strong>Repeated judging</strong>  -  each task can be judged multiple times (default 10) with mean/stdev reported, to separate real quality differences from judge-scoring noise.</li>
+          <li><strong>OpenRouter generation</strong>  -  model responses and rendered PNGs only; OpenRouter is not used for judging.</li>
+          <li><strong>Repeated judging</strong>  -  each task can be judged multiple times (default 5) with mean/stdev reported, to separate real quality differences from judge-scoring noise.</li>
           <li><strong>Repository-first organization</strong>  -  task directories, scripts, outputs, and website metadata are all arranged for extension and public contribution.</li>
         </ul>
       </div>
@@ -314,23 +293,17 @@ uv run smoke \
       <h2 class="section-title" id="heading-technical">Technical Details</h2>
       <div class="prose">
         <p>
-          ASCIITermDraw-Bench is designed to be regenerated and audited from source. The task corpus is produced from
-          <code>scripts/benchmark/build.py</code>, task assets live in named category directories, and the website data is built from
-          the repository tree rather than from hand-maintained content.
+          ASCIITermDraw-Bench is designed to be regenerated and audited from source. Task assets live in named
+          category directories, and the website data is built directly from the repository tree (see
+          <a href="https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark/blob/master/website/tools/build_site_data.mjs"><code>website/tools/build_site_data.mjs</code></a>)
+          rather than from hand-maintained content.
         </p>
 
         <h3 class="subsection-title" style="margin-top: 1rem;">Inference and Scoring</h3>
         <ul>
-          <li><strong>Smoke generation</strong>  -  synchronous shared-module Fireworks calls for fast spot checks on a random subset of tasks.</li>
-          <li><strong>Full generation</strong>  -  the same synchronous Fireworks transport, run across all tasks.</li>
+          <li><strong>Smoke generation</strong>  -  synchronous shared-module OpenRouter calls for fast spot checks on a random subset of tasks.</li>
+          <li><strong>Full generation</strong>  -  the same synchronous OpenRouter transport, run across all tasks.</li>
           <li><strong>DeepEval judge</strong>  -  a custom <code>BaseMetric</code> against OpenAI or Anthropic; structural score verifies visual evidence against <code>assertions.json</code>, semantic score comes from a task-specific rubric prompt.</li>
-        </ul>
-
-        <h3 class="subsection-title">Assets and Rendering</h3>
-        <ul>
-          <li><strong>ASCII references</strong>  -  each task contains a canonical <code>reference.ascii</code> target.</li>
-          <li><strong>Source diagrams</strong>  -  edit tasks additionally contain <code>source.ascii</code> and rendered source images.</li>
-          <li><strong>Diagram-only PNGs</strong>  -  the renderer captures the artifact itself, not the surrounding prompt or page chrome.</li>
         </ul>
       </div>
     </div>

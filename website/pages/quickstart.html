@@ -48,13 +48,12 @@
 npm install
 npx playwright install chromium
 cp .env.example .env.local</code></pre>
-      <pre><code class="language-bash">FIREWORKS_API_KEY=...
-FIREWORKS_ACCOUNT_ID=...
+      <pre><code class="language-bash">OPENROUTER_API_KEY=...
 OPENAI_API_KEY=...
 ANTHROPIC_API_KEY=...</code></pre>
       <div class="prose">
         <p>
-          Fireworks keys are for generation (below); you only need one of
+          The OpenRouter key is for generation (below); you only need one of
           <code>OPENAI_API_KEY</code>/<code>ANTHROPIC_API_KEY</code> depending
           on which judge provider you use in the Scoring section.
         </p>
@@ -62,15 +61,6 @@ ANTHROPIC_API_KEY=...</code></pre>
     </div>
   </section>
 
-  <section id="render" aria-labelledby="heading-render">
-    <div class="container">
-      <h2 class="section-title" id="heading-render">Render Reference PNGs</h2>
-      <div class="prose">
-        <p>Render every <code>.ascii</code> artifact into a diagram-only PNG so image-conditioned edit tasks have consistent source images.</p>
-      </div>
-      <pre><code class="language-bash">uv run python -m scripts.rendered.render_all</code></pre>
-    </div>
-  </section>
 
   <section id="smoke" aria-labelledby="heading-smoke">
     <div class="container">
@@ -85,9 +75,9 @@ ANTHROPIC_API_KEY=...</code></pre>
         </p>
       </div>
       <pre><code class="language-bash">uv run smoke \
-  --model accounts/fireworks/models/qwen3p7-plus \
+  --model qwen/qwen3.7-plus \
   --tasks tasks \
-  --outputs outputs/smoke-qwen3p7-plus \
+  --outputs outputs/smoke-qwen3.7-plus \
   --sample-count 5 \
   --seed 7 \
   --reasoning-effort none \
@@ -99,10 +89,10 @@ ANTHROPIC_API_KEY=...</code></pre>
     <div class="container">
       <h2 class="section-title" id="heading-batch">Full Generation</h2>
       <div class="prose">
-        <p>Run the full benchmark via Fireworks' synchronous chat-completions transport (one request per task). Category 3 tasks automatically attach source images.</p>
+        <p>Run the full benchmark via OpenRouter's synchronous chat-completions transport (one request per task). Category 3 tasks automatically attach source images.</p>
       </div>
       <pre><code class="language-bash">uv run run-model \
-  --model accounts/fireworks/models/your-vision-model \
+  --model qwen/qwen3.7-plus \
   --tasks tasks \
   --outputs outputs/your-run \
   --reasoning-effort none \
@@ -126,16 +116,7 @@ ANTHROPIC_API_KEY=...</code></pre>
     </div>
   </section>
 
-  <section id="site" aria-labelledby="heading-site">
-    <div class="container">
-      <h2 class="section-title" id="heading-site">Website Build</h2>
-      <div class="prose">
-        <p>The published site is generated from the repository tree. Rebuild its data and preview locally before publishing.</p>
-      </div>
-      <pre><code class="language-bash">node website/tools/build_site_data.mjs
-.venv/bin/python -m http.server 8000 -d website</code></pre>
-    </div>
-  </section>
+
 </main>
 
 <footer>
@@ -145,7 +126,7 @@ ANTHROPIC_API_KEY=...</code></pre>
       <a href="./tasks.html">Tasks</a>
         <a href="#setup">Quick Start</a>
     </div>
-    <p><strong>ASCIITermDraw-Bench</strong> &nbsp;&middot;&nbsp; Quick start workflow &nbsp;&middot;&nbsp; Fireworks-ready benchmark</p>
+    <p><strong>ASCIITermDraw-Bench</strong> &nbsp;&middot;&nbsp; Quick start workflow &nbsp;&middot;&nbsp; OpenRouter-ready benchmark</p>
   </div>
 </footer>
 
