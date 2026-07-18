@@ -131,6 +131,27 @@ def _curl_json_request(
     return json.loads(body)
 
 
+def _exhausted_on_reasoning(response: dict[str, Any]) -> bool:
+    """True if a response hit its token cap with empty content but non-empty reasoning.
+
+    Some OpenRouter upstream providers ignore `{"reasoning": {"enabled": false}}`
+    for some models (observed with MiniMax M3 routed to Novita) and reason
+    anyway, silently burning the whole max_tokens budget before producing any
+    actual output. This is the failure signature: finish_reason "length" with
+    a null/empty message.content but a populated message.reasoning.
+    """
+    choices = response.get("choices") or []
+    if not choices:
+        return False
+    choice = choices[0]
+    message = choice.get("message") or {}
+    return (
+        choice.get("finish_reason") == "length"
+        and not message.get("content")
+        and bool(message.get("reasoning"))
+    )
+
+
 def chat_completion_with_retries(
     api_key: str,
     *,
@@ -157,6 +178,12 @@ def chat_completion_with_retries(
     at all, silently inflating completion tokens/cost, so this has to be sent
     explicitly rather than just omitted. Any other value ("low"/"medium"/"high")
     is passed through as `{"reasoning": {"effort": reasoning_effort}}`.
+
+    If a response comes back exhausted on unwanted reasoning (see
+    `_exhausted_on_reasoning`), max_tokens is doubled and the request is
+    retried (capped at 4x the original value) rather than surfacing an
+    empty-content error -- this is provider-side flakiness in honoring the
+    reasoning-disable flag, not a real network failure.
     """
     payload = {
         "model": model,
@@ -174,15 +201,30 @@ def chat_completion_with_retries(
         payload["top_p"] = top_p
     if seed is not None:
         payload["seed"] = seed
+    original_max_tokens = max_tokens
     last_error = None
     for attempt in range(network_retries):
         try:
-            return _curl_json_request(
+            response = _curl_json_request(
                 api_key,
                 url=f"{API_ROOT}/v1/chat/completions",
                 payload=payload,
                 timeout=timeout,
             )
+            if (
+                original_max_tokens is not None
+                and payload.get("max_tokens", original_max_tokens) < original_max_tokens * 4
+                and _exhausted_on_reasoning(response)
+                and attempt < network_retries - 1
+            ):
+                payload["max_tokens"] = payload.get("max_tokens", original_max_tokens) * 2
+                print(
+                    f"Retrying {request_label}: exhausted max_tokens on unwanted "
+                    f"reasoning (provider ignored reasoning-disable), doubling to "
+                    f"{payload['max_tokens']}"
+                )
+                continue
+            return response
         except CurlHTTPError as exc:
             last_error = exc
             if exc.status_code in RETRYABLE_STATUS_CODES and attempt < network_retries - 1:
