@@ -5,6 +5,51 @@ const ROOT = resolve(import.meta.dirname, "..", "..");
 const TASKS_DIR = join(ROOT, "tasks");
 const OUT = join(ROOT, "website", "assets", "data", "site_data.json");
 
+const HF_DATASET = "YuvrajSingh9886/asciitermdraw-bench-public";
+const HF_RESOLVE_BASE = `https://huggingface.co/datasets/${HF_DATASET}/resolve/main`;
+
+// The 12 public example tasks (one per category/difficulty), as laid out in
+// the Hugging Face dataset (https://huggingface.co/datasets/YuvrajSingh9886/asciitermdraw-bench-public).
+// Prompt text and reference images are fetched directly from HF at build
+// time rather than from a local copy -- there is no public_dataset/ in this
+// repository.
+const PUBLIC_EXAMPLE_TASKS = [
+  { dir: "box-layout-basics", difficulty: "easy", taskId: "0.1" },
+  { dir: "box-layout-basics", difficulty: "medium", taskId: "0.2" },
+  { dir: "box-layout-basics", difficulty: "hard", taskId: "0.3" },
+  { dir: "diagram-editing", difficulty: "easy", taskId: "0.4" },
+  { dir: "diagram-editing", difficulty: "medium", taskId: "0.5" },
+  { dir: "diagram-editing", difficulty: "hard", taskId: "0.6" },
+  { dir: "network-topology-diagrams", difficulty: "easy", taskId: "0.7" },
+  { dir: "network-topology-diagrams", difficulty: "medium", taskId: "0.8" },
+  { dir: "network-topology-diagrams", difficulty: "hard", taskId: "0.9" },
+  { dir: "software-architecture-diagrams", difficulty: "easy", taskId: "0.10" },
+  { dir: "software-architecture-diagrams", difficulty: "medium", taskId: "0.11" },
+  { dir: "software-architecture-diagrams", difficulty: "hard", taskId: "0.12" },
+];
+
+// Boilerplate rubric bullets repeated verbatim across every task's prompt.txt.
+// They're required in the real prompt (it's what's sent to the model), but
+// showing them on every public-example card would be repetitive, so the
+// website's trimmed prompt display drops these specific lines only.
+const PROMPT_DISPLAY_STRIP_LINES = new Set([
+  "When arrows are required, make them centered and aligned cleanly to their source and target.",
+  "If an arrow has a label, place the label a little above the arrow rather than inside the arrow line.",
+  "For any label or text inside a node, box, or icon, center it within that component whenever possible.",
+  "Any component with incoming or outgoing arrows should be sized wide or tall enough to make those connections visually unambiguous, so it is clear where arrows originate and where they terminate.",
+  "If one component fans out to multiple arrows, or multiple arrows converge into one component, its width or height should clearly support those attachment points.",
+  "Return only the final ASCII diagram in plain text.",
+  "Do not include markdown fences, explanations, or any extra text.",
+]);
+
+function trimPromptForDisplay(promptText) {
+  return promptText
+    .split(/\r?\n/)
+    .filter((line) => !PROMPT_DISPLAY_STRIP_LINES.has(line.replace(/^-\s*/, "").trim()))
+    .join("\n")
+    .trim();
+}
+
 const CATEGORY_META = {
   "1": {
     dir: "box-layout-basics",
@@ -79,7 +124,45 @@ function collectTaskDirs(dir) {
   return taskDirs;
 }
 
-function build() {
+async function fetchText(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`${response.status} ${response.statusText} for ${url}`);
+  }
+  return response.text();
+}
+
+async function collectPublicExamples() {
+  const nameByDir = Object.fromEntries(
+    Object.values(CATEGORY_META).map((meta) => [meta.dir, meta.name])
+  );
+  const examples = [];
+  for (const { dir, difficulty, taskId } of PUBLIC_EXAMPLE_TASKS) {
+    const base = `${HF_RESOLVE_BASE}/${dir}/${difficulty}/${taskId}`;
+    try {
+      const promptText = await fetchText(`${base}/prompt.txt`);
+      const hasSource = dir === "diagram-editing";
+      examples.push({
+        category_slug: dir,
+        category_name: nameByDir[dir],
+        difficulty,
+        task_id: taskId,
+        prompt: trimPromptForDisplay(promptText),
+        img: `${base}/reference.png`,
+        has_source: hasSource,
+        source_img: hasSource ? `${base}/source.png` : null,
+      });
+    } catch (err) {
+      // A CI runner without network egress (or a transient HF outage)
+      // shouldn't fail the whole site build -- just skip that example and
+      // note it, since these are public examples, not private task content.
+      console.warn(`Skipping public example ${dir}/${difficulty}/${taskId}: ${err.message}`);
+    }
+  }
+  return examples;
+}
+
+async function build() {
   const categories = [];
   let totalTasks = 0;
   let totalEditTasks = 0;
@@ -146,9 +229,10 @@ function build() {
       rendered_reference_count: totalTasks,
     },
     categories,
+    public_examples: await collectPublicExamples(),
   };
 
   writeFileSync(OUT, `${JSON.stringify(payload, null, 2)}\n`);
 }
 
-build();
+await build();

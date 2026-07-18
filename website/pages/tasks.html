@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css">
   <link rel="stylesheet" href="../assets/css/style.css">
 </head>
-<body>
+<body data-site-data="../assets/data/site_data.json">
 
 <nav aria-label="Main navigation">
   <span class="nav-title">ASCIITermDraw-Bench</span>
@@ -45,34 +45,21 @@
       <h2 class="section-title" id="heading-public-examples">Public Examples</h2>
       <div class="prose">
         <p>
-          All 12 public example tasks, grouped by category and difficulty, are hosted on
-          Hugging Face rather than bundled in this repository.
-        </p>
-        <p>
-          Diagram editing tasks are the one category that needs a picture to make sense: the model is given a
-          <strong>source</strong> diagram and a text instruction, and must return an edited ASCII diagram matching
-          the <strong>reference</strong>. Here's one example (task <code>0.6</code>, hard difficulty):
+          Every task in the public
+          <a href="https://huggingface.co/datasets/YuvrajSingh9886/asciitermdraw-bench-public" target="_blank" rel="noopener">Hugging Face dataset</a>,
+          grouped by category and difficulty, loaded live (not bundled in this repository).
+          Click a diagram to view it full size.
         </p>
       </div>
-      <div class="example-pair">
-        <figure>
-          <img src="https://huggingface.co/datasets/YuvrajSingh9886/asciitermdraw-bench-public/resolve/main/diagram-editing/hard/0.6/source.png" alt="Source diagram for editing task 0.6" loading="lazy" />
-          <figcaption>Source</figcaption>
-        </figure>
-        <figure>
-          <img src="https://huggingface.co/datasets/YuvrajSingh9886/asciitermdraw-bench-public/resolve/main/diagram-editing/hard/0.6/reference.png" alt="Reference diagram for editing task 0.6" loading="lazy" />
-          <figcaption>Reference</figcaption>
-        </figure>
-      </div>
-      <div class="hf-cta">
-        <p>Browse all 12 prompts, reference diagrams, and assertions directly.</p>
-        <a href="https://huggingface.co/datasets/YuvrajSingh9886/asciitermdraw-bench-public" class="btn btn-primary" target="_blank" rel="noopener">
-          View Public Dataset on Hugging Face
-        </a>
-      </div>
+      <div id="public-examples-list" class="public-example-list"></div>
     </div>
   </section>
 </main>
+
+<div id="lightbox-overlay" class="lightbox-overlay" role="dialog" aria-modal="true" aria-hidden="true">
+  <button type="button" class="lightbox-close" aria-label="Close">&times;</button>
+  <img id="lightbox-image" src="" alt="" />
+</div>
 
 <footer>
   <div class="container">
@@ -85,5 +72,6 @@
   </div>
 </footer>
 
+<script src="../assets/js/app.js"></script>
 </body>
 </html>
