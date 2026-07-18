@@ -45,6 +45,7 @@ def run(
     input_price_per_million: float | None,
     output_price_per_million: float | None,
     dry_run: bool,
+    resume: bool,
 ) -> None:
     """Judge every selected task num_judgments times, aggregate mean/stdev + token usage/cost, and update the results CSV + per-task JSON."""
     tasks = Path(tasks_dir)
@@ -65,7 +66,14 @@ def run(
         if not output_file.exists():
             print(f"Skipping {task_dir.name}: missing output file {output_file}")
             continue
+        if resume and (gval_task_dir(outputs, task_dir) / "result.json").exists():
+            print(f"Skipping {task_dir.name}: already judged (--resume), result.json exists")
+            continue
         artifacts_by_task_id[task_dir.name] = build_task_artifacts(task_dir, outputs)
+
+    if resume and not artifacts_by_task_id:
+        print("Nothing left to judge; all selected tasks already have a result.json.")
+        return
 
     if dry_run:
         for task_id_value, artifacts in artifacts_by_task_id.items():
@@ -260,6 +268,12 @@ def main() -> None:
         help="USD price per 1M output tokens for the judge model, to compute geval_cost_usd. Known models (gpt-5.4, claude-sonnet-5) have built-in defaults; this flag overrides.",
     )
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Skip tasks that already have a gval/result.json under --outputs, so a run interrupted partway "
+        "(rate limit, quota, crash) can pick up just the leftover tasks instead of re-judging everything.",
+    )
     args = parser.parse_args()
     run(
         provider=args.provider,
@@ -275,6 +289,7 @@ def main() -> None:
         input_price_per_million=args.input_price_per_million,
         output_price_per_million=args.output_price_per_million,
         dry_run=args.dry_run,
+        resume=args.resume,
     )
 
 

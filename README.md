@@ -184,6 +184,11 @@ failing — generate first, then judge. Add `--task-id 1.10` to judge a single
 task, or `--dry-run` to verify artifact wiring without making provider
 calls.
 
+If a run dies partway through (rate limit, quota, crash), rerun the exact
+same command with `--resume` added: it skips any task that already has a
+`gval/result.json` under `--outputs` and only judges what's left, instead of
+re-judging the whole task set from scratch.
+
 `--num-judgments N` (default `5`) repeats the judge call N times per task
 (independent API calls, not cached) and reports the mean and population
 stdev across rounds, to average out judge-model noise — this is distinct

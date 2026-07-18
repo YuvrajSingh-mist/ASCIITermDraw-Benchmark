@@ -125,6 +125,21 @@ ANTHROPIC_API_KEY=...</code></pre>
   --outputs outputs/your-run \
   --results results_your_run.csv \
   --num-judgments 10</code></pre>
+      <div class="prose">
+        <p>
+          If a run dies partway through (rate limit, quota, crash), rerun the exact same command
+          with <code>--resume</code> added. It skips any task that already has a <code>gval/result.json</code>
+          under <code>--outputs</code> and only judges what's left:
+        </p>
+      </div>
+      <pre><code class="language-bash">uv run judge-geval \
+  --provider openai \
+  --model your-judge-model \
+  --tasks tasks \
+  --outputs outputs/your-run \
+  --results results_your_run.csv \
+  --num-judgments 10 \
+  --resume</code></pre>
     </div>
   </section>
 
