@@ -204,7 +204,16 @@ def chat_completion_with_retries(
     if reasoning_effort and reasoning_effort != "none":
         payload["reasoning"] = {"effort": reasoning_effort}
     else:
+        # Different Together model deployments honor different disable
+        # mechanisms for the same intent (observed live: Qwen3.7-Plus,
+        # Kimi-K2.6, MiniMax-M3, and Gemma-4-31B-it all respect
+        # `reasoning.enabled`, while Ternary-Bonsai-27B ignores that and
+        # only respects `chat_template_kwargs.enable_thinking` instead).
+        # Sending both together is harmless -- verified live across all of
+        # the above with zero errors -- so this doesn't need a per-model
+        # branch.
         payload["reasoning"] = {"enabled": False}
+        payload["chat_template_kwargs"] = {"enable_thinking": False}
     if temperature is not None:
         payload["temperature"] = temperature
     if max_tokens is not None:

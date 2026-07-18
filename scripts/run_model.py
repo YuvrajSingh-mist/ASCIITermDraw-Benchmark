@@ -48,6 +48,9 @@ MODEL_PRICING_DEFAULTS: dict[str, tuple[float, float]] = {
     "qwen3.7-plus": (0.32, 1.28),
     "minimax-m3": (0.30, 1.20),
     "kimi-k2.6": (1.20, 4.50),
+    "gemma-4-31b-it": (0.39, 0.97),
+    "ternary-bonsai-27b": (0.0, 0.0),
+    "qwen3.5-9b": (0.17, 0.25),
 }
 
 
