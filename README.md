@@ -224,42 +224,5 @@ built-in pricing defaults; for other judge models pass
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for repository conventions and contribution guidance.
+the `Deploy Website` workflow manually.
 
-## Website
-
-The benchmark website lives in `website/` (`index.html`, `pages/` for
-secondary pages, `assets/` for CSS/JS/generated data, `tools/` for the site
-data build script) and is set up for GitHub Pages.
-
-To preview locally:
-
-```bash
-node website/tools/build_site_data.mjs
-python3 -m http.server 8000 -d website
-```
-
-`build_site_data.mjs` regenerates `website/assets/data/site_data.json` from
-the real `tasks/` tree (private task metadata — aggregate counts only, no
-prompt/ASCII content). Public example tasks are linked to directly from the
-[Hugging Face dataset](https://huggingface.co/datasets/YuvrajSingh9886/asciitermdraw-bench-public)
-rather than built from a local copy. Re-run the build script after editing
-`tasks/`.
-
-Deployment is automatic via
-[`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml):
-on every push to `master`, GitHub Actions rebuilds `site_data.json` and
-deploys `website/` as the Pages artifact. The site uses repo-relative asset
-paths, so it works when published under a repository subpath.
-
-To enable it in GitHub:
-
-1. Push this repository to GitHub.
-2. In `Settings -> Pages`, set `Source` to `GitHub Actions`.
-3. Push to `master` or run the `Deploy Website` workflow manually.
-
-## Notes
-
-- The benchmark content was generated from the instructions in
-  `termdraw_benchmark_spec.md`.
-- A project license has not been added yet. For a published benchmark, choose
-  a license explicitly before distribution.
