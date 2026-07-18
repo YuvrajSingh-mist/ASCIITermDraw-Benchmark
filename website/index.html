@@ -214,7 +214,7 @@
         </p>
       </div>
 
-      <h3 class="subsection-title">Judge / GEval Process</h3>
+      <h3 class="subsection-title" id="geval-process">Judge / GEval Process</h3>
       <div class="flowchart">
         <div class="flow-step">
           <div class="flow-step-label">Step 1</div>
@@ -287,6 +287,20 @@
         </ul>
       </div>
 
+      <h3 class="subsection-title">Inference Pipeline</h3>
+      <div class="prose">
+        <p>
+          Generation follows the flow shown in <a href="#anatomy">Benchmark Anatomy</a>: a task's
+          <code>prompt.txt</code> (plus <code>source.png</code> for editing tasks) goes to Together AI for
+          model inference, producing raw ASCII output, which is then rendered to a diagram-only PNG before
+          being handed to the judge.
+        </p>
+        <ul>
+          <li><strong>Playwright PNG rendering</strong>: reference ASCII artifacts are rendered as diagram-only images for editing tasks and visual inspection; see <a href="#technical">Technical Details</a>.</li>
+          <li><strong>Together AI generation</strong>: model responses and rendered PNGs only; Together is not used for judging.</li>
+        </ul>
+      </div>
+
       <h3 class="subsection-title">Evaluation Pipeline</h3>
       <div class="callout">
         <strong>Single-path scoring.</strong>
@@ -299,23 +313,18 @@
       </div>
       <div class="prose">
         <p>
-          <strong id="structural-score-detail">Structural score</strong> is computed by the harness, not the
-          judge: the judge first reports raw <code>structural_observations</code> (which required labels it
-          can see, the entity count, which required edges and edge labels are present, and for editing tasks
-          which elements were preserved), then those observations are compared against the task's
-          <code>assertions.json</code> as a set of independent, all-or-nothing checks and averaged. There is
-          no partial credit within a single check; a label is either present or it is not.
-        </p>
-        <p>
-          <strong id="semantic-score-detail">Semantic score</strong> is the judge's own direct 0.0-1.0
-          judgment, not harness-derived. It is guided by a task-specific rubric (dynamic G-Eval style) covering
-          whether connections are made correctly, whether text inside nodes is correct and centered, whether
-          labels are spelled correctly, whether arrows are cleanly aligned to their source and target, and
-          whether the overall layout follows the prompt.
+          Judging follows the flow shown in <a href="#geval-process">Judge / GEval Process</a>: the candidate and
+          reference PNGs, along with the task's judge prompt and <code>assertions.json</code>, go to a judge
+          round (repeated <code>num_judgments</code> times, default 5). Each round produces
+          <strong id="structural-score-detail">structural observations</strong> (which required labels,
+          entities, edges, and edge labels the judge can see, compared against <code>assertions.json</code>
+          as independent all-or-nothing checks, harness-computed and averaged with no partial credit within
+          a single check) and a <strong id="semantic-score-detail">semantic score</strong> (the judge's own
+          direct 0.0-1.0 rubric judgment covering connections, text placement/centering, spelling, arrow
+          alignment, and overall layout match). The two are averaged across rounds and summed into
+          <code>geval_score</code>.
         </p>
         <ul>
-          <li><strong>Playwright PNG rendering</strong>: reference ASCII artifacts are rendered as diagram-only images for editing tasks and visual inspection; see <a href="#technical">Technical Details</a>.</li>
-          <li><strong>Together AI generation</strong>: model responses and rendered PNGs only; Together is not used for judging.</li>
           <li><strong>Repeated judging</strong>: each task can be judged multiple times (default 5) with mean/stdev reported, to separate real quality differences from judge-scoring noise.</li>
           <li><strong>Repository-first organization</strong>: task directories, scripts, outputs, and website metadata are all arranged for extension and public contribution.</li>
         </ul>
