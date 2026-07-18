@@ -304,8 +304,8 @@
         <strong>Single-path scoring.</strong>
         A DeepEval <code>BaseMetric</code> judge (OpenAI or Anthropic), following the
         <a href="https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark/blob/master/scripts/judge/shared_judge_contract.txt">shared judge prompt</a>,
-        reports an <a href="#structural-score-def">structural score</a> and an
-        <a href="#semantic-score-def">semantic score</a> per task:
+        reports an <a href="#structural-score-detail">structural score</a> and an
+        <a href="#semantic-score-detail">semantic score</a> per task:
         <code>geval_score = geval_structural_score + geval_semantics_score</code>. There is no separate
         deterministic/text-heuristic scoring step.
       </div>
@@ -314,9 +314,31 @@
         <ol>
           <li>Candidate and reference PNGs, plus the judge prompt and <code>assertions.json</code>, go to the judge.</li>
           <li>The judge round repeats <code>num_judgments</code> times (default 5).</li>
-          <li><strong id="structural-score-detail">Structural observations</strong>: which labels, entities, edges, and edge labels the judge can see.</li>
-          <li>The harness checks those against <code>assertions.json</code>, all-or-nothing, no partial credit.</li>
-          <li><strong id="semantic-score-detail">Semantic score</strong>: the judge's own 0.0-1.0 rubric call on connections, text placement, spelling, and arrow alignment.</li>
+          <li>
+            <strong id="structural-score-detail">Structural score</strong>: harness-computed, not judged directly.
+            The judge reports what it observes; the harness checks each observation against
+            <code>assertions.json</code> as an independent, all-or-nothing component (no partial credit within
+            a component), then averages whichever of these apply to the task:
+            <ul>
+              <li><code>required_labels</code>: every required label appears somewhere in the diagram.</li>
+              <li><code>entity_count</code>: the observed entity count matches the expected count exactly.</li>
+              <li><code>required_edges</code>: every required connection is present.</li>
+              <li><code>required_edge_labels</code>: editing tasks only, every required edge label is present.</li>
+              <li><code>preserved_elements</code>: editing tasks only, elements that should survive the edit still do.</li>
+            </ul>
+          </li>
+          <li>
+            <strong id="semantic-score-detail">Semantic score</strong>: the judge's own direct 0.0-1.0 rubric
+            judgment, informed by its own checks on:
+            <ul>
+              <li><code>connections_correct</code>: are the connections actually made where they should be.</li>
+              <li><code>text_inside_nodes_correct</code>: is the text inside each node/box correct.</li>
+              <li><code>text_centered_in_nodes</code>: is that text centered within its node/box.</li>
+              <li><code>labels_spelled_correct</code>: are all labels spelled correctly.</li>
+              <li><code>arrows_cleanly_aligned</code>: are arrows cleanly aligned to their source and target.</li>
+              <li><code>layout_matches_prompt</code>: does the overall layout follow the prompt.</li>
+            </ul>
+          </li>
           <li>Both scores are averaged across rounds and summed into <code>geval_score</code>.</li>
         </ol>
         <ul>
@@ -374,8 +396,8 @@
           <li>
             <strong>DeepEval judge</strong>: a custom <code>BaseMetric</code> against OpenAI or Anthropic, following the
             <a href="https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark/blob/master/scripts/judge/shared_judge_contract.txt">shared judge prompt</a>.
-            <a href="#structural-score-def">Structural score</a> verifies visual evidence against <code>assertions.json</code>;
-            <a href="#semantic-score-def">semantic score</a> comes from a task-specific rubric prompt.
+            <a href="#structural-score-detail">Structural score</a> verifies visual evidence against <code>assertions.json</code>;
+            <a href="#semantic-score-detail">semantic score</a> comes from a task-specific rubric prompt.
           </li>
         </ul>
       </div>
