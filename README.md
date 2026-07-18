@@ -6,8 +6,9 @@ generate and edit structured ASCII diagrams.
 It ships as a normal GitHub-style repository with:
 
 - `80` private tasks across `4` categories (`tasks/`, not distributed publicly)
-- `12` public example tasks (`public_dataset/`) — same format, fully runnable,
-  safe to look at
+- `12` public example tasks — same format, fully runnable, safe to look at —
+  published on [Hugging Face](https://huggingface.co/datasets/YuvrajSingh9886/asciitermdraw-bench-public)
+  rather than bundled in this repository
 - OpenRouter-based generation (model responses + rendered PNGs only —
   OpenRouter is not used for judging)
 - a DeepEval `BaseMetric` judge against OpenAI/Anthropic — the only scoring
@@ -42,14 +43,18 @@ before a large run; placeholder-looking names will 404.
 benchmark's held-out evaluation set. Access is maintainer-controlled; this
 README does not document how to obtain it.
 
-`public_dataset/` exists so anyone can see the task format and actually run
-the tooling without that access. It contains 12 hand-authored tasks — one
-`easy`, one `medium`, one `hard` per category — laid out identically to a
-real task (`<category>/<difficulty>/<task_id>/`, task ids `0.1`–`0.12`), and
-is a genuine drop-in `--tasks` target for both scripts below, not just a
-documentation sample:
+The [public dataset on Hugging Face](https://huggingface.co/datasets/YuvrajSingh9886/asciitermdraw-bench-public)
+exists so anyone can see the task format and actually run the tooling
+without that access — browse it directly, or download it locally as a
+genuine drop-in `--tasks` target for both scripts below (it contains 12
+hand-authored tasks — one `easy`, one `medium`, one `hard` per category —
+laid out identically to a real task, `<category>/<difficulty>/<task_id>/`,
+task ids `0.1`–`0.12`):
 
 ```bash
+huggingface-cli download YuvrajSingh9886/asciitermdraw-bench-public \
+  --repo-type dataset --local-dir public_dataset
+
 uv run run-model \
   --model qwen/qwen3.7-plus \
   --tasks public_dataset \
@@ -91,7 +96,7 @@ Category 3 (editing) tasks also contain `source.ascii` and `source.png`.
 
 Within each category, tasks are organized by difficulty: `easy/`, `medium/`,
 `hard/`. In the private set, difficulty buckets map to task-id ranges
-(`.1`–`.10` easy, `.11`–`.15` medium, `.16`–`.20` hard); `public_dataset/`
+(`.1`–`.10` easy, `.11`–`.15` medium, `.16`–`.20` hard); the public dataset
 uses one task per bucket (`0.1`–`0.12`).
 
 ## Repository Layout
@@ -103,13 +108,7 @@ uses one task per bucket (`0.1`–`0.12`).
 │   ├── network-topology-diagrams/
 │   ├── diagram-editing/
 │   └── software-architecture-diagrams/
-├── public_dataset/         # public, checked in — 12 runnable example tasks
-│   ├── box-layout-basics/
-│   ├── network-topology-diagrams/
-│   ├── diagram-editing/
-│   └── software-architecture-diagrams/
 ├── scripts/
-│   ├── benchmark/      # internal maintainer tooling + canonical source data
 │   ├── judge/          # DeepEval BaseMetric judge (judge-geval)
 │   ├── rendered/       # ASCII -> PNG renderer
 │   ├── lib/            # shared helpers
@@ -229,10 +228,11 @@ python3 -m http.server 8000 -d website
 ```
 
 `build_site_data.mjs` regenerates `website/assets/data/site_data.json` from
-the real `tasks/` tree (private task metadata — prompts and previews for the
-task browser) and `public_dataset/` (copies the 12 public reference PNGs
-into `website/assets/img/public-dataset/` and embeds their trimmed prompts).
-Re-run it after editing either task tree.
+the real `tasks/` tree (private task metadata — aggregate counts only, no
+prompt/ASCII content). Public example tasks are linked to directly from the
+[Hugging Face dataset](https://huggingface.co/datasets/YuvrajSingh9886/asciitermdraw-bench-public)
+rather than built from a local copy. Re-run the build script after editing
+`tasks/`.
 
 Deployment is automatic via
 [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml):
