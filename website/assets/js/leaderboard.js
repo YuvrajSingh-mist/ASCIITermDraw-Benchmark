@@ -6,17 +6,25 @@
 //
 // Generation backend is Together AI (see scripts/lib/together_api.py).
 // Per model, 80 tasks, num_judgments=5 (see outputs/<model>/metrics.json):
-//   gemma-4-31b-it: final=0.7380 ci95=[0.6975,0.7786] -> 73.8% +/- 4.1%
+//   gemma-4-31b-it:      final=0.7380 ci95=[0.6975,0.7786] -> 73.8% +/- 4.1%
 //     structural=0.8425+/-0.2468  semantics=0.6336+/-0.1715
-//   kimi-k2.6:      final=0.6183 ci95=[0.5581,0.6785] -> 61.8% +/- 6.0%
+//   qwen3.7-plus:        final=0.7015 ci95=[0.6556,0.7474] -> 70.2% +/- 4.6%
+//     structural=0.8023+/-0.2644  semantics=0.6008+/-0.2025
+//   kimi-k2.6:           final=0.6183 ci95=[0.5581,0.6785] -> 61.8% +/- 6.0%
 //     structural=0.7019+/-0.3416  semantics=0.5347+/-0.2551
-//   minimax-m3:     final=0.5947 ci95=[0.5320,0.6575] -> 59.5% +/- 6.3%
+//   minimax-m3:          final=0.5947 ci95=[0.5320,0.6575] -> 59.5% +/- 6.3%
 //     structural=0.6937+/-0.3547  semantics=0.4957+/-0.2578
+//   qwen3.5-9b:          final=0.4703 ci95=[0.4062,0.5343] -> 47.0% +/- 6.4%
+//     structural=0.5527+/-0.3776  semantics=0.3879+/-0.2507
+//   ternary-bonsai-27b:  final=0.4592 ci95=[0.3884,0.5300] -> 45.9% +/- 7.1%
+//     structural=0.5192+/-0.3872  semantics=0.3992+/-0.2802
 // generation_cost_usd (Together AI, all 80 tasks): gemma-4-31b-it=0.028056,
-// kimi-k2.6=0.300311, minimax-m3=0.099568.
-// Total judging cost (OpenAI gpt-5.4, 5 rounds x 80 tasks, summed
-// geval_cost_usd across outputs/<model>/results.csv): gemma-4-31b-it=7.8428,
-// kimi-k2.6=7.6976, minimax-m3=7.1932.
+// qwen3.7-plus=0.03261824, kimi-k2.6=0.300311, minimax-m3=0.099568,
+// qwen3.5-9b=0.02788665, ternary-bonsai-27b=0.0 (free-tier Together model).
+// Total judging cost (OpenAI gpt-5.4, 5 rounds x 80 tasks, summed cost_usd
+// across every outputs/<model>/**/gval/result.json): gemma-4-31b-it=7.8428,
+// qwen3.7-plus=7.8761, kimi-k2.6=7.6976, minimax-m3=7.1932,
+// qwen3.5-9b=6.6686, ternary-bonsai-27b=6.6043.
 
 const LEADERBOARD_ROWS = [
   {
@@ -31,6 +39,16 @@ const LEADERBOARD_ROWS = [
   },
   {
     rank: "2nd",
+    model: "qwen3.7-plus",
+    org: "Alibaba (via Together AI)",
+    genCost: 0.03261824,
+    judgeCost: 7.8761,
+    final: { score: 70.2, margin: 4.6 },
+    structural: { score: 80.2, margin: 26.4 },
+    semantics: { score: 60.1, margin: 20.3 },
+  },
+  {
+    rank: "3rd",
     model: "kimi-k2.6",
     org: "Moonshot AI (via Together AI)",
     genCost: 0.300311,
@@ -40,7 +58,7 @@ const LEADERBOARD_ROWS = [
     semantics: { score: 53.5, margin: 25.5 },
   },
   {
-    rank: "3rd",
+    rank: "4th",
     model: "minimax-m3",
     org: "MiniMax (via Together AI)",
     genCost: 0.099568,
@@ -48,6 +66,26 @@ const LEADERBOARD_ROWS = [
     final: { score: 59.5, margin: 6.3 },
     structural: { score: 69.4, margin: 35.5 },
     semantics: { score: 49.6, margin: 25.8 },
+  },
+  {
+    rank: "5th",
+    model: "qwen3.5-9b",
+    org: "Alibaba (via Together AI)",
+    genCost: 0.02788665,
+    judgeCost: 6.6686,
+    final: { score: 47.0, margin: 6.4 },
+    structural: { score: 55.3, margin: 37.8 },
+    semantics: { score: 38.8, margin: 25.1 },
+  },
+  {
+    rank: "6th",
+    model: "ternary-bonsai-27b",
+    org: "Prism-ML (via Together AI)",
+    genCost: 0.0,
+    judgeCost: 6.6043,
+    final: { score: 45.9, margin: 7.1 },
+    structural: { score: 51.9, margin: 38.7 },
+    semantics: { score: 39.9, margin: 28.0 },
   },
 ];
 
@@ -149,7 +187,11 @@ function renderPerfDollarChart() {
   const yMin = 0;
   const yMax = 100;
 
-  const xScale = (price) => margin.left + ((Math.log10(price) - xMin) / (xMax - xMin)) * plotW;
+  // Clamp to xMin's linear value before taking log10: a free-tier model
+  // (genCost 0) would otherwise produce log10(0) = -Infinity and vanish
+  // from the chart. It's pinned to the left edge instead, which is an
+  // honest representation of "as cheap as this chart can show."
+  const xScale = (price) => margin.left + ((Math.log10(Math.max(price, 10 ** xMin)) - xMin) / (xMax - xMin)) * plotW;
   const yScale = (score) => margin.top + plotH - ((score - yMin) / (yMax - yMin)) * plotH;
 
   const xTicks = [0.01, 0.03, 0.1, 0.3, 1];
