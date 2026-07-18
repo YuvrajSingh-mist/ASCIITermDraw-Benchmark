@@ -4,13 +4,46 @@
 // fetched at build time). Update these constants -- and add another entry to
 // LEADERBOARD_ROWS -- whenever a new model's results are published.
 //
-// Empty for now: the generation backend is Together AI (see
-// scripts/lib/together_api.py), and results from the prior backends were
-// removed along with outputs/ rather than published under an old backend's
-// name. Re-populate once Qwen/Qwen3.7-Plus, MiniMaxAI/MiniMax-M3, and
-// moonshotai/Kimi-K2.6 have been run and judged via Together AI.
+// Generation backend is Together AI (see scripts/lib/together_api.py).
+// Per model, 80 tasks, num_judgments=5 (see outputs/<model>/metrics.json):
+//   gemma-4-31b-it: final=0.7380 ci95=[0.6975,0.7786] -> 73.8% +/- 4.1%
+//     structural=0.8425+/-0.2468  semantics=0.6336+/-0.1715
+//   kimi-k2.6:      final=0.6183 ci95=[0.5581,0.6785] -> 61.8% +/- 6.0%
+//     structural=0.7019+/-0.3416  semantics=0.5347+/-0.2551
+//   minimax-m3:     final=0.5947 ci95=[0.5320,0.6575] -> 59.5% +/- 6.3%
+//     structural=0.6937+/-0.3547  semantics=0.4957+/-0.2578
+// generation_cost_usd (Together AI, all 80 tasks): gemma-4-31b-it=0.028056,
+// kimi-k2.6=0.300311, minimax-m3=0.099568.
 
-const LEADERBOARD_ROWS = [];
+const LEADERBOARD_ROWS = [
+  {
+    rank: "1st",
+    model: "gemma-4-31b-it",
+    org: "Google (via Together AI)",
+    price: 0.028056,
+    final: { score: 73.8, margin: 4.1 },
+    structural: { score: 84.3, margin: 24.7 },
+    semantics: { score: 63.4, margin: 17.2 },
+  },
+  {
+    rank: "2nd",
+    model: "kimi-k2.6",
+    org: "Moonshot AI (via Together AI)",
+    price: 0.300311,
+    final: { score: 61.8, margin: 6.0 },
+    structural: { score: 70.2, margin: 34.2 },
+    semantics: { score: 53.5, margin: 25.5 },
+  },
+  {
+    rank: "3rd",
+    model: "minimax-m3",
+    org: "MiniMax (via Together AI)",
+    price: 0.099568,
+    final: { score: 59.5, margin: 6.3 },
+    structural: { score: 69.4, margin: 35.5 },
+    semantics: { score: 49.6, margin: 25.8 },
+  },
+];
 
 const METRICS = {
   final: { label: "Final", statLabel: "mean, 95% CI" },
