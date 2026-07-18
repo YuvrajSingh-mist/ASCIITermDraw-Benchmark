@@ -255,6 +255,76 @@ pre[class*="language-"] .token.punctuation { color: var(--text-ter) !important; 
 
 .callout strong { color: var(--text); font-weight: 500; }
 
+.flowchart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  margin: 1.75rem 0;
+}
+
+.flow-step {
+  width: 100%;
+  max-width: 420px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-subtle);
+  padding: 0.85rem 1.1rem;
+  text-align: center;
+}
+
+.flow-step-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.2rem;
+}
+
+.flow-step-title {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.15rem;
+  color: var(--text);
+}
+
+.flow-step-detail {
+  font-size: 0.82rem;
+  color: var(--text-sec);
+  margin-top: 0.3rem;
+  line-height: 1.5;
+}
+
+.flow-step-detail code { font-size: 0.9em; }
+
+.flow-arrow {
+  width: 2px;
+  height: 1.75rem;
+  background: var(--border);
+  position: relative;
+}
+
+.flow-arrow::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 7px solid var(--border);
+}
+
+.flow-branch {
+  display: flex;
+  gap: 1.25rem;
+  width: 100%;
+  max-width: 620px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.flow-branch .flow-step { max-width: 280px; flex: 1 1 260px; }
+
 .muted-note,
 .docs-intro {
   margin-top: 1rem;
@@ -307,6 +377,37 @@ footer a:hover { color: var(--accent); }
 }
 
 .hf-cta p { margin-bottom: 1rem; }
+
+.example-pair {
+  display: flex;
+  gap: 1.25rem;
+  margin: 1.25rem 0;
+  flex-wrap: wrap;
+}
+
+.example-pair figure {
+  flex: 1 1 260px;
+  min-width: 0;
+  margin: 0;
+}
+
+.example-pair img {
+  display: block;
+  width: 100%;
+  height: 220px;
+  object-fit: contain;
+  background: #fff;
+  border: 1px solid var(--border-lt);
+}
+
+.example-pair figcaption {
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-ter);
+  margin-top: 0.4rem;
+  text-align: center;
+}
 
 /* Leaderboard */
 

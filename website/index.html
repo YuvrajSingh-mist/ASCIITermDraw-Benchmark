@@ -84,20 +84,22 @@
         </p>
         <p>The benchmark covers four families of tasks:</p>
         <ul class="task-family-list">
-          <li><strong>Box Layout Basics</strong> — <em>single boxes, rows, columns, arrows, and spacing-sensitive layout</em></li>
-          <li><strong>Network Topology Diagrams</strong> — <em>clusters, buses, data flows, and connection topology</em></li>
-          <li><strong>Diagram Editing</strong> — <em>image-conditioned edits applied to an existing ASCII diagram</em></li>
-          <li><strong>Software Architecture Diagrams</strong> — <em>real-world gateways, pipelines, feeds, and storage layers</em></li>
+          <li><strong>Box Layout Basics</strong>: <em>single boxes, rows, columns, arrows, and spacing-sensitive layout</em></li>
+          <li><strong>Network Topology Diagrams</strong>: <em>clusters, buses, data flows, and connection topology</em></li>
+          <li><strong>Diagram Editing</strong>: <em>image-conditioned edits applied to an existing ASCII diagram</em></li>
+          <li><strong>Software Architecture Diagrams</strong>: <em>real-world gateways, pipelines, feeds, and storage layers</em></li>
         </ul>
         <p>
           Every task ships with a prompt, a reference ASCII artifact (a PNG to be rendered), and structured assertions.
         </p>
         <p>
-          Every candidate diagram is judged through LLM-As-A-Judge pipeline: a DeepEval <code>BaseMetric</code> judge
-          (OpenAI or Anthropic) scores each candidate against the reference on two axes — a
-          <strong>structural score</strong> (do the required labels, entities, and edges actually appear,
-          checked against structured assertions) and a <strong>semantic score</strong> (does the layout,
-          spacing, and connection routing actually match the prompt) — averaged over multiple judge rounds and
+          Every candidate diagram is judged through an LLM-as-a-judge pipeline: a DeepEval <code>BaseMetric</code> judge
+          (OpenAI or Anthropic), following the
+          <a href="https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark/blob/master/scripts/judge/shared_judge_contract.txt">shared judge prompt</a>,
+          scores each candidate against the reference on two axes: a
+          <strong id="structural-score-def">structural score</strong> (do the required labels, entities, and edges actually appear,
+          checked against structured assertions), and a <strong id="semantic-score-def">semantic score</strong> (does the layout,
+          spacing, and connection routing actually match the prompt), averaged over multiple judge rounds and
           combined into the final <code>geval_score</code>.
         </p>
       </div>
@@ -161,27 +163,47 @@
   <section id="anatomy" aria-labelledby="heading-anatomy">
     <div class="container">
       <h2 class="section-title" id="heading-anatomy">Benchmark Anatomy</h2>
-      <pre><code class="language-text">+--------------------------+     +-----------------+
-|        prompt.txt        |     | model inference |
-| (+ source.png for edits) | --&gt; |                 |
-+--------------------------+     +-----------------+
-           |
-           v
-+---------------------+     +------------------------+
-| ASCII output (.txt) | --&gt; | rendered candidate PNG |
-+---------------------+     +------------------------+
-            |
-            v
-+----------------------+     +---------------------------+
-| vlm_judge_prompt.txt |     | DeepEval BaseMetric judge |
-|  + assertions.json   | --&gt; |   (OpenAI / Anthropic)    |
-+----------------------+     +---------------------------+
-            |
-            v
-+----------------------+
-|    results CSV /     |
-| judge JSON artifacts |
-+----------------------+</code></pre>
+      <div class="flowchart">
+        <div class="flow-step">
+          <div class="flow-step-label">Step 1</div>
+          <div class="flow-step-title">Prompt</div>
+          <div class="flow-step-detail"><code>prompt.txt</code> (plus <code>source.png</code> for editing tasks)</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step">
+          <div class="flow-step-label">Step 2</div>
+          <div class="flow-step-title">Model Inference</div>
+          <div class="flow-step-detail">OpenRouter chat-completions call</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step">
+          <div class="flow-step-label">Step 3</div>
+          <div class="flow-step-title">ASCII Output</div>
+          <div class="flow-step-detail">Raw candidate <code>.txt</code></div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step">
+          <div class="flow-step-label">Step 4</div>
+          <div class="flow-step-title">Rendered PNG</div>
+          <div class="flow-step-detail">Playwright screenshot of the ASCII</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step">
+          <div class="flow-step-label">Step 5</div>
+          <div class="flow-step-title">DeepEval Judge</div>
+          <div class="flow-step-detail">
+            <code>BaseMetric</code> (OpenAI or Anthropic) scored against
+            <code>assertions.json</code> and the
+            <a href="https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark/blob/master/scripts/judge/shared_judge_contract.txt">shared judge prompt</a>
+          </div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step">
+          <div class="flow-step-label">Step 6</div>
+          <div class="flow-step-title">Results</div>
+          <div class="flow-step-detail"><code>results.csv</code> and <code>gval/result.json</code> per task</div>
+        </div>
+      </div>
       <div class="prose">
         <p>
           Category 3 is multimodal: the model receives a rendered <code>source.png</code> and must apply a textual edit
@@ -190,40 +212,53 @@
       </div>
 
       <h3 class="subsection-title">Judge / GEval Process</h3>
-      <pre><code class="language-text">+-----------------+     +----------------------+
-| candidate.png + |     | vlm_judge_prompt.txt |
-|  reference.png  | --&gt; |  + assertions.json   |
-+-----------------+     +----------------------+
-               |
-               v
-+-----------------------------+     +------------------------+
-|         judge call          |     |      judge round       |
-| (gpt-5.4 / claude-sonnet-5) | --&gt; | (N times, default N=5) |
-+-----------------------------+     +------------------------+
-              |
-              v
-+---------------------------+     +------------------+
-|  structural_observations  |     | semantics score  |
-| (labels, entities, edges) | --&gt; | (0.0-1.0 rubric) |
-+---------------------------+     +------------------+
-           |
-           v
-+---------------------+     +------------------------+
-| vs. assertions.json |     | averaged across rounds |
-| -&gt; structural_score | --&gt; |   -&gt; semantics_score   |
-+---------------------+     +------------------------+
-              |
-              v
-+--------------------------+
-|       geval_score        |
-| = structural + semantics |
-+--------------------------+
-               |
-               v
-+-----------------------------+
-| outputs/&lt;model&gt;/results.csv |
-| + gval/result.json per task |
-+-----------------------------+</code></pre>
+      <div class="flowchart">
+        <div class="flow-step">
+          <div class="flow-step-label">Step 1</div>
+          <div class="flow-step-title">Candidate + Reference PNGs</div>
+          <div class="flow-step-detail">The rendered candidate diagram, alongside the task's reference diagram</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step">
+          <div class="flow-step-label">Step 2</div>
+          <div class="flow-step-title">Judge Prompt + Assertions</div>
+          <div class="flow-step-detail">
+            Task-specific <code>vlm_judge_prompt.txt</code> plus <code>assertions.json</code>, appended to the
+            <a href="https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark/blob/master/scripts/judge/shared_judge_contract.txt">shared judge prompt</a>
+          </div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step">
+          <div class="flow-step-label">Step 3</div>
+          <div class="flow-step-title">Judge Round</div>
+          <div class="flow-step-detail">DeepEval <code>BaseMetric</code> call (GPT-5.4 or Claude Sonnet 5), repeated <code>num_judgments</code> times (default 5) per task</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-branch">
+          <div class="flow-step">
+            <div class="flow-step-label">Structural</div>
+            <div class="flow-step-title">Observations</div>
+            <div class="flow-step-detail">Labels, entities, and edges the judge reports seeing, checked against <code>assertions.json</code></div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-label">Semantic</div>
+            <div class="flow-step-title">Rubric Score</div>
+            <div class="flow-step-detail">The judge's own 0.0-1.0 layout/spacing/routing judgment</div>
+          </div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step">
+          <div class="flow-step-label">Step 4</div>
+          <div class="flow-step-title">geval_score</div>
+          <div class="flow-step-detail">Structural + semantic scores, averaged across all judge rounds for the task</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step">
+          <div class="flow-step-label">Step 5</div>
+          <div class="flow-step-title">Results</div>
+          <div class="flow-step-detail"><code>outputs/&lt;model&gt;/results.csv</code> and <code>gval/result.json</code> per task</div>
+        </div>
+      </div>
       <div class="prose">
         <p>
           Every candidate is judged <code>num_judgments</code> times independently (not cached
@@ -252,17 +287,34 @@
       <h3 class="subsection-title">Evaluation Pipeline</h3>
       <div class="callout">
         <strong>Single-path scoring.</strong>
-        A DeepEval <code>BaseMetric</code> judge (OpenAI or Anthropic) reports a structural score (assertion
-        checks verified against the rendered image) and a semantic score (task-specific rubric) per task —
+        A DeepEval <code>BaseMetric</code> judge (OpenAI or Anthropic), following the
+        <a href="https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark/blob/master/scripts/judge/shared_judge_contract.txt">shared judge prompt</a>,
+        reports an <a href="#structural-score-def">structural score</a> and an
+        <a href="#semantic-score-def">semantic score</a> per task:
         <code>geval_score = geval_structural_score + geval_semantics_score</code>. There is no separate
         deterministic/text-heuristic scoring step.
       </div>
       <div class="prose">
+        <p>
+          <strong id="structural-score-detail">Structural score</strong> is computed by the harness, not the
+          judge: the judge first reports raw <code>structural_observations</code> (which required labels it
+          can see, the entity count, which required edges and edge labels are present, and for editing tasks
+          which elements were preserved), then those observations are compared against the task's
+          <code>assertions.json</code> as a set of independent, all-or-nothing checks and averaged. There is
+          no partial credit within a single check; a label is either present or it is not.
+        </p>
+        <p>
+          <strong id="semantic-score-detail">Semantic score</strong> is the judge's own direct 0.0-1.0
+          judgment, not harness-derived. It is guided by a task-specific rubric (dynamic G-Eval style) covering
+          whether connections are made correctly, whether text inside nodes is correct and centered, whether
+          labels are spelled correctly, whether arrows are cleanly aligned to their source and target, and
+          whether the overall layout follows the prompt.
+        </p>
         <ul>
-          <li><strong>Playwright PNG rendering</strong>  -  reference ASCII artifacts are rendered as diagram-only images for editing tasks and visual inspection.</li>
-          <li><strong>OpenRouter generation</strong>  -  model responses and rendered PNGs only; OpenRouter is not used for judging.</li>
-          <li><strong>Repeated judging</strong>  -  each task can be judged multiple times (default 5) with mean/stdev reported, to separate real quality differences from judge-scoring noise.</li>
-          <li><strong>Repository-first organization</strong>  -  task directories, scripts, outputs, and website metadata are all arranged for extension and public contribution.</li>
+          <li><strong>Playwright PNG rendering</strong>: reference ASCII artifacts are rendered as diagram-only images for editing tasks and visual inspection; see <a href="#technical">Technical Details</a>.</li>
+          <li><strong>OpenRouter generation</strong>: model responses and rendered PNGs only; OpenRouter is not used for judging.</li>
+          <li><strong>Repeated judging</strong>: each task can be judged multiple times (default 5) with mean/stdev reported, to separate real quality differences from judge-scoring noise.</li>
+          <li><strong>Repository-first organization</strong>: task directories, scripts, outputs, and website metadata are all arranged for extension and public contribution.</li>
         </ul>
       </div>
     </div>
@@ -273,13 +325,28 @@
       <h2 class="section-title" id="heading-examples">Example Tasks</h2>
       <div class="prose" style="margin-bottom: 1rem;">
         <p>
-          12 hand-authored public example tasks — one easy, one medium, one hard per category,
-          in the exact same format as the private benchmark — are published on Hugging Face
+          12 hand-authored public example tasks (one easy, one medium, one hard per category,
+          in the exact same format as the private benchmark) are published on Hugging Face
           rather than bundled in this repository.
         </p>
+        <p>
+          Diagram editing tasks are the one category that needs a picture to make sense: the model is given a
+          <strong>source</strong> diagram and a text instruction, and must return an edited ASCII diagram matching
+          the <strong>reference</strong>. Here's one example (task <code>0.6</code>, hard difficulty):
+        </p>
+      </div>
+      <div class="example-pair">
+        <figure>
+          <img src="https://huggingface.co/datasets/YuvrajSingh9886/asciitermdraw-bench-public/resolve/main/diagram-editing/hard/0.6/source.png" alt="Source diagram for editing task 0.6" loading="lazy" />
+          <figcaption>Source</figcaption>
+        </figure>
+        <figure>
+          <img src="https://huggingface.co/datasets/YuvrajSingh9886/asciitermdraw-bench-public/resolve/main/diagram-editing/hard/0.6/reference.png" alt="Reference diagram for editing task 0.6" loading="lazy" />
+          <figcaption>Reference</figcaption>
+        </figure>
       </div>
       <div class="hf-cta">
-        <p>Browse prompts, reference diagrams, and assertions directly.</p>
+        <p>Browse all 12 prompts, reference diagrams, and assertions directly.</p>
         <a href="https://huggingface.co/datasets/YuvrajSingh9886/asciitermdraw-bench-public" class="btn btn-primary" target="_blank" rel="noopener">
           View Public Dataset on Hugging Face
         </a>
@@ -292,17 +359,31 @@
       <h2 class="section-title" id="heading-technical">Technical Details</h2>
       <div class="prose">
         <p>
-          ASCIITermDraw-Bench is designed to be regenerated and audited from source. Task assets live in named
-          category directories, and the website data is built directly from the repository tree (see
+          Task assets live in named category directories, and the website data is built directly from the
+          repository tree (see
           <a href="https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark/blob/master/website/tools/build_site_data.mjs"><code>website/tools/build_site_data.mjs</code></a>)
           rather than from hand-maintained content.
         </p>
 
-        <h3 class="subsection-title" style="margin-top: 1rem;">Inference and Scoring</h3>
+        <h3 class="subsection-title" style="margin-top: 1rem;">Rendering</h3>
+        <p>
+          Every ASCII artifact (reference or candidate) is rendered to a diagram-only PNG by
+          <a href="https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark/blob/master/scripts/rendered/render_ascii.mjs"><code>scripts/rendered/render_ascii.mjs</code></a>:
+          headless Playwright/Chromium loads the raw text into a monospace <code>&lt;pre&gt;</code> element on a
+          minimal page, resizes the viewport to exactly fit that content's bounding box, and screenshots only that
+          region at 2x device scale. There is no surrounding page chrome in the output, just the diagram itself.
+        </p>
+
+        <h3 class="subsection-title" style="margin-top: 1.5rem;">Inference and Scoring</h3>
         <ul>
-          <li><strong>Smoke generation</strong>  -  synchronous shared-module OpenRouter calls for fast spot checks on a random subset of tasks.</li>
-          <li><strong>Full generation</strong>  -  the same synchronous OpenRouter transport, run across all tasks.</li>
-          <li><strong>DeepEval judge</strong>  -  a custom <code>BaseMetric</code> against OpenAI or Anthropic; structural score verifies visual evidence against <code>assertions.json</code>, semantic score comes from a task-specific rubric prompt.</li>
+          <li><strong>Smoke generation</strong>: synchronous shared-module OpenRouter calls for fast spot checks on a random subset of tasks.</li>
+          <li><strong>Full generation</strong>: the same synchronous OpenRouter transport, run across all tasks.</li>
+          <li>
+            <strong>DeepEval judge</strong>: a custom <code>BaseMetric</code> against OpenAI or Anthropic, following the
+            <a href="https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark/blob/master/scripts/judge/shared_judge_contract.txt">shared judge prompt</a>.
+            <a href="#structural-score-def">Structural score</a> verifies visual evidence against <code>assertions.json</code>;
+            <a href="#semantic-score-def">semantic score</a> comes from a task-specific rubric prompt.
+          </li>
         </ul>
       </div>
     </div>

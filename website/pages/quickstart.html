@@ -42,9 +42,11 @@
     <div class="container">
       <h2 class="section-title" id="heading-setup">Environment Setup</h2>
       <div class="prose">
-        <p>Install Python and Node dependencies, then create a local credential file. Scripts auto-load <code>.env.local</code> and <code>.env</code>.</p>
+        <p>Clone the repository, install Python and Node dependencies, then create a local credential file. Scripts auto-load <code>.env.local</code> and <code>.env</code>.</p>
       </div>
-      <pre><code class="language-bash">uv sync
+      <pre><code class="language-bash">git clone https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark.git
+cd ASCIITermDraw-Benchmark
+uv sync
 npm install
 npx playwright install chromium
 cp .env.example .env.local</code></pre>
@@ -69,11 +71,14 @@ ANTHROPIC_API_KEY=...</code></pre>
         <p>Run a synchronous shared-module spot check before spending time on full-benchmark batch inference.</p>
         <p>
           <code>--tasks tasks</code> requires the private task set (see the
-          <a href="./tasks.html">Tasks</a> page). Don't have it yet? Swap in
-          <code>--tasks public_dataset</code> to run this exact command
-          against the 12 public example tasks instead.
+          <a href="./tasks.html">Tasks</a> page). Don't have it yet? Download
+          the <a href="https://huggingface.co/datasets/YuvrajSingh9886/asciitermdraw-bench-public" target="_blank" rel="noopener">public dataset</a>
+          locally first, then swap in <code>--tasks public_dataset</code> to
+          run this exact command against the 12 public example tasks instead:
         </p>
       </div>
+      <pre><code class="language-bash">huggingface-cli download YuvrajSingh9886/asciitermdraw-bench-public \
+  --repo-type dataset --local-dir public_dataset</code></pre>
       <pre><code class="language-bash">uv run smoke \
   --model qwen/qwen3.7-plus \
   --tasks tasks \
@@ -104,7 +109,14 @@ ANTHROPIC_API_KEY=...</code></pre>
     <div class="container">
       <h2 class="section-title" id="heading-score">Scoring</h2>
       <div class="prose">
-        <p>Judging goes through DeepEval <code>BaseMetric</code> against OpenAI or Anthropic, with structured JSON output where the main score is <code>geval_structural_score + geval_semantics_score</code>. This is the only scoring path — there is no separate deterministic/text-heuristic step.</p>
+        <p>
+          Judging goes through DeepEval <code>BaseMetric</code> against OpenAI or Anthropic, following the
+          <a href="https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark/blob/master/scripts/judge/shared_judge_contract.txt">shared judge prompt</a>,
+          with structured JSON output where the main score is
+          <code>geval_structural_score</code> (see <a href="../index.html#structural-score-def">structural score</a>)
+          plus <code>geval_semantics_score</code> (see <a href="../index.html#semantic-score-def">semantic score</a>).
+          This is the only scoring path; there is no separate deterministic/text-heuristic step.
+        </p>
       </div>
       <pre><code class="language-bash">uv run judge-geval \
   --provider openai \

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ASCIITermDraw-Bench  -  Tasks</title>
-  <meta name="description" content="Public example tasks for ASCIITermDraw-Bench — one easy, medium, and hard task per category, in the same format as the private benchmark.">
+  <meta name="description" content="Public example tasks for ASCIITermDraw-Bench: one easy, medium, and hard task per category, in the same format as the private benchmark.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
@@ -28,7 +28,7 @@
       <h1>Tasks</h1>
       <p class="hero-subtitle">Public Example Tasks</p>
       <p class="hero-desc">
-        The real 80-task benchmark corpus is private — it's the held-out evaluation set. These
+        The real 80-task benchmark corpus is private, since it's the held-out evaluation set. These
         12 tasks are separate, hand-authored public examples in the exact same format (one
         easy, medium, and hard task per category), so anyone can see what a task looks like
         and run the tooling without access to the private set.
@@ -48,9 +48,24 @@
           All 12 public example tasks, grouped by category and difficulty, are hosted on
           Hugging Face rather than bundled in this repository.
         </p>
+        <p>
+          Diagram editing tasks are the one category that needs a picture to make sense: the model is given a
+          <strong>source</strong> diagram and a text instruction, and must return an edited ASCII diagram matching
+          the <strong>reference</strong>. Here's one example (task <code>0.6</code>, hard difficulty):
+        </p>
+      </div>
+      <div class="example-pair">
+        <figure>
+          <img src="https://huggingface.co/datasets/YuvrajSingh9886/asciitermdraw-bench-public/resolve/main/diagram-editing/hard/0.6/source.png" alt="Source diagram for editing task 0.6" loading="lazy" />
+          <figcaption>Source</figcaption>
+        </figure>
+        <figure>
+          <img src="https://huggingface.co/datasets/YuvrajSingh9886/asciitermdraw-bench-public/resolve/main/diagram-editing/hard/0.6/reference.png" alt="Reference diagram for editing task 0.6" loading="lazy" />
+          <figcaption>Reference</figcaption>
+        </figure>
       </div>
       <div class="hf-cta">
-        <p>Browse prompts, reference diagrams, and assertions directly.</p>
+        <p>Browse all 12 prompts, reference diagrams, and assertions directly.</p>
         <a href="https://huggingface.co/datasets/YuvrajSingh9886/asciitermdraw-bench-public" class="btn btn-primary" target="_blank" rel="noopener">
           View Public Dataset on Hugging Face
         </a>

@@ -131,16 +131,19 @@ def _curl_json_request(
     return json.loads(body)
 
 
-# Upstream providers that have been observed (via manual, repeated testing --
-# 5/5 failures when pinned to novita, 5/5 successes once excluded) to ignore
-# OpenRouter's unified `{"reasoning": {"enabled": false}}` for at least one
-# model (minimax/minimax-m3): they reason anyway, burning the whole
-# max_tokens budget before producing any real output. Every other upstream
-# for that model (Minimax official, DeepInfra, Together, GMICloud, Venice,
-# AtlasCloud) honored the flag correctly in the same testing. Excluded via
-# OpenRouter's provider-routing `ignore` field whenever reasoning is meant to
-# be off, rather than papering over the symptom by inflating max_tokens.
-NON_COMPLIANT_REASONING_PROVIDERS = ["novita"]
+# Upstream providers observed to ignore OpenRouter's unified
+# `{"reasoning": {"enabled": false}}` for at least one model: they reason
+# anyway, burning the whole max_tokens budget before producing any real
+# output (empty content, finish_reason "length"). Excluded via OpenRouter's
+# provider-routing `ignore` field whenever reasoning is meant to be off,
+# rather than papering over the symptom by inflating max_tokens.
+#   - novita: 5/5 failures pinned for minimax/minimax-m3, 5/5 successes once
+#     excluded (every other upstream -- Minimax official, DeepInfra,
+#     Together, GMICloud, Venice, AtlasCloud -- honored the flag correctly).
+#   - digitalocean: hit live during a real 80-task moonshotai/kimi-k2.6 run
+#     (task 27/80 failed with this exact signature, routed through
+#     DigitalOcean).
+NON_COMPLIANT_REASONING_PROVIDERS = ["novita", "digitalocean"]
 
 
 def chat_completion_with_retries(
