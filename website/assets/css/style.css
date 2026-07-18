@@ -554,7 +554,7 @@ footer a:hover { color: var(--accent); }
   border: 1px solid var(--border-lt);
   border-radius: 3px;
   padding: 0.45rem 0.8rem;
-  margin-bottom: 1.5rem;
+  margin-top: 0.6rem;
   cursor: help;
 }
 

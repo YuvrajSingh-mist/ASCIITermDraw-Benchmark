@@ -125,20 +125,20 @@
         See <code>outputs/&lt;model&gt;/metrics.json</code> and
         <a href="https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark/blob/master/scripts/judge/compute_metrics.py"><code>scripts/judge/compute_metrics.py</code></a> for the exact
         methodology. More rows will appear as more models are benchmarked.
+        <br>
+        <button type="button" class="info-btn" aria-describedby="stats-tooltip">
+          How the stats are computed <span aria-hidden="true">&#9432;</span>
+          <span id="stats-tooltip" class="info-tooltip" role="tooltip">
+            <ul>
+              <li>Structural and semantic scores each get their own mean/stdev across every judge round.</li>
+              <li>Not a naive sqrt-sum-of-squares: both scores share a judge call each round, so they're correlated.</li>
+              <li><code>Var((S+M)/2) = (Var(S) + Var(M) + 2&middot;Cov(S,M)) / 4</code> combines them using the real covariance.</li>
+              <li>95% CI on the final score uses the 80 tasks, not the 400 rounds, as the independent sampling unit.</li>
+              <li><code>1.96 &middot; stdev / &radic;80</code>, since rounds are repeated measurements, not independent draws.</li>
+            </ul>
+          </span>
+        </button>
       </div>
-
-      <button type="button" class="info-btn" aria-describedby="stats-tooltip">
-        How the stats are computed <span aria-hidden="true">&#9432;</span>
-        <span id="stats-tooltip" class="info-tooltip" role="tooltip">
-          <ul>
-            <li>Structural and semantic scores each get their own mean/stdev across every judge round.</li>
-            <li>Not a naive sqrt-sum-of-squares: both scores share a judge call each round, so they're correlated.</li>
-            <li><code>Var((S+M)/2) = (Var(S) + Var(M) + 2&middot;Cov(S,M)) / 4</code> combines them using the real covariance.</li>
-            <li>95% CI on the final score uses the 80 tasks, not the 400 rounds, as the independent sampling unit.</li>
-            <li><code>1.96 &middot; stdev / &radic;80</code>, since rounds are repeated measurements, not independent draws.</li>
-          </ul>
-        </span>
-      </button>
 
       <div class="lb-tabs" role="tablist">
         <button class="lb-tab active" data-panel="panel-mcq" role="tab">ASCII</button>
