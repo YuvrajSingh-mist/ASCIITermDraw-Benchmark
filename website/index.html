@@ -127,18 +127,18 @@
         methodology. More rows will appear as more models are benchmarked.
       </div>
 
-      <div class="lb-disclaimer">
-        <strong>How the stats are computed.</strong> Structural and semantic scores each get their
-        own mean and population stdev across every judge round (not a naive independent
-        sqrt-sum-of-squares), since both scores come from the same judge call each round and are
-        therefore correlated. The final score's stdev is combined from those two using
-        <code>Var((S+M)/2) = (Var(S) + Var(M) + 2&middot;Cov(S,M)) / 4</code>, with the real
-        population covariance between structural and semantic scores plugged in rather than
-        assumed to be zero. The 95% CI on the final score then treats the 80 tasks, not the 400
-        judge rounds, as the independent sampling unit: rounds are repeated measurements of the
-        same task, not independent draws, so only the 80 task-level means go into
-        <code>1.96 &middot; stdev / &radic;80</code>.
-      </div>
+      <button type="button" class="info-btn" aria-describedby="stats-tooltip">
+        How the stats are computed <span aria-hidden="true">&#9432;</span>
+        <span id="stats-tooltip" class="info-tooltip" role="tooltip">
+          <ul>
+            <li>Structural and semantic scores each get their own mean/stdev across every judge round.</li>
+            <li>Not a naive sqrt-sum-of-squares: both scores share a judge call each round, so they're correlated.</li>
+            <li><code>Var((S+M)/2) = (Var(S) + Var(M) + 2&middot;Cov(S,M)) / 4</code> combines them using the real covariance.</li>
+            <li>95% CI on the final score uses the 80 tasks, not the 400 rounds, as the independent sampling unit.</li>
+            <li><code>1.96 &middot; stdev / &radic;80</code>, since rounds are repeated measurements, not independent draws.</li>
+          </ul>
+        </span>
+      </button>
 
       <div class="lb-tabs" role="tablist">
         <button class="lb-tab active" data-panel="panel-mcq" role="tab">ASCII</button>

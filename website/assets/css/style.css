@@ -542,6 +542,75 @@ footer a:hover { color: var(--accent); }
   padding: 1.5rem 0;
 }
 
+.info-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: "Crimson Pro", Georgia, serif;
+  font-size: 0.85rem;
+  color: var(--text-sec);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-lt);
+  border-radius: 3px;
+  padding: 0.45rem 0.8rem;
+  margin-bottom: 1.5rem;
+  cursor: help;
+}
+
+.info-btn:hover,
+.info-btn:focus-visible {
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.info-tooltip {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  z-index: 20;
+  width: min(30rem, 90vw);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  padding: 0.85rem 1rem;
+  text-align: left;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text-sec);
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.12s ease, transform 0.12s ease;
+}
+
+.info-btn:hover .info-tooltip,
+.info-btn:focus-visible .info-tooltip,
+.info-btn:focus-within .info-tooltip {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.info-tooltip ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.info-tooltip li {
+  margin-bottom: 0.4rem;
+}
+
+.info-tooltip li:last-child {
+  margin-bottom: 0;
+}
+
+.info-tooltip code {
+  font-size: 0.78rem;
+  white-space: normal;
+}
+
 .lb-tabs {
   display: inline-flex;
   gap: 0.3rem;
