@@ -14,13 +14,17 @@
 //     structural=0.6937+/-0.3547  semantics=0.4957+/-0.2578
 // generation_cost_usd (Together AI, all 80 tasks): gemma-4-31b-it=0.028056,
 // kimi-k2.6=0.300311, minimax-m3=0.099568.
+// Total judging cost (OpenAI gpt-5.4, 5 rounds x 80 tasks, summed
+// geval_cost_usd across outputs/<model>/results.csv): gemma-4-31b-it=7.8428,
+// kimi-k2.6=7.6976, minimax-m3=7.1932.
 
 const LEADERBOARD_ROWS = [
   {
     rank: "1st",
     model: "gemma-4-31b-it",
     org: "Google (via Together AI)",
-    price: 0.028056,
+    genCost: 0.028056,
+    judgeCost: 7.8428,
     final: { score: 73.8, margin: 4.1 },
     structural: { score: 84.3, margin: 24.7 },
     semantics: { score: 63.4, margin: 17.2 },
@@ -29,7 +33,8 @@ const LEADERBOARD_ROWS = [
     rank: "2nd",
     model: "kimi-k2.6",
     org: "Moonshot AI (via Together AI)",
-    price: 0.300311,
+    genCost: 0.300311,
+    judgeCost: 7.6976,
     final: { score: 61.8, margin: 6.0 },
     structural: { score: 70.2, margin: 34.2 },
     semantics: { score: 53.5, margin: 25.5 },
@@ -38,7 +43,8 @@ const LEADERBOARD_ROWS = [
     rank: "3rd",
     model: "minimax-m3",
     org: "MiniMax (via Together AI)",
-    price: 0.099568,
+    genCost: 0.099568,
+    judgeCost: 7.1932,
     final: { score: 59.5, margin: 6.3 },
     structural: { score: 69.4, margin: 35.5 },
     semantics: { score: 49.6, margin: 25.8 },
@@ -60,7 +66,14 @@ function renderTable(containerId, rows) {
   root.innerHTML = `
     <table class="lb-table">
       <thead>
-        <tr><th>Rank</th><th>Model</th><th>Score (95% CI, 80 tasks)</th><th>Organization</th></tr>
+        <tr>
+          <th>Rank</th>
+          <th>Model</th>
+          <th>Score (95% CI, 80 tasks)</th>
+          <th>Gen Cost</th>
+          <th>Judging Cost</th>
+          <th>Organization</th>
+        </tr>
       </thead>
       <tbody>
         ${rows
@@ -70,6 +83,8 @@ function renderTable(containerId, rows) {
                 <td class="lb-rank">${row.rank}</td>
                 <td>${row.model}</td>
                 <td>${row.final.score.toFixed(1)}% &plusmn; ${row.final.margin.toFixed(1)}%</td>
+                <td>$${row.genCost.toFixed(4)}</td>
+                <td>$${row.judgeCost.toFixed(2)}</td>
                 <td>${row.org}</td>
               </tr>
             `
@@ -158,7 +173,7 @@ function renderPerfDollarChart() {
 
   for (const row of LEADERBOARD_ROWS) {
     const point = row[currentChartMetric];
-    const cx = xScale(row.price);
+    const cx = xScale(row.genCost);
     const cy = yScale(point.score);
     const yTop = yScale(Math.min(100, point.score + point.margin));
     const yBottom = yScale(Math.max(0, point.score - point.margin));
@@ -171,7 +186,7 @@ function renderPerfDollarChart() {
     svg += `<line class="lb-whisker-cap" x1="${cx - capHalfWidth}" y1="${yTop}" x2="${cx + capHalfWidth}" y2="${yTop}" />`;
     svg += `<line class="lb-whisker-cap" x1="${cx - capHalfWidth}" y1="${yBottom}" x2="${cx + capHalfWidth}" y2="${yBottom}" />`;
     svg += `<circle class="lb-dot" cx="${cx}" cy="${cy}" r="6" fill="var(--accent)" />`;
-    svg += `<circle class="lb-hit" cx="${cx}" cy="${cy}" r="13" data-model="${row.model}" data-price="${row.price.toFixed(4)}" data-score="${point.score}" data-score-margin="${point.margin}" data-stat-label="${metricMeta.statLabel}" />`;
+    svg += `<circle class="lb-hit" cx="${cx}" cy="${cy}" r="13" data-model="${row.model}" data-price="${row.genCost.toFixed(4)}" data-score="${point.score}" data-score-margin="${point.margin}" data-stat-label="${metricMeta.statLabel}" />`;
   }
   svg += `</svg>`;
 

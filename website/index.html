@@ -119,7 +119,11 @@
         80 tasks (5 judge rounds per task), shown with a 95% confidence
         interval computed over the 80 tasks (not the judge rounds, which are
         repeated measurements of the same task rather than independent
-        samples). Cost is the Together AI generation cost for the full run.
+        samples). Gen Cost is the Together AI generation cost for the full
+        80-task run; Judging Cost is the total OpenAI cost of judging that
+        run (5 rounds per task, summed <code>geval_cost_usd</code> across
+        <code>results.csv</code>), a separate and much larger expense than
+        generation itself.
         See <code>outputs/&lt;model&gt;/metrics.json</code> and
         <a href="https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark/blob/master/scripts/judge/compute_metrics.py"><code>scripts/judge/compute_metrics.py</code></a> for the exact
         methodology. More rows will appear as more models are benchmarked.
