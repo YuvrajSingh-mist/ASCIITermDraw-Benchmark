@@ -366,6 +366,7 @@ footer {
 footer a { color: var(--text-ter); }
 footer a:hover { color: var(--accent); }
 .footer-links { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 0.75rem; }
+footer .footnote { font-size: 0.78rem; margin-top: 0.35rem; }
 
 .hf-cta {
   margin-top: 1rem;
