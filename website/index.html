@@ -90,18 +90,21 @@
           <li><strong>Software Architecture Diagrams</strong>: <em>real-world gateways, pipelines, feeds, and storage layers</em></li>
         </ul>
         <p>
-          Every task ships with a prompt, a reference ASCII artifact (a PNG to be rendered), and structured assertions.
+          Every task ships with a prompt, a
+          <a href="https://huggingface.co/datasets/YuvrajSingh9886/asciitermdraw-bench-public/resolve/main/box-layout-basics/easy/0.1/reference.ascii">reference ASCII artifact</a>
+          (a PNG to be rendered), and structured assertions.
         </p>
         <p>
           Every candidate diagram is judged through an LLM-as-a-judge pipeline: a DeepEval <code>BaseMetric</code> judge
           (OpenAI or Anthropic), following the
           <a href="https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark/blob/master/scripts/judge/shared_judge_contract.txt">shared judge prompt</a>,
-          scores each candidate against the reference on two axes: a
-          <strong id="structural-score-def">structural score</strong> (do the required labels, entities, and edges actually appear,
-          checked against structured assertions), and a <strong id="semantic-score-def">semantic score</strong> (does the layout,
-          spacing, and connection routing actually match the prompt), averaged over multiple judge rounds and
-          combined into the final <code>geval_score</code>.
+          scores each candidate against the reference on two axes, averaged over multiple judge rounds and
+          combined into the final <code>geval_score</code>:
         </p>
+        <ul>
+          <li><strong id="structural-score-def">Structural score</strong>: do the required labels, entities, and edges actually appear, checked against structured assertions.</li>
+          <li><strong id="semantic-score-def">Semantic score</strong>: does the layout, spacing, and connection routing actually match the prompt.</li>
+        </ul>
       </div>
       <div class="callout">
         <strong>Current benchmark size.</strong>
@@ -117,13 +120,8 @@
         <strong>Early results.</strong> Generation runs on Together AI. Score
         is each model's mean combined structural + semantic score across all
         80 tasks (5 judge rounds per task), shown with a 95% confidence
-        interval computed over the 80 tasks (not the judge rounds, which are
-        repeated measurements of the same task rather than independent
-        samples). Gen Cost is the Together AI generation cost for the full
-        80-task run; Judging Cost is the total OpenAI cost of judging that
-        run (5 rounds per task, summed <code>geval_cost_usd</code> across
-        <code>results.csv</code>), a separate and much larger expense than
-        generation itself.
+        interval computed over the 80 tasks
+        
         See <code>outputs/&lt;model&gt;/metrics.json</code> and
         <a href="https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark/blob/master/scripts/judge/compute_metrics.py"><code>scripts/judge/compute_metrics.py</code></a> for the exact
         methodology. More rows will appear as more models are benchmarked.
@@ -312,18 +310,15 @@
         deterministic/text-heuristic scoring step.
       </div>
       <div class="prose">
-        <p>
-          Judging follows the flow shown in <a href="#geval-process">Judge / GEval Process</a>: the candidate and
-          reference PNGs, along with the task's judge prompt and <code>assertions.json</code>, go to a judge
-          round (repeated <code>num_judgments</code> times, default 5). Each round produces
-          <strong id="structural-score-detail">structural observations</strong> (which required labels,
-          entities, edges, and edge labels the judge can see, compared against <code>assertions.json</code>
-          as independent all-or-nothing checks, harness-computed and averaged with no partial credit within
-          a single check) and a <strong id="semantic-score-detail">semantic score</strong> (the judge's own
-          direct 0.0-1.0 rubric judgment covering connections, text placement/centering, spelling, arrow
-          alignment, and overall layout match). The two are averaged across rounds and summed into
-          <code>geval_score</code>.
-        </p>
+        <p>Judging follows the flow shown in <a href="#geval-process">Judge / GEval Process</a>:</p>
+        <ol>
+          <li>Candidate and reference PNGs, plus the judge prompt and <code>assertions.json</code>, go to the judge.</li>
+          <li>The judge round repeats <code>num_judgments</code> times (default 5).</li>
+          <li><strong id="structural-score-detail">Structural observations</strong>: which labels, entities, edges, and edge labels the judge can see.</li>
+          <li>The harness checks those against <code>assertions.json</code>, all-or-nothing, no partial credit.</li>
+          <li><strong id="semantic-score-detail">Semantic score</strong>: the judge's own 0.0-1.0 rubric call on connections, text placement, spelling, and arrow alignment.</li>
+          <li>Both scores are averaged across rounds and summed into <code>geval_score</code>.</li>
+        </ol>
         <ul>
           <li><strong>Repeated judging</strong>: each task can be judged multiple times (default 5) with mean/stdev reported, to separate real quality differences from judge-scoring noise.</li>
           <li><strong>Repository-first organization</strong>: task directories, scripts, outputs, and website metadata are all arranged for extension and public contribution.</li>
