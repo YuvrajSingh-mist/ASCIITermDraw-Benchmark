@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Quick synchronous OpenRouter smoke test against a sample of TermDraw-Bench
+Quick synchronous Together AI smoke test against a sample of TermDraw-Bench
 tasks (the `smoke` console script) — useful for a fast sanity check before a
 full `run-model` run. Shares prompt construction and output layout with
 `scripts/run_model.py`; reasoning is disabled by default.
@@ -11,7 +11,7 @@ import argparse
 import json
 from pathlib import Path
 
-from scripts.lib.openrouter_api import (
+from scripts.lib.together_api import (
     chat_completion_with_retries,
     extract_chat_content,
     require_env,
@@ -40,10 +40,10 @@ def run(
     network_retries: int,
 ) -> None:
     """Generate ASCII diagrams for a sample of tasks, print each result, and write outputs + a manifest.json."""
-    outputs = Path(outputs_dir) / model.rstrip("/").rsplit("/", 1)[-1]
+    outputs = Path(outputs_dir) / model.rstrip("/").rsplit("/", 1)[-1].lower()
     outputs.mkdir(parents=True, exist_ok=True)
 
-    api_key = require_env("OPENROUTER_API_KEY")
+    api_key = require_env("TOGETHER_API_KEY")
     tasks = Path(tasks_dir)
 
     selected_task_dirs = select_task_dirs(
@@ -100,7 +100,7 @@ def run(
                 "output_file": str(output_path),
                 "png_file": str(png_path),
                 "preview": preview,
-                "transport": "openrouter-chat-completions",
+                "transport": "together-chat-completions",
             }
         )
 
@@ -111,7 +111,7 @@ def run(
 def main() -> None:
     """CLI entrypoint for `smoke`: parse args and run a sampled generation pass."""
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", required=True, help="OpenRouter model slug, e.g. qwen/qwen3.7-plus")
+    parser.add_argument("--model", required=True, help="Together AI model slug, e.g. Qwen/Qwen3.7-Plus")
     parser.add_argument("--tasks", default="tasks")
     parser.add_argument("--outputs", required=True)
     parser.add_argument("--task-ids", help="Comma-separated task ids, for example 1.4,2.6,4.3")

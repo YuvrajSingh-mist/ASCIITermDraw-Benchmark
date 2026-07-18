@@ -4,11 +4,11 @@
 // fetched at build time). Update these constants -- and add another entry to
 // LEADERBOARD_ROWS -- whenever a new model's results are published.
 //
-// Empty for now: the generation backend moved from Fireworks to OpenRouter
-// (see scripts/lib/openrouter_api.py), and the prior Fireworks-run results
-// were removed along with outputs/ rather than published under the new
-// backend's name. Re-populate once qwen/qwen3.7-plus, minimax/minimax-m3,
-// and moonshotai/kimi-k2.6 have been re-run and re-judged via OpenRouter.
+// Empty for now: the generation backend is Together AI (see
+// scripts/lib/together_api.py), and results from the prior backends were
+// removed along with outputs/ rather than published under an old backend's
+// name. Re-populate once Qwen/Qwen3.7-Plus, MiniMaxAI/MiniMax-M3, and
+// moonshotai/Kimi-K2.6 have been run and judged via Together AI.
 
 const LEADERBOARD_ROWS = [];
 
@@ -21,7 +21,7 @@ const METRICS = {
 function renderTable(containerId, rows) {
   const root = document.getElementById(containerId);
   if (rows.length === 0) {
-    root.innerHTML = `<p class="lb-empty">No models benchmarked yet on the current (OpenRouter) generation backend.</p>`;
+    root.innerHTML = `<p class="lb-empty">No models benchmarked yet on the current (Together AI) generation backend.</p>`;
     return;
   }
   root.innerHTML = `

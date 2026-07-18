@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Full-run ASCII diagram generation for TermDraw-Bench tasks (the `run-model`
-console script), via OpenRouter's synchronous chat-completions API.
+console script), via Together AI's synchronous chat-completions API.
 
 Category 3 tasks are sent as multimodal requests using `source.png`.
 All other categories are sent as text-only chat completion requests.
@@ -18,7 +18,7 @@ import random
 from pathlib import Path
 from typing import Any
 
-from scripts.lib.openrouter_api import (
+from scripts.lib.together_api import (
     chat_completion_with_retries,
     estimate_cost_usd,
     extract_chat_content,
@@ -38,15 +38,16 @@ SYSTEM_PROMPT = (
     "Do not reveal reasoning or thinking. Start directly with ASCII."
 )
 
-# Per-model OpenRouter pricing defaults (USD per 1M tokens), keyed by the
-# model's short name (the part after the last "/" in its OpenRouter model
-# slug). Only used when --input-price-per-million/--output-price-per-million
-# are not passed on the CLI; fully overridable. Source: openrouter.ai model
-# pages (checked 2026-07-18).
+# Per-model Together AI serverless pricing defaults (USD per 1M tokens), keyed
+# by the model's short name (the part after the last "/" in its Together
+# model slug, lowercased). Only used when
+# --input-price-per-million/--output-price-per-million are not passed on the
+# CLI; fully overridable. Source: together.ai serverless pricing (checked
+# 2026-07-18).
 MODEL_PRICING_DEFAULTS: dict[str, tuple[float, float]] = {
     "qwen3.7-plus": (0.32, 1.28),
     "minimax-m3": (0.30, 1.20),
-    "kimi-k2.6": (0.66, 3.41),
+    "kimi-k2.6": (1.20, 4.50),
 }
 
 
@@ -197,7 +198,10 @@ def run(
     generation_seed: int | None = None,
 ) -> None:
     """Generate ASCII diagrams for the selected tasks and write outputs + a manifest.json."""
-    model_short_name = model_name.rstrip("/").rsplit("/", 1)[-1]
+    # Together model slugs are mixed-case (e.g. "Qwen/Qwen3.7-Plus"); lowercase
+    # the short name for both the outputs directory and pricing lookup so
+    # naming stays consistent regardless of the provider's own casing.
+    model_short_name = model_name.rstrip("/").rsplit("/", 1)[-1].lower()
     outputs = Path(outputs_dir) / model_short_name
     outputs.mkdir(parents=True, exist_ok=True)
 
@@ -206,7 +210,7 @@ def run(
             model_short_name, (None, None)
         )
 
-    api_key = require_env("OPENROUTER_API_KEY")
+    api_key = require_env("TOGETHER_API_KEY")
     tasks = Path(tasks_dir)
 
     selected_task_dirs = select_task_dirs(
@@ -268,7 +272,7 @@ def run(
             "task_id": task_id,
             "output_file": str(output_path),
             "png_file": str(png_path),
-            "transport": "openrouter-chat-completions",
+            "transport": "together-chat-completions",
         }
         cost_note = ""
         if usage is not None:
@@ -277,16 +281,14 @@ def run(
             result["total_tokens"] = usage["total_tokens"]
             total_input_tokens += usage["prompt_tokens"]
             total_output_tokens += usage["completion_tokens"]
-            # Prefer OpenRouter's own reported per-request cost (provider-side
-            # computed, not an estimate) over the MODEL_PRICING_DEFAULTS table.
-            task_cost = usage.get("real_cost_usd")
-            if task_cost is None:
-                task_cost = estimate_cost_usd(
-                    input_tokens=usage["prompt_tokens"],
-                    output_tokens=usage["completion_tokens"],
-                    input_price_per_million=input_price_per_million,
-                    output_price_per_million=output_price_per_million,
-                )
+            # Together doesn't report a per-request dollar cost, so this is
+            # always computed from MODEL_PRICING_DEFAULTS/--*-price-per-million.
+            task_cost = estimate_cost_usd(
+                input_tokens=usage["prompt_tokens"],
+                output_tokens=usage["completion_tokens"],
+                input_price_per_million=input_price_per_million,
+                output_price_per_million=output_price_per_million,
+            )
             if task_cost is not None:
                 result["cost_usd"] = task_cost
                 total_cost_usd += task_cost
@@ -308,7 +310,7 @@ def run(
 def main() -> None:
     """CLI entrypoint for `run-model`: parse args and run generation."""
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", required=True, help="OpenRouter model slug, e.g. qwen/qwen3.7-plus")
+    parser.add_argument("--model", required=True, help="Together AI model slug, e.g. Qwen/Qwen3.7-Plus")
     parser.add_argument("--tasks", default="tasks")
     parser.add_argument("--outputs", required=True)
     parser.add_argument(
@@ -330,12 +332,12 @@ def main() -> None:
         "--seed",
         type=int,
         default=7,
-        help="Local RNG seed for --sample-count task selection only. Not sent to the OpenRouter API — see --generation-seed for that.",
+        help="Local RNG seed for --sample-count task selection only. Not sent to the Together API — see --generation-seed for that.",
     )
     parser.add_argument(
         "--reasoning-effort",
         default="none",
-        help="OpenRouter reasoning effort control for generation. Defaults to 'none'.",
+        help="Together reasoning effort control for generation. Defaults to 'none'.",
     )
     parser.add_argument("--temperature", type=float, default=0.0)
     parser.add_argument(
@@ -353,17 +355,17 @@ def main() -> None:
     parser.add_argument(
         "--generation-seed",
         type=int,
-        help="OpenRouter `seed` param for best-effort deterministic sampling on the generation call. Omitted by default (provider's own behavior). Not a hard reproducibility guarantee -- provider-dependent.",
+        help="Together `seed` param for best-effort deterministic sampling on the generation call. Omitted by default (provider's own behavior). Not a hard reproducibility guarantee -- provider-dependent.",
     )
     parser.add_argument(
         "--input-price-per-million",
         type=float,
-        help="USD price per 1M input tokens for the generation model, to compute cost_usd if OpenRouter doesn't report its own usage.cost. Known models (e.g. qwen3.7-plus) have built-in defaults; this flag overrides.",
+        help="USD price per 1M input tokens for the generation model, to compute cost_usd (Together doesn't report its own per-request cost). Known models (e.g. qwen3.7-plus) have built-in defaults; this flag overrides.",
     )
     parser.add_argument(
         "--output-price-per-million",
         type=float,
-        help="USD price per 1M output tokens for the generation model, to compute cost_usd if OpenRouter doesn't report its own usage.cost. Known models (e.g. qwen3.7-plus) have built-in defaults; this flag overrides.",
+        help="USD price per 1M output tokens for the generation model, to compute cost_usd (Together doesn't report its own per-request cost). Known models (e.g. qwen3.7-plus) have built-in defaults; this flag overrides.",
     )
     args = parser.parse_args()
     run(

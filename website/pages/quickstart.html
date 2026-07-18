@@ -50,12 +50,12 @@ uv sync
 npm install
 npx playwright install chromium
 cp .env.example .env.local</code></pre>
-      <pre><code class="language-bash">OPENROUTER_API_KEY=...
+      <pre><code class="language-bash">TOGETHER_API_KEY=...
 OPENAI_API_KEY=...
 ANTHROPIC_API_KEY=...</code></pre>
       <div class="prose">
         <p>
-          The OpenRouter key is for generation (below); you only need one of
+          The Together AI key is for generation (below); you only need one of
           <code>OPENAI_API_KEY</code>/<code>ANTHROPIC_API_KEY</code> depending
           on which judge provider you use in the Scoring section.
         </p>
@@ -80,7 +80,7 @@ ANTHROPIC_API_KEY=...</code></pre>
       <pre><code class="language-bash">huggingface-cli download YuvrajSingh9886/asciitermdraw-bench-public \
   --repo-type dataset --local-dir public_dataset</code></pre>
       <pre><code class="language-bash">uv run smoke \
-  --model qwen/qwen3.7-plus \
+  --model Qwen/Qwen3.7-Plus \
   --tasks tasks \
   --outputs outputs/smoke-qwen3.7-plus \
   --sample-count 5 \
@@ -94,10 +94,10 @@ ANTHROPIC_API_KEY=...</code></pre>
     <div class="container">
       <h2 class="section-title" id="heading-batch">Full Generation</h2>
       <div class="prose">
-        <p>Run the full benchmark via OpenRouter's synchronous chat-completions transport (one request per task). Category 3 tasks automatically attach source images.</p>
+        <p>Run the full benchmark via Together AI's synchronous chat-completions transport (one request per task). Category 3 tasks automatically attach source images.</p>
       </div>
       <pre><code class="language-bash">uv run run-model \
-  --model qwen/qwen3.7-plus \
+  --model Qwen/Qwen3.7-Plus \
   --tasks tasks \
   --outputs outputs/your-run \
   --reasoning-effort none \
@@ -138,7 +138,7 @@ ANTHROPIC_API_KEY=...</code></pre>
       <a href="./tasks.html">Tasks</a>
         <a href="#setup">Quick Start</a>
     </div>
-    <p><strong>ASCIITermDraw-Bench</strong> &nbsp;&middot;&nbsp; Quick start workflow &nbsp;&middot;&nbsp; OpenRouter-ready benchmark</p>
+    <p><strong>ASCIITermDraw-Bench</strong> &nbsp;&middot;&nbsp; Quick start workflow &nbsp;&middot;&nbsp; Together AI-ready benchmark</p>
   </div>
 </footer>
 

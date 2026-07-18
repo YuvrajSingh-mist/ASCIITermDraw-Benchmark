@@ -6,12 +6,12 @@ generate and edit structured ASCII diagrams.
 It ships as a normal GitHub-style repository with:
 
 - `80` private tasks across `4` categories (`tasks/`, not distributed publicly)
-- `12` public example tasks — same format, fully runnable, safe to look at —
+- `12` public example tasks (same format, fully runnable, safe to look at)
   published on [Hugging Face](https://huggingface.co/datasets/YuvrajSingh9886/asciitermdraw-bench-public)
   rather than bundled in this repository
-- OpenRouter-based generation (model responses + rendered PNGs only —
-  OpenRouter is not used for judging)
-- a DeepEval `BaseMetric` judge against OpenAI/Anthropic — the only scoring
+- Together AI-based generation (model responses and rendered PNGs only;
+  Together is not used for judging)
+- a DeepEval `BaseMetric` judge against OpenAI/Anthropic, the only scoring
   path (`geval_*` scores); there is no separate deterministic/text-heuristic
   scoring step
 - a website under `website/`
@@ -21,7 +21,7 @@ It ships as a normal GitHub-style repository with:
 ```bash
 uv sync
 cp .env.example .env
-# put your OpenRouter / OpenAI / Anthropic keys in .env
+# put your Together AI / OpenAI / Anthropic keys in .env
 ```
 
 Rendering ASCII diagrams to PNG uses Node + Playwright. See `DEVELOPER.md`
@@ -31,10 +31,10 @@ Rendering ASCII diagrams to PNG uses Node + Playwright. See `DEVELOPER.md`
 uv run python -m scripts.rendered.render_all
 ```
 
-`--model` must be a valid OpenRouter model slug (e.g. `qwen/qwen3.7-plus`,
-`minimax/minimax-m3`, `moonshotai/kimi-k2.6`) — check
-[openrouter.ai/models](https://openrouter.ai/models) for the exact slug
-before a large run; placeholder-looking names will 404.
+`--model` must be a valid Together AI model slug (e.g. `Qwen/Qwen3.7-Plus`,
+`MiniMaxAI/MiniMax-M3`, `moonshotai/Kimi-K2.6`); check
+[together.ai/models](https://www.together.ai/models) for the exact slug
+before a large run, since placeholder-looking names will 404.
 
 ## Public Dataset
 
@@ -56,7 +56,7 @@ huggingface-cli download YuvrajSingh9886/asciitermdraw-bench-public \
   --repo-type dataset --local-dir public_dataset
 
 uv run run-model \
-  --model qwen/qwen3.7-plus \
+  --model Qwen/Qwen3.7-Plus \
   --tasks public_dataset \
   --outputs outputs/public_demo
 
@@ -128,7 +128,7 @@ checkout of `tasks/` for the real benchmark.
 
 ```bash
 uv run run-model \
-  --model qwen/qwen3.7-plus \
+  --model Qwen/Qwen3.7-Plus \
   --tasks tasks/ \
   --outputs outputs/ \
   --reasoning-effort none \
@@ -137,20 +137,22 @@ uv run run-model \
 
 Category 3 (`diagram-editing`) requests attach `source.png` as multimodal
 image input; other categories are text-only. Reasoning is disabled by
-default (`reasoning_effort=none`) — sent explicitly as
-`{"reasoning": {"enabled": false}}`, since some models reason by default even
-with no `reasoning` field at all. Generation cost/token usage is written to
-`manifest.json` under the output directory: OpenRouter reports the real
-per-request cost directly (`usage.cost`), used in preference to the
-built-in per-model price defaults (`qwen3.7-plus`, `minimax-m3`,
-`kimi-k2.6`) or an explicit `--input-price-per-million`/
+default (`reasoning_effort=none`), sent explicitly as
+`{"reasoning": {"enabled": false}}`, since these are hybrid-reasoning models
+that reason by default even with no `reasoning` field at all. Every request
+is sent with `stream: true` and reassembled into a normal response, since
+some Together model deployments reject non-streaming requests outright.
+Together does not report a per-request dollar cost, so generation
+cost/token usage written to `manifest.json` under the output directory is
+always computed from the built-in per-model price defaults (`qwen3.7-plus`,
+`minimax-m3`, `kimi-k2.6`) or an explicit `--input-price-per-million`/
 `--output-price-per-million`.
 
 For a quick smoke test instead of a full run:
 
 ```bash
 uv run smoke \
-  --model qwen/qwen3.7-plus \
+  --model Qwen/Qwen3.7-Plus \
   --tasks tasks/ \
   --outputs outputs/smoke \
   --sample-count 5 \
@@ -163,7 +165,7 @@ per selected task — and `outputs/<run>/<model-name>/manifest.json` (the last
 segment of `--model` is auto-appended to `--outputs`).
 
 Judging is OpenAI/Anthropic only, via DeepEval `BaseMetric` against rendered
-output PNGs — OpenRouter is used purely for generation, not judging, and this
+output PNGs. Together AI is used purely for generation, not judging, and this
 is the only scoring path in the repo:
 
 ```bash
@@ -199,16 +201,20 @@ built-in pricing defaults; for other judge models pass
 
 ## Troubleshooting
 
-- **`RuntimeError: No task directories selected.`** — the `--tasks`
+- **`RuntimeError: No task directories selected.`**: the `--tasks`
   directory is empty, missing, or has no `<category>/<difficulty>/<id>/`
   subdirectories matching a task-id pattern (`\d+\.\d+`). Try
   `--tasks public_dataset` first to confirm the pipeline itself works.
-- **Playwright / rendering errors** — see `DEVELOPER.md`.
-- **OpenRouter `HTTP 404: No endpoints found for <model>`** — the
-  `--model` value isn't a real OpenRouter model slug. Confirm the exact
-  slug (e.g. `qwen/qwen3.7-plus`, not `qwen3p7-plus`) at
-  [openrouter.ai/models](https://openrouter.ai/models) rather than reusing
+- **Playwright / rendering errors**: see `DEVELOPER.md`.
+- **Together `HTTP 404: Unable to access model <model>`**: the
+  `--model` value isn't a real Together AI model slug. Confirm the exact
+  slug (e.g. `Qwen/Qwen3.7-Plus`, not `qwen3p7-plus`) at
+  [together.ai/models](https://www.together.ai/models) rather than reusing
   an example from this README verbatim.
+- **`HTTP 402: Insufficient credits`**: the Together account has run out
+  of balance. Check remaining credits before a large run; a partial
+  generation run can be resumed for just the missing task ids via
+  `--task-ids`.
 
 ## Contributing
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""OpenRouter synchronous chat-completions transport, .env loading, and tasks/ directory helpers shared across the generation and judging scripts."""
+"""Together AI synchronous chat-completions transport, .env loading, and tasks/ directory helpers shared across the generation and judging scripts."""
 from __future__ import annotations
 
 import json
@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 
 
-API_ROOT = "https://openrouter.ai/api"
+API_ROOT = "https://api.together.xyz"
 TASK_ID_RE = re.compile(r"^\d+\.\d+$")
 RETRYABLE_STATUS_CODES = {408, 409, 425, 429, 500, 502, 503, 504}
 ROOT = Path(__file__).resolve().parents[2]
@@ -82,14 +82,56 @@ class CurlHTTPError(RuntimeError):
         self.body = body
 
 
-def _curl_json_request(
+def _parse_sse_chat_completion(body: str) -> dict[str, Any]:
+    """Reassemble Together's server-sent-events chat-completion stream into a single normal-shaped response dict.
+
+    Together requires `stream: true` for some models (hybrid-reasoning models
+    among them) -- there is no non-streaming option for those. This
+    concatenates every chunk's `delta.content` into the full message, keeps
+    the last non-null `finish_reason`, and carries through the final
+    `usage` block, so downstream code can treat it exactly like a normal
+    non-streaming chat-completion response.
+    """
+    content_parts: list[str] = []
+    finish_reason: str | None = None
+    usage: dict[str, Any] | None = None
+
+    for line in body.splitlines():
+        line = line.strip()
+        if not line.startswith("data:"):
+            continue
+        data = line[len("data:"):].strip()
+        if not data or data == "[DONE]":
+            continue
+        chunk = json.loads(data)
+        choices = chunk.get("choices") or []
+        if choices:
+            delta = choices[0].get("delta") or {}
+            content_parts.append(delta.get("content") or "")
+            if choices[0].get("finish_reason"):
+                finish_reason = choices[0]["finish_reason"]
+        if chunk.get("usage"):
+            usage = chunk["usage"]
+
+    return {
+        "choices": [
+            {
+                "message": {"content": "".join(content_parts)},
+                "finish_reason": finish_reason,
+            }
+        ],
+        "usage": usage,
+    }
+
+
+def _curl_sse_request(
     api_key: str,
     *,
     url: str,
     payload: dict[str, Any],
     timeout: int | float,
 ) -> dict[str, Any]:
-    """POST a JSON payload via the `curl` binary and return the parsed JSON response, raising CurlHTTPError on non-2xx."""
+    """POST a JSON payload via the `curl` binary, treating the response as an SSE stream on success and a plain JSON error body on failure."""
     curl = shutil.which("curl")
     if not curl:
         raise RuntimeError("Missing required system dependency: curl")
@@ -97,6 +139,7 @@ def _curl_json_request(
         [
             curl,
             "-sS",
+            "-N",
             "-X",
             "POST",
             url,
@@ -105,13 +148,7 @@ def _curl_json_request(
             "-H",
             "Content-Type: application/json",
             "-H",
-            "Accept: application/json",
-            "-H",
             "User-Agent: TermDraw-Bench/1.0",
-            "-H",
-            "HTTP-Referer: https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark",
-            "-H",
-            "X-Title: ASCIITermDraw-Bench",
             "-d",
             json.dumps(payload),
             "-w",
@@ -128,22 +165,7 @@ def _curl_json_request(
     status_code = int(status_text.strip() or "0")
     if status_code >= 400:
         raise CurlHTTPError(status_code, body.strip())
-    return json.loads(body)
-
-
-# Upstream providers observed to ignore OpenRouter's unified
-# `{"reasoning": {"enabled": false}}` for at least one model: they reason
-# anyway, burning the whole max_tokens budget before producing any real
-# output (empty content, finish_reason "length"). Excluded via OpenRouter's
-# provider-routing `ignore` field whenever reasoning is meant to be off,
-# rather than papering over the symptom by inflating max_tokens.
-#   - novita: 5/5 failures pinned for minimax/minimax-m3, 5/5 successes once
-#     excluded (every other upstream -- Minimax official, DeepInfra,
-#     Together, GMICloud, Venice, AtlasCloud -- honored the flag correctly).
-#   - digitalocean: hit live during a real 80-task moonshotai/kimi-k2.6 run
-#     (task 27/80 failed with this exact signature, routed through
-#     DigitalOcean).
-NON_COMPLIANT_REASONING_PROVIDERS = ["novita", "digitalocean"]
+    return _parse_sse_chat_completion(body)
 
 
 def chat_completion_with_retries(
@@ -160,33 +182,29 @@ def chat_completion_with_retries(
     timeout: int | float = 90,
     request_label: str = "chat completion",
 ) -> dict[str, Any]:
-    """Call OpenRouter's synchronous chat-completions endpoint, retrying on retryable HTTP codes/timeouts/transport errors.
+    """Call Together AI's chat-completions endpoint (always as a stream, reassembled into a normal response), retrying on retryable HTTP codes/timeouts/transport errors.
 
     `max_tokens`/`temperature`/`top_p`/`seed` are omitted from the request payload
     when left as None, so the model falls back to its own defaults instead of a
     hardcoded value. `seed` is best-effort determinism (provider-dependent, not
-    a hard guarantee) — it narrows but doesn't guarantee bit-identical outputs
-    across calls, especially at larger max_tokens. `reasoning_effort` of "none"
-    sends OpenRouter's unified `{"reasoning": {"enabled": false}}` -- some
-    models (e.g. Qwen3.7-Plus) reason by default even with no `reasoning` field
-    at all, silently inflating completion tokens/cost, so this has to be sent
-    explicitly rather than just omitted. Any other value ("low"/"medium"/"high")
-    is passed through as `{"reasoning": {"effort": reasoning_effort}}`. When
-    reasoning is disabled, `provider.ignore` also excludes upstream providers
-    known to not honor that flag for at least one model (see
-    NON_COMPLIANT_REASONING_PROVIDERS) -- routing away from them, not
-    inflating max_tokens, is the actual fix for the empty-content-on-length
-    failure this previously caused.
+    a hard guarantee). `reasoning_effort` of "none" sends
+    `{"reasoning": {"enabled": false}}` to disable chain-of-thought output on
+    Together's hybrid-reasoning models (Qwen3.7-Plus, Kimi-K2.6, MiniMax-M3) --
+    without it these models reason by default, burning tokens/cost before any
+    real output. Any other value ("low"/"medium"/"high") is passed through as
+    `{"reasoning": {"effort": reasoning_effort}}`. `stream: true` is always
+    sent because some Together model deployments reject non-streaming
+    requests outright (`code: streaming_required`).
     """
     payload = {
         "model": model,
         "messages": messages,
+        "stream": True,
     }
     if reasoning_effort and reasoning_effort != "none":
         payload["reasoning"] = {"effort": reasoning_effort}
     else:
         payload["reasoning"] = {"enabled": False}
-        payload["provider"] = {"ignore": NON_COMPLIANT_REASONING_PROVIDERS}
     if temperature is not None:
         payload["temperature"] = temperature
     if max_tokens is not None:
@@ -198,7 +216,7 @@ def chat_completion_with_retries(
     last_error = None
     for attempt in range(network_retries):
         try:
-            return _curl_json_request(
+            return _curl_sse_request(
                 api_key,
                 url=f"{API_ROOT}/v1/chat/completions",
                 payload=payload,
@@ -215,7 +233,7 @@ def chat_completion_with_retries(
                 time.sleep(delay)
                 continue
             raise RuntimeError(
-                f"OpenRouter {request_label} failed with HTTP {exc.status_code}: "
+                f"Together {request_label} failed with HTTP {exc.status_code}: "
                 f"{exc.body[:1500]}"
             ) from exc
         except subprocess.TimeoutExpired as exc:
@@ -292,17 +310,9 @@ def _coerce_content(value: Any) -> str:
 
 
 def extract_chat_content(row: dict[str, Any]) -> str:
-    """Pull the assistant's text reply out of an OpenRouter chat-completion response, trying a few known response shapes."""
-    candidates = [
-        row.get("choices"),
-        row.get("response", {}).get("body", {}).get("choices"),
-        row.get("body", {}).get("choices"),
-        row.get("result", {}).get("response", {}).get("body", {}).get("choices"),
-        row.get("result", {}).get("body", {}).get("choices"),
-    ]
-    for choices in candidates:
-        if not choices:
-            continue
+    """Pull the assistant's text reply out of a (reassembled) Together chat-completion response."""
+    choices = row.get("choices")
+    if choices:
         message = choices[0].get("message", {})
         content = _coerce_content(message.get("content"))
         if content:
@@ -320,31 +330,20 @@ def extract_chat_content(row: dict[str, Any]) -> str:
 
 
 def extract_usage(row: dict[str, Any]) -> dict[str, Any] | None:
-    """Pull token usage (and OpenRouter's own reported dollar cost, if present) out of a chat-completion response, trying the same nesting shapes as extract_chat_content. Returns None if no usage block is present.
+    """Pull token usage out of a (reassembled) Together chat-completion response. Returns None if no usage block is present.
 
-    OpenRouter reports the real per-request cost directly as `usage.cost` (a
-    provider-side computed number, not an estimate) -- this is preferred over
-    MODEL_PRICING_DEFAULTS-based estimation whenever it's present.
+    Together does not report a per-request dollar cost in the response
+    (unlike OpenRouter's `usage.cost`) -- cost must be computed from token
+    counts and MODEL_PRICING_DEFAULTS/--input-price-per-million.
     """
-    candidates = [
-        row.get("usage"),
-        row.get("response", {}).get("body", {}).get("usage"),
-        row.get("body", {}).get("usage"),
-        row.get("result", {}).get("response", {}).get("body", {}).get("usage"),
-        row.get("result", {}).get("body", {}).get("usage"),
-    ]
-    for usage in candidates:
-        if not usage:
-            continue
-        result: dict[str, Any] = {
-            "prompt_tokens": int(usage.get("prompt_tokens", 0)),
-            "completion_tokens": int(usage.get("completion_tokens", 0)),
-            "total_tokens": int(usage.get("total_tokens", 0)),
-        }
-        if usage.get("cost") is not None:
-            result["real_cost_usd"] = float(usage["cost"])
-        return result
-    return None
+    usage = row.get("usage")
+    if not usage:
+        return None
+    return {
+        "prompt_tokens": int(usage.get("prompt_tokens", 0)),
+        "completion_tokens": int(usage.get("completion_tokens", 0)),
+        "total_tokens": int(usage.get("total_tokens", 0)),
+    }
 
 
 def estimate_cost_usd(

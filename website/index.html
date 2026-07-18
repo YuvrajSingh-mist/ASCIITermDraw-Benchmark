@@ -44,7 +44,7 @@
         <li>Organized task categories</li>
         <li>Reproducible generators</li>
         <li>Playwright rendering</li>
-        <li>OpenRouter batch inference</li>
+        <li>Together AI batch inference</li>
         <li>Structured JSON judging</li>
       </ul>
       <div class="hero-btns pill-bar">
@@ -115,12 +115,12 @@
       <h2 class="section-title" id="heading-leaderboard">Leaderboard</h2>
       <div class="lb-disclaimer">
         <strong>No results yet on the current backend.</strong> Generation
-        moved from Fireworks to OpenRouter; scores will be each model's mean
+        runs on Together AI; scores will be each model's mean
         combined structural + semantic score across all 80 tasks (5 judge
         rounds per task), shown with a 95% confidence interval computed over
         the 80 tasks (not the judge rounds, which are repeated measurements
         of the same task rather than independent samples). Cost will be the
-        OpenRouter generation cost for the full run. See
+        Together AI generation cost for the full run. See
         <code>outputs/&lt;model&gt;/metrics.json</code> and
         <a href="https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark/blob/master/scripts/judge/compute_metrics.py"><code>scripts/judge/compute_metrics.py</code></a> for the exact
         methodology once rows are published.
@@ -173,7 +173,7 @@
         <div class="flow-step">
           <div class="flow-step-label">Step 2</div>
           <div class="flow-step-title">Model Inference</div>
-          <div class="flow-step-detail">OpenRouter chat-completions call</div>
+          <div class="flow-step-detail">Together AI chat-completions call</div>
         </div>
         <div class="flow-arrow"></div>
         <div class="flow-step">
@@ -312,7 +312,7 @@
         </p>
         <ul>
           <li><strong>Playwright PNG rendering</strong>: reference ASCII artifacts are rendered as diagram-only images for editing tasks and visual inspection; see <a href="#technical">Technical Details</a>.</li>
-          <li><strong>OpenRouter generation</strong>: model responses and rendered PNGs only; OpenRouter is not used for judging.</li>
+          <li><strong>Together AI generation</strong>: model responses and rendered PNGs only; Together is not used for judging.</li>
           <li><strong>Repeated judging</strong>: each task can be judged multiple times (default 5) with mean/stdev reported, to separate real quality differences from judge-scoring noise.</li>
           <li><strong>Repository-first organization</strong>: task directories, scripts, outputs, and website metadata are all arranged for extension and public contribution.</li>
         </ul>
@@ -376,8 +376,8 @@
 
         <h3 class="subsection-title" style="margin-top: 1.5rem;">Inference and Scoring</h3>
         <ul>
-          <li><strong>Smoke generation</strong>: synchronous shared-module OpenRouter calls for fast spot checks on a random subset of tasks.</li>
-          <li><strong>Full generation</strong>: the same synchronous OpenRouter transport, run across all tasks.</li>
+          <li><strong>Smoke generation</strong>: synchronous shared-module Together AI calls for fast spot checks on a random subset of tasks.</li>
+          <li><strong>Full generation</strong>: the same synchronous Together AI transport, run across all tasks.</li>
           <li>
             <strong>DeepEval judge</strong>: a custom <code>BaseMetric</code> against OpenAI or Anthropic, following the
             <a href="https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark/blob/master/scripts/judge/shared_judge_contract.txt">shared judge prompt</a>.
