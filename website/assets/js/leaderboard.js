@@ -178,7 +178,7 @@ function renderPerfDollarChart() {
   const card = document.getElementById("perf-dollar-chart");
   const width = 760;
   const height = 360;
-  const margin = { top: 16, right: 16, bottom: 44, left: 44 };
+  const margin = { top: 16, right: 24, bottom: 44, left: 60 };
   const plotW = width - margin.left - margin.right;
   const plotH = height - margin.top - margin.bottom;
 
@@ -211,7 +211,7 @@ function renderPerfDollarChart() {
     svg += `<text class="lb-tick-label" x="${x}" y="${height - margin.bottom + 16}" text-anchor="middle">$${t}</text>`;
   }
   svg += `<text class="lb-axis-label" x="${margin.left + plotW / 2}" y="${height - 6}" text-anchor="middle">$ per full benchmark run, generation only (log) &nbsp;&middot;&nbsp; cheaper &#8592; &#8594; more expensive</text>`;
-  svg += `<text class="lb-axis-label" transform="translate(12 ${margin.top + plotH / 2}) rotate(-90)" text-anchor="middle">${metricMeta.label} score (%)</text>`;
+  svg += `<text class="lb-axis-label" transform="translate(14 ${margin.top + plotH / 2}) rotate(-90)" text-anchor="middle">${metricMeta.label} score (%)</text>`;
 
   for (const row of LEADERBOARD_ROWS) {
     const point = row[currentChartMetric];
