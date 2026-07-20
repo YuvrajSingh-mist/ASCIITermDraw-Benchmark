@@ -25,11 +25,19 @@
 // across every outputs/<model>/**/gval/result.json): gemma-4-31b-it=7.8428,
 // qwen3.7-plus=7.8761, kimi-k2.6=7.6976, minimax-m3=7.1932,
 // qwen3.5-9b=6.6686, ternary-bonsai-27b=6.6043.
+//
+// Model sizes: dense models (gemma-4-31b-it, qwen3.5-9b, ternary-bonsai-27b)
+// are read straight off the model slug. MoE models list total/active params
+// as publicly disclosed by their maker: kimi-k2.6 (1T total, 32B active,
+// per Moonshot AI's model card) and minimax-m3 (428B total, 23B active,
+// per MiniMax's release notes). qwen3.7-plus's parameter count is not
+// publicly disclosed by Alibaba -- shown as "undisclosed" rather than guessed.
 
 const LEADERBOARD_ROWS = [
   {
     rank: "1st",
     model: "gemma-4-31b-it",
+    params: "31B",
     org: "Google (via Together AI)",
     genCost: 0.028056,
     judgeCost: 7.8428,
@@ -40,6 +48,7 @@ const LEADERBOARD_ROWS = [
   {
     rank: "2nd",
     model: "qwen3.7-plus",
+    params: "undisclosed",
     org: "Alibaba (via Together AI)",
     genCost: 0.03261824,
     judgeCost: 7.8761,
@@ -50,6 +59,7 @@ const LEADERBOARD_ROWS = [
   {
     rank: "3rd",
     model: "kimi-k2.6",
+    params: "1T / 32B active",
     org: "Moonshot AI (via Together AI)",
     genCost: 0.300311,
     judgeCost: 7.6976,
@@ -60,6 +70,7 @@ const LEADERBOARD_ROWS = [
   {
     rank: "4th",
     model: "minimax-m3",
+    params: "428B / 23B active",
     org: "MiniMax (via Together AI)",
     genCost: 0.099568,
     judgeCost: 7.1932,
@@ -70,6 +81,7 @@ const LEADERBOARD_ROWS = [
   {
     rank: "5th",
     model: "qwen3.5-9b",
+    params: "9B",
     org: "Alibaba (via Together AI)",
     genCost: 0.02788665,
     judgeCost: 6.6686,
@@ -80,6 +92,7 @@ const LEADERBOARD_ROWS = [
   {
     rank: "6th",
     model: "ternary-bonsai-27b",
+    params: "27B",
     org: "Prism-ML (via Together AI)",
     genCost: 0.0,
     judgeCost: 6.6043,
@@ -107,7 +120,10 @@ function renderTable(containerId, rows) {
         <tr>
           <th>Rank</th>
           <th>Model</th>
+          <th>Params</th>
           <th>Score (95% CI, 80 tasks)</th>
+          <th>Structural</th>
+          <th>Semantic</th>
           <th>Gen Cost</th>
           <th>Judging Cost</th>
           <th>Organization</th>
@@ -120,7 +136,10 @@ function renderTable(containerId, rows) {
               <tr class="${row.rank === "1st" ? "lb-row-rank1" : ""}">
                 <td class="lb-rank">${row.rank}</td>
                 <td>${row.model}</td>
+                <td class="lb-params">${row.params}</td>
                 <td>${row.final.score.toFixed(1)}% &plusmn; ${row.final.margin.toFixed(1)}%</td>
+                <td class="lb-score">${row.structural.score.toFixed(1)}%</td>
+                <td class="lb-score">${row.semantics.score.toFixed(1)}%</td>
                 <td>$${row.genCost.toFixed(4)}</td>
                 <td>$${row.judgeCost.toFixed(2)}</td>
                 <td>${row.org}</td>

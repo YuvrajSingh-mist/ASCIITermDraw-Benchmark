@@ -640,7 +640,14 @@ footer .footnote { font-size: 0.78rem; margin-top: 0.35rem; }
 .lb-panel { display: none; }
 .lb-panel.active { display: block; }
 
-table.lb-table { width: 100%; border-collapse: collapse; font-size: 0.93rem; }
+#mcq-table { overflow-x: auto; }
+
+table.lb-table {
+  width: 100%;
+  min-width: 1040px;
+  border-collapse: collapse;
+  font-size: 0.93rem;
+}
 
 table.lb-table th {
   text-align: left;
@@ -662,6 +669,13 @@ table.lb-table td {
 
 table.lb-table tr.lb-row-rank1 td { background: var(--bg-subtle); }
 table.lb-table td.lb-rank { font-weight: 500; color: var(--accent); width: 4rem; }
+table.lb-table td.lb-score { font-variant-numeric: tabular-nums; white-space: nowrap; }
+table.lb-table td.lb-params {
+  font-family: "SF Mono", "Fira Code", Consolas, monospace;
+  font-size: 0.82rem;
+  color: var(--text-sec);
+  white-space: nowrap;
+}
 
 .lb-chart-card {
   background: var(--bg-subtle);
