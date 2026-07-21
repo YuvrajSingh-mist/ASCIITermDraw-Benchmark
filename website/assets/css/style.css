@@ -612,6 +612,40 @@ footer .footnote { font-size: 0.78rem; margin-top: 0.35rem; }
   white-space: normal;
 }
 
+.lb-mode-filter {
+  display: inline-flex;
+  gap: 0.3rem;
+  padding: 0.3rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.lb-mode-btn {
+  font-family: "Crimson Pro", Georgia, serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  padding: 0.4rem 1rem;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  color: var(--text-sec);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.lb-mode-btn:hover { color: var(--text); }
+.lb-mode-btn.active { background: var(--accent); color: #fff; }
+.lb-mode-btn .lb-mode-count {
+  font-size: 0.72rem;
+  opacity: 0.75;
+  font-variant-numeric: tabular-nums;
+}
+
 .lb-tabs {
   display: inline-flex;
   gap: 0.3rem;
@@ -772,4 +806,6 @@ table.lb-table td.lb-params {
   .docs-list li { display: block; }
   .lb-tabs { width: 100%; }
   .lb-tab { flex: 1; text-align: center; }
+  .lb-mode-filter { width: 100%; }
+  .lb-mode-btn { flex: 1; justify-content: center; }
 }

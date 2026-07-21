@@ -94,10 +94,24 @@ ANTHROPIC_API_KEY=...</code></pre>
     <div class="container">
       <h2 class="section-title" id="heading-batch">Full Generation</h2>
       <div class="prose">
-        <p>Run the full benchmark via Together AI's synchronous chat-completions transport (one request per task). Category 3 tasks automatically attach source images.</p>
+        <p>Run the full benchmark via Together AI's synchronous chat-completions transport (one request per task). Category 3 (diagram-editing) tasks are text-only by default, using <code>prompt_text_models.txt</code> with the source ASCII diagram embedded inline.</p>
       </div>
       <pre><code class="language-bash">uv run run-model \
   --model Qwen/Qwen3.7-Plus \
+  --tasks tasks \
+  --outputs outputs/your-run \
+  --reasoning-effort none \
+  --network-retries 5</code></pre>
+      <div class="prose">
+        <p>
+          For a vision-capable model, add <code>--vlm</code> to instead send category 3 tasks
+          as multimodal requests with <code>source.png</code> attached as an image (works with
+          either <code>--backend together</code> or <code>--backend ollama</code>):
+        </p>
+      </div>
+      <pre><code class="language-bash">uv run run-model \
+  --model Qwen/Qwen3.7-Plus \
+  --vlm \
   --tasks tasks \
   --outputs outputs/your-run \
   --reasoning-effort none \

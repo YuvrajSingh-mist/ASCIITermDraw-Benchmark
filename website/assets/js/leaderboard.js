@@ -32,13 +32,52 @@
 // per Moonshot AI's model card) and minimax-m3 (428B total, 23B active,
 // per MiniMax's release notes). qwen3.7-plus's parameter count is not
 // publicly disclosed by Alibaba -- shown as "undisclosed" rather than guessed.
+//
+// Second batch (2026-07-22), all run with the text-only default (no --vlm),
+// so category 3 sends prompt_text_models.txt (source.ascii inline) instead
+// of source.png -- mode: "text". Per model, 80 tasks, num_judgments=5:
+//   glm-5.2:             final=0.7060 ci95=[0.6559,0.7562] -> 70.6% +/- 5.0%
+//     structural=0.8048+/-0.2740  semantics=0.6072+/-0.2257
+//   deepseek-v4-pro:      final=0.6798 ci95=[0.6330,0.7266] -> 68.0% +/- 4.7%
+//     structural=0.7719+/-0.2764  semantics=0.5878+/-0.2011
+//   kimi-k2.7-code:       final=0.6158 ci95=[0.5459,0.6857] -> 61.6% +/- 7.0%
+//     structural=0.6994+/-0.3782  semantics=0.5323+/-0.3078
+//   nemotron-3-ultra-550b-a55b: final=0.5738 ci95=[0.5055,0.6422] -> 57.4% +/- 6.8%
+//     structural=0.6425+/-0.3737  semantics=0.5052+/-0.2886
+//   qwen3.7-max:          final=0.7724 ci95=[0.7321,0.8126] -> 77.2% +/- 4.0%
+//     structural=0.8652+/-0.2212  semantics=0.6795+/-0.2002
+// generation_cost_usd (Together AI list pricing x actual generation tokens,
+// all 80 tasks): glm-5.2=0.1258, deepseek-v4-pro=0.1258,
+// kimi-k2.7-code=0.3776, nemotron-3-ultra-550b-a55b=0.2333,
+// qwen3.7-max=0.0969.
+// Total judging cost (OpenAI gpt-5.4, 5 rounds x 80 tasks, summed cost_usd
+// across every output/text/<model>/**/gval/result.json): glm-5.2=7.8621,
+// deepseek-v4-pro=7.7517, kimi-k2.7-code=7.1285,
+// nemotron-3-ultra-550b-a55b=7.1765, qwen3.7-max=7.8584.
+// Params: nemotron-3-ultra-550b-a55b's total/active counts are read straight
+// off the model slug (550B total, 55B active), matching the MoE convention
+// above. glm-5.2, deepseek-v4-pro, and kimi-k2.7-code have no confirmed
+// public parameter count at time of writing -- shown as "undisclosed".
+// qwen3.7-max follows qwen3.7-plus's convention (also "undisclosed" --
+// Alibaba hasn't published a count for either).
+// qwen3.7-max is the highest scorer of any model on the leaderboard so far
+// (77.2% final), text-only, no --vlm.
+// A fifth model originally tried in this batch (thinkingmachines/Inkling)
+// was dropped: it ignores reasoning_effort=none and burns its entire
+// --max-tokens budget on hidden reasoning, returning empty diagrams.
+// qwen3.7-max was generated as its replacement.
 
+// `mode` marks how each model's category-3 (diagram-editing) requests were
+// generated: "vision" = source.png attached as an image (the only path that
+// existed when these six were run, and now opt-in via `run-model --vlm`);
+// "text" = source.ascii embedded inline in the prompt (the current default,
+// no --vlm). Every other category is text-only either way.
 const LEADERBOARD_ROWS = [
   {
-    rank: "1st",
     model: "gemma-4-31b-it",
     params: "31B",
     org: "Google (via Together AI)",
+    mode: "vision",
     genCost: 0.028056,
     judgeCost: 7.8428,
     final: { score: 73.8, margin: 4.1 },
@@ -46,10 +85,10 @@ const LEADERBOARD_ROWS = [
     semantics: { score: 63.4, margin: 17.2 },
   },
   {
-    rank: "2nd",
     model: "qwen3.7-plus",
     params: "undisclosed",
     org: "Alibaba (via Together AI)",
+    mode: "vision",
     genCost: 0.03261824,
     judgeCost: 7.8761,
     final: { score: 70.2, margin: 4.6 },
@@ -57,10 +96,10 @@ const LEADERBOARD_ROWS = [
     semantics: { score: 60.1, margin: 20.3 },
   },
   {
-    rank: "3rd",
     model: "kimi-k2.6",
     params: "1T / 32B active",
     org: "Moonshot AI (via Together AI)",
+    mode: "vision",
     genCost: 0.300311,
     judgeCost: 7.6976,
     final: { score: 61.8, margin: 6.0 },
@@ -68,10 +107,10 @@ const LEADERBOARD_ROWS = [
     semantics: { score: 53.5, margin: 25.5 },
   },
   {
-    rank: "4th",
     model: "minimax-m3",
     params: "428B / 23B active",
     org: "MiniMax (via Together AI)",
+    mode: "vision",
     genCost: 0.099568,
     judgeCost: 7.1932,
     final: { score: 59.5, margin: 6.3 },
@@ -79,10 +118,10 @@ const LEADERBOARD_ROWS = [
     semantics: { score: 49.6, margin: 25.8 },
   },
   {
-    rank: "5th",
     model: "qwen3.5-9b",
     params: "9B",
     org: "Alibaba (via Together AI)",
+    mode: "vision",
     genCost: 0.02788665,
     judgeCost: 6.6686,
     final: { score: 47.0, margin: 6.4 },
@@ -90,17 +129,132 @@ const LEADERBOARD_ROWS = [
     semantics: { score: 38.8, margin: 25.1 },
   },
   {
-    rank: "6th",
     model: "ternary-bonsai-27b",
     params: "27B",
     org: "Prism-ML (via Together AI)",
+    mode: "vision",
     genCost: 0.0,
     judgeCost: 6.6043,
     final: { score: 45.9, margin: 7.1 },
     structural: { score: 51.9, margin: 38.7 },
     semantics: { score: 39.9, margin: 28.0 },
   },
+  {
+    model: "glm-5.2",
+    params: "undisclosed",
+    org: "Z.ai (via Together AI)",
+    mode: "text",
+    genCost: 0.1258,
+    judgeCost: 7.8621,
+    final: { score: 70.6, margin: 5.0 },
+    structural: { score: 80.5, margin: 27.4 },
+    semantics: { score: 60.7, margin: 22.6 },
+  },
+  {
+    model: "deepseek-v4-pro",
+    params: "undisclosed",
+    org: "DeepSeek (via Together AI)",
+    mode: "text",
+    genCost: 0.1258,
+    judgeCost: 7.7517,
+    final: { score: 68.0, margin: 4.7 },
+    structural: { score: 77.2, margin: 27.6 },
+    semantics: { score: 58.8, margin: 20.1 },
+  },
+  {
+    model: "kimi-k2.7-code",
+    params: "undisclosed",
+    org: "Moonshot AI (via Together AI)",
+    mode: "text",
+    genCost: 0.3776,
+    judgeCost: 7.1285,
+    final: { score: 61.6, margin: 7.0 },
+    structural: { score: 69.9, margin: 37.8 },
+    semantics: { score: 53.2, margin: 30.8 },
+  },
+  {
+    model: "nemotron-3-ultra-550b-a55b",
+    params: "550B / 55B active",
+    org: "NVIDIA (via Together AI)",
+    mode: "text",
+    genCost: 0.2333,
+    judgeCost: 7.1765,
+    final: { score: 57.4, margin: 6.8 },
+    structural: { score: 64.3, margin: 37.4 },
+    semantics: { score: 50.5, margin: 28.9 },
+  },
+  {
+    model: "qwen3.7-max",
+    params: "undisclosed",
+    org: "Alibaba (via Together AI)",
+    mode: "text",
+    genCost: 0.0969,
+    judgeCost: 7.8584,
+    final: { score: 77.2, margin: 4.0 },
+    structural: { score: 86.5, margin: 22.1 },
+    semantics: { score: 68.0, margin: 20.0 },
+  },
 ];
+
+const MODE_FILTERS = {
+  all: { label: "All" },
+  vision: { label: "Vision" },
+  text: { label: "Text-only" },
+};
+
+let currentModeFilter = "all";
+
+function ordinal(n) {
+  const rem100 = n % 100;
+  if (rem100 >= 11 && rem100 <= 13) return `${n}th`;
+  switch (n % 10) {
+    case 1:
+      return `${n}st`;
+    case 2:
+      return `${n}nd`;
+    case 3:
+      return `${n}rd`;
+    default:
+      return `${n}th`;
+  }
+}
+
+// Rows are always displayed sorted by final score, so rank is derived from
+// the current (possibly filtered) set rather than stored statically --
+// filtering to "text" shouldn't leave a lone row stuck showing "4th".
+function rankedRows(rows) {
+  return [...rows]
+    .sort((a, b) => b.final.score - a.final.score)
+    .map((row, index) => ({ ...row, rank: ordinal(index + 1) }));
+}
+
+function getFilteredRows() {
+  if (currentModeFilter === "all") return LEADERBOARD_ROWS;
+  return LEADERBOARD_ROWS.filter((row) => row.mode === currentModeFilter);
+}
+
+function renderModeFilter() {
+  const root = document.getElementById("lb-mode-filter");
+  if (!root) return;
+  root.innerHTML = Object.entries(MODE_FILTERS)
+    .map(([key, meta]) => {
+      const count = key === "all" ? LEADERBOARD_ROWS.length : LEADERBOARD_ROWS.filter((r) => r.mode === key).length;
+      return `
+        <button class="lb-mode-btn${key === currentModeFilter ? " active" : ""}" data-mode="${key}" role="tab" aria-selected="${key === currentModeFilter}">
+          ${meta.label}
+          <span class="lb-mode-count">${count}</span>
+        </button>
+      `;
+    })
+    .join("");
+  for (const btn of root.querySelectorAll(".lb-mode-btn")) {
+    btn.addEventListener("click", () => {
+      if (btn.dataset.mode === currentModeFilter) return;
+      currentModeFilter = btn.dataset.mode;
+      renderLeaderboard();
+    });
+  }
+}
 
 const METRICS = {
   final: { label: "Final", statLabel: "mean, 95% CI" },
@@ -232,7 +386,7 @@ function renderPerfDollarChart() {
   svg += `<text class="lb-axis-label" x="${margin.left + plotW / 2}" y="${height - 6}" text-anchor="middle">$ per full benchmark run, generation only (log) &nbsp;&middot;&nbsp; cheaper &#8592; &#8594; more expensive</text>`;
   svg += `<text class="lb-axis-label" transform="translate(14 ${margin.top + plotH / 2}) rotate(-90)" text-anchor="middle">${metricMeta.label} score (%)</text>`;
 
-  for (const row of LEADERBOARD_ROWS) {
+  for (const row of getFilteredRows()) {
     const point = row[currentChartMetric];
     const cx = xScale(row.genCost);
     const cy = yScale(point.score);
@@ -283,6 +437,11 @@ function attachTabs() {
   }
 }
 
-renderTable("mcq-table", LEADERBOARD_ROWS);
-renderPerfDollarChart();
+function renderLeaderboard() {
+  renderModeFilter();
+  renderTable("mcq-table", rankedRows(getFilteredRows()));
+  renderPerfDollarChart();
+}
+
+renderLeaderboard();
 attachTabs();
