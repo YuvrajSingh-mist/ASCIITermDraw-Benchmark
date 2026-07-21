@@ -12,6 +12,7 @@ outputs/*
 results*.csv
 node_modules/
 outputs/
+output/
 tasks/
 public_dataset/
 scripts/benchmark/

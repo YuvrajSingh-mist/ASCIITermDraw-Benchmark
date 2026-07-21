@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """
 Full-run ASCII diagram generation for TermDraw-Bench tasks (the `run-model`
-console script), via Together AI's synchronous chat-completions API.
+console script), via provider modules in `scripts.backends`.
 
-Category 3 tasks are sent as multimodal requests using `source.png`.
-All other categories are sent as text-only chat completion requests.
+By default, category 3 (edit) tasks embed `source.ascii` directly in the
+prompt so every generation backend receives a text-only chat completion
+request. Pass `--vlm` to instead send category 3 tasks as multimodal
+requests with `source.png` attached as an image, for backends/models that
+support vision input.
 `smoke_generate.py` reuses `SYSTEM_PROMPT`, `build_user_content`,
 `select_task_dirs`, and `write_output_and_render_png` from this module.
 """
@@ -18,7 +21,7 @@ import random
 from pathlib import Path
 from typing import Any
 
-from scripts.lib.together_api import (
+from scripts.backends.together import (
     chat_completion_with_retries,
     estimate_cost_usd,
     extract_chat_content,
@@ -27,6 +30,7 @@ from scripts.lib.together_api import (
     require_env,
     task_output_dir,
 )
+from scripts.backends.ollama import chat_completion_with_retries as ollama_chat_completion
 from scripts.rendered.render import render as render_ascii_file_to_png
 
 
@@ -61,44 +65,54 @@ def encode_image_data_url(image_path: Path) -> str:
     return f"data:{mime_type};base64,{encoded}"
 
 
-def build_user_content(task_id: str, task_dir: Path) -> str | list[dict[str, Any]]:
-    """Build the user message for a task: plain prompt text, or (for category 3 edits) prompt text plus the attached source.png."""
+def build_user_content(task_id: str, task_dir: Path, vlm: bool = False) -> str | list[dict[str, Any]]:
+    """Build the user message for a task.
+
+    By default (vlm=False) this is always text-only: category 3 (edit) tasks
+    use the pre-baked `prompt_text_models.txt`, which embeds `source.ascii`
+    inline, and everything else uses `prompt.txt`. With vlm=True, category 3
+    tasks instead use `prompt.txt` plus the attached `source.png` as an
+    image block, for models/backends that support vision input.
+    """
     category = task_id.split(".", 1)[0]
-    prompt_text = (task_dir / "prompt.txt").read_text().strip()
-    sections: list[str] = []
-    if category == "3":
-        sections.append(
+
+    if vlm and category == "3":
+        prompt_text = (task_dir / "prompt.txt").read_text().strip()
+        sections = [
             "The source diagram is attached as an image. "
-            "Apply the requested edit and return only the final ASCII diagram."
-        )
-    sections.append("Task:\n" + prompt_text)
-    sections.append("Output only the final ASCII diagram.")
-    prompt = "\n\n".join(sections)
+            "Apply the requested edit and return only the final ASCII diagram.",
+            "Task:\n" + prompt_text,
+            "Output only the final ASCII diagram.",
+        ]
+        prompt = "\n\n".join(sections)
+        source_png = task_dir / "source.png"
+        if not source_png.exists():
+            raise RuntimeError(
+                f"Category 3 task {task_id} is missing {source_png}. "
+                "Render PNG assets before running model inference."
+            )
+        return [
+            {"type": "text", "text": prompt},
+            {
+                "type": "image_url",
+                "image_url": {"url": encode_image_data_url(source_png)},
+            },
+        ]
 
-    if category != "3":
-        return prompt
-
-    source_png = task_dir / "source.png"
-    if not source_png.exists():
-        raise RuntimeError(
-            f"Category 3 task {task_id} is missing {source_png}. "
-            "Render PNG assets before running model inference."
-        )
-    return [
-        {"type": "text", "text": prompt},
-        {
-            "type": "image_url",
-            "image_url": {"url": encode_image_data_url(source_png)},
-        },
-    ]
+    prompt_name = "prompt_text_models.txt" if category == "3" else "prompt.txt"
+    prompt_path = task_dir / prompt_name
+    if not prompt_path.exists():
+        raise RuntimeError(f"Task {task_id} is missing {prompt_path}.")
+    prompt_text = prompt_path.read_text().strip()
+    return f"Task:\n{prompt_text}\n\nOutput only the final ASCII diagram."
 
 
 def build_readable_final_prompt(system_prompt: str, user_content: str | list[dict[str, Any]]) -> str:
     """Build a human-readable stand-in for the generation request, for saving to ground_truth/final_prompt.txt.
 
     The real API call still sends user_content as-is (with the real inline
-    base64 image for category 3 tasks); this just avoids dumping that raw
-    base64 data URL into the saved record via json.dumps.
+    base64 image for VLM-mode category 3 tasks); this just avoids dumping
+    that raw base64 data URL into the saved record.
     """
     if isinstance(user_content, list):
         parts: list[str] = []
@@ -141,7 +155,14 @@ def select_task_dirs(
     return task_dirs
 
 
-def write_output_and_render_png(outputs_dir: Path, task_dir: Path, text: str, final_prompt: str = "") -> tuple[Path, Path]:
+def write_output_and_render_png(
+    outputs_dir: Path,
+    task_dir: Path,
+    text: str,
+    final_prompt: str = "",
+    *,
+    render_png: bool = True,
+) -> tuple[Path, Path]:
     """Write a task's generated ASCII text under outputs_dir (mirroring the tasks/ layout), render it to a PNG alongside it, and set up gval/ + ground_truth/ for judging.
 
     Rendering failures (e.g. a runaway/degenerate generation too large for
@@ -156,14 +177,15 @@ def write_output_and_render_png(outputs_dir: Path, task_dir: Path, text: str, fi
     output_path = target_dir / f"{task_dir.name}.txt"
     png_path = target_dir / f"{task_dir.name}.png"
     output_path.write_text(text.strip() + "\n")
-    try:
-        render_ascii_file_to_png(output_path, png_path)
-    except Exception as exc:
-        line_count = text.count("\n") + 1
-        print(
-            f"WARNING: failed to render PNG for {task_dir.name} "
-            f"({line_count} lines, {len(text)} chars — likely a degenerate/runaway generation): {exc}"
-        )
+    if render_png:
+        try:
+            render_ascii_file_to_png(output_path, png_path)
+        except Exception as exc:
+            line_count = text.count("\n") + 1
+            print(
+                f"WARNING: failed to render PNG for {task_dir.name} "
+                f"({line_count} lines, {len(text)} chars — likely a degenerate/runaway generation): {exc}"
+            )
 
     # ground_truth/  — reference files for the judge (per-task)
     gt_dir = target_dir / "ground_truth"
@@ -199,21 +221,31 @@ def run(
     input_price_per_million: float | None = None,
     output_price_per_million: float | None = None,
     generation_seed: int | None = None,
+    backend: str = "together",
+    ollama_host: str = "http://127.0.0.1:11434",
+    render_png: bool = True,
+    vlm: bool = False,
 ) -> None:
     """Generate ASCII diagrams for the selected tasks and write outputs + a manifest.json."""
     # Together model slugs are mixed-case (e.g. "Qwen/Qwen3.7-Plus"); lowercase
     # the short name for both the outputs directory and pricing lookup so
     # naming stays consistent regardless of the provider's own casing.
     model_short_name = model_name.rstrip("/").rsplit("/", 1)[-1].lower()
+    if backend == "ollama":
+        model_short_name = model_short_name.replace(":", "-")
     outputs = Path(outputs_dir) / model_short_name
     outputs.mkdir(parents=True, exist_ok=True)
 
-    if input_price_per_million is None and output_price_per_million is None:
+    if (
+        backend == "together"
+        and input_price_per_million is None
+        and output_price_per_million is None
+    ):
         input_price_per_million, output_price_per_million = MODEL_PRICING_DEFAULTS.get(
             model_short_name, (None, None)
         )
 
-    api_key = require_env("TOGETHER_API_KEY")
+    api_key = require_env("TOGETHER_API_KEY") if backend == "together" else None
     tasks = Path(tasks_dir)
 
     selected_task_dirs = select_task_dirs(
@@ -232,6 +264,10 @@ def run(
 
     manifest = {
         "model": model_name,
+        "backend": backend,
+        "ollama_host": ollama_host if backend == "ollama" else None,
+        "render_png": render_png,
+        "vlm": vlm,
         "reasoning_effort": reasoning_effort,
         "network_retries": network_retries,
         "temperature": temperature,
@@ -249,33 +285,52 @@ def run(
     cost_known = input_price_per_million is not None and output_price_per_million is not None
     for task_dir in selected_task_dirs:
         task_id = task_dir.name
-        user_content = build_user_content(task_id, task_dir)
-        response = chat_completion_with_retries(
-            api_key,
-            model=model_name,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_content},
-            ],
-            temperature=temperature,
-            max_tokens=max_tokens,
-            top_p=top_p,
-            seed=generation_seed,
-            reasoning_effort=reasoning_effort,
-            network_retries=network_retries,
-            request_label=f"generation {task_id}",
-        )
+        user_content = build_user_content(task_id, task_dir, vlm=vlm)
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_content},
+        ]
+        if backend == "ollama":
+            response = ollama_chat_completion(
+                host=ollama_host,
+                model=model_name,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                top_p=top_p,
+                seed=generation_seed,
+                reasoning_effort=reasoning_effort,
+                network_retries=network_retries,
+                request_label=f"generation {task_id}",
+            )
+        else:
+            response = chat_completion_with_retries(
+                api_key or "",
+                model=model_name,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                top_p=top_p,
+                seed=generation_seed,
+                reasoning_effort=reasoning_effort,
+                network_retries=network_retries,
+                request_label=f"generation {task_id}",
+            )
         text = extract_chat_content(response)
         usage = extract_usage(response)
         final_prompt = build_readable_final_prompt(system_prompt, user_content)
-        output_path, png_path = write_output_and_render_png(outputs, task_dir, text, final_prompt)
+        output_path, png_path = write_output_and_render_png(
+            outputs, task_dir, text, final_prompt, render_png=render_png
+        )
         written += 1
 
         result: dict[str, Any] = {
             "task_id": task_id,
             "output_file": str(output_path),
             "png_file": str(png_path),
-            "transport": "together-chat-completions",
+            "transport": "ollama-native-chat"
+            if backend == "ollama"
+            else "together-chat-completions",
         }
         cost_note = ""
         if usage is not None:
@@ -297,6 +352,8 @@ def run(
                 total_cost_usd += task_cost
                 cost_known = True
                 cost_note = f", cost=${task_cost:.4f}"
+        if backend == "ollama" and response.get("ollama"):
+            result["ollama"] = response["ollama"]
         manifest["results"].append(result)
         print(f"Done: {task_id}{cost_note}")
 
@@ -313,7 +370,25 @@ def run(
 def main() -> None:
     """CLI entrypoint for `run-model`: parse args and run generation."""
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", required=True, help="Together AI model slug, e.g. Qwen/Qwen3.7-Plus")
+    parser.add_argument("--model", required=True, help="Provider model name, e.g. Qwen/Qwen3.7-Plus or qwen3-vl:8b")
+    parser.add_argument(
+        "--backend",
+        choices=("together", "ollama"),
+        default="together",
+    )
+    parser.add_argument("--ollama-host", default="http://127.0.0.1:11434")
+    parser.add_argument(
+        "--vlm",
+        action="store_true",
+        help="Send category-3 (edit) tasks as multimodal requests with source.png attached, "
+        "instead of the default text-only prompt_text_models.txt variant. Requires a "
+        "vision-capable model.",
+    )
+    parser.add_argument(
+        "--skip-render",
+        action="store_true",
+        help="Write ASCII and manifests without PNG rendering (useful on a headless inference host).",
+    )
     parser.add_argument("--tasks", default="tasks")
     parser.add_argument("--outputs", required=True)
     parser.add_argument(
@@ -388,6 +463,10 @@ def main() -> None:
         args.input_price_per_million,
         args.output_price_per_million,
         args.generation_seed,
+        args.backend,
+        args.ollama_host,
+        not args.skip_render,
+        args.vlm,
     )
 
 

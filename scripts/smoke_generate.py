@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Quick synchronous Together AI smoke test against a sample of TermDraw-Bench
+Quick synchronous Together AI or Ollama smoke test against a sample of TermDraw-Bench
 tasks (the `smoke` console script) — useful for a fast sanity check before a
 full `run-model` run. Shares prompt construction and output layout with
 `scripts/run_model.py`; reasoning is disabled by default.
@@ -11,11 +11,12 @@ import argparse
 import json
 from pathlib import Path
 
-from scripts.lib.together_api import (
+from scripts.backends.together import (
     chat_completion_with_retries,
     extract_chat_content,
     require_env,
 )
+from scripts.backends.ollama import chat_completion_with_retries as ollama_chat_completion
 from scripts.run_model import (
     SYSTEM_PROMPT,
     build_readable_final_prompt,
@@ -38,12 +39,18 @@ def run(
     top_p: float | None,
     reasoning_effort: str,
     network_retries: int,
+    backend: str = "together",
+    ollama_host: str = "http://127.0.0.1:11434",
+    vlm: bool = False,
 ) -> None:
     """Generate ASCII diagrams for a sample of tasks, print each result, and write outputs + a manifest.json."""
-    outputs = Path(outputs_dir) / model.rstrip("/").rsplit("/", 1)[-1].lower()
+    model_short_name = model.rstrip("/").rsplit("/", 1)[-1].lower()
+    if backend == "ollama":
+        model_short_name = model_short_name.replace(":", "-")
+    outputs = Path(outputs_dir) / model_short_name
     outputs.mkdir(parents=True, exist_ok=True)
 
-    api_key = require_env("TOGETHER_API_KEY")
+    api_key = require_env("TOGETHER_API_KEY") if backend == "together" else None
     tasks = Path(tasks_dir)
 
     selected_task_dirs = select_task_dirs(
@@ -62,6 +69,9 @@ def run(
 
     manifest = {
         "model": model,
+        "backend": backend,
+        "ollama_host": ollama_host if backend == "ollama" else None,
+        "vlm": vlm,
         "reasoning_effort": reasoning_effort,
         "network_retries": network_retries,
         "tasks": [task_dir.name for task_dir in selected_task_dirs],
@@ -70,21 +80,35 @@ def run(
 
     for task_dir in selected_task_dirs:
         task_id = task_dir.name
-        user_content = build_user_content(task_id, task_dir)
-        response = chat_completion_with_retries(
-            api_key,
-            model=model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_content},
-            ],
-            temperature=temperature,
-            max_tokens=max_tokens,
-            top_p=top_p,
-            reasoning_effort=reasoning_effort,
-            network_retries=network_retries,
-            request_label=f"smoke test {task_id}",
-        )
+        user_content = build_user_content(task_id, task_dir, vlm=vlm)
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_content},
+        ]
+        if backend == "ollama":
+            response = ollama_chat_completion(
+                host=ollama_host,
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                top_p=top_p,
+                reasoning_effort=reasoning_effort,
+                network_retries=network_retries,
+                request_label=f"smoke test {task_id}",
+            )
+        else:
+            response = chat_completion_with_retries(
+                api_key or "",
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                top_p=top_p,
+                reasoning_effort=reasoning_effort,
+                network_retries=network_retries,
+                request_label=f"smoke test {task_id}",
+            )
         text = extract_chat_content(response)
         final_prompt = build_readable_final_prompt(system_prompt, user_content)
 
@@ -100,7 +124,9 @@ def run(
                 "output_file": str(output_path),
                 "png_file": str(png_path),
                 "preview": preview,
-                "transport": "together-chat-completions",
+                "transport": "ollama-native-chat"
+                if backend == "ollama"
+                else "together-chat-completions",
             }
         )
 
@@ -111,7 +137,20 @@ def run(
 def main() -> None:
     """CLI entrypoint for `smoke`: parse args and run a sampled generation pass."""
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", required=True, help="Together AI model slug, e.g. Qwen/Qwen3.7-Plus")
+    parser.add_argument("--model", required=True, help="Provider model name, e.g. Qwen/Qwen3.7-Plus or qwen3-vl:8b")
+    parser.add_argument(
+        "--backend",
+        choices=("together", "ollama"),
+        default="together",
+    )
+    parser.add_argument("--ollama-host", default="http://127.0.0.1:11434")
+    parser.add_argument(
+        "--vlm",
+        action="store_true",
+        help="Send category-3 (edit) tasks as multimodal requests with source.png attached, "
+        "instead of the default text-only prompt_text_models.txt variant. Requires a "
+        "vision-capable model.",
+    )
     parser.add_argument("--tasks", default="tasks")
     parser.add_argument("--outputs", required=True)
     parser.add_argument("--task-ids", help="Comma-separated task ids, for example 1.4,2.6,4.3")
@@ -148,6 +187,9 @@ def main() -> None:
         top_p=args.top_p or None,
         reasoning_effort=args.reasoning_effort,
         network_retries=args.network_retries,
+        backend=args.backend,
+        ollama_host=args.ollama_host,
+        vlm=args.vlm,
     )
 
 

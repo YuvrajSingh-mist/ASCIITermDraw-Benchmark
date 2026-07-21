@@ -13,7 +13,7 @@ import json
 import statistics
 from pathlib import Path
 
-from scripts.lib.together_api import iter_task_dirs, task_output_dir
+from scripts.backends.together import iter_task_dirs, task_output_dir
 from scripts.judge.geval_metrics import build_metric_classes, build_test_case
 from scripts.judge.geval_support import (
     MODEL_PRICING_DEFAULTS,

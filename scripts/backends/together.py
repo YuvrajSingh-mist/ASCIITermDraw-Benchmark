@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Together AI synchronous chat-completions transport, .env loading, and tasks/ directory helpers shared across the generation and judging scripts."""
+"""Together AI synchronous chat-completions backend and shared runner helpers."""
 from __future__ import annotations
 
 import json

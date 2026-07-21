@@ -9,7 +9,7 @@ It ships as a normal GitHub-style repository with:
 - `12` public example tasks (same format, fully runnable, safe to look at)
   published on [Hugging Face](https://huggingface.co/datasets/YuvrajSingh9886/asciitermdraw-bench-public)
   rather than bundled in this repository
-- Together AI-based generation (model responses and rendered PNGs only;
+- Together AI, Ollama, or local-runtime generation (model responses and rendered PNGs only;
   Together is not used for judging)
 - a DeepEval `BaseMetric` judge against OpenAI/Anthropic, the only scoring
   path (`geval_*` scores); there is no separate deterministic/text-heuristic
@@ -92,7 +92,9 @@ Each task directory contains:
 - `assertions.json`
 - `vlm_judge_prompt.txt`
 
-Category 3 (editing) tasks also contain `source.ascii` and `source.png`.
+Category 3 (editing) tasks also contain `source.ascii`, `source.png`, and
+`prompt_text_models.txt`. The latter preserves the complete original prompt
+while embedding `source.ascii` for text-only generation.
 
 Within each category, tasks are organized by difficulty: `easy/`, `medium/`,
 `hard/`. In the private set, difficulty buckets map to task-id ranges
@@ -111,7 +113,7 @@ uses one task per bucket (`0.1`–`0.12`).
 ├── scripts/
 │   ├── judge/          # DeepEval BaseMetric judge (judge-geval)
 │   ├── rendered/       # ASCII -> PNG renderer
-│   ├── lib/            # shared helpers
+│   ├── backends/       # provider-specific generation transports
 │   ├── run_model.py
 │   └── smoke_generate.py
 ├── website/             # static site; see Website section below
@@ -135,9 +137,45 @@ uv run run-model \
   --network-retries 5
 ```
 
-Category 3 (`diagram-editing`) requests attach `source.png` as multimodal
-image input; other categories are text-only. Reasoning is disabled by
-default (`reasoning_effort=none`), sent explicitly as
+For local or remote Ollama inference, pull a chat model and select the Ollama
+backend. By default all categories use text-only prompts, including
+diagram-editing tasks:
+
+```bash
+ollama pull qwen3-vl:8b
+uv run run-model \
+  --backend ollama \
+  --ollama-host http://127.0.0.1:11434 \
+  --model qwen3-vl:8b \
+  --tasks tasks/ \
+  --outputs outputs/
+```
+
+On a headless inference machine, add `--skip-render` and render the copied
+outputs later on a machine with Node, Playwright, and Chromium installed.
+
+Generation transports are isolated under `scripts/backends/`. The runner
+currently includes Together and native Ollama, so provider-specific request
+formats stay out of the benchmark and judging code.
+
+Category 3 (`diagram-editing`) requests use `prompt_text_models.txt` by
+default, which contains both the source ASCII diagram and the complete
+instructions from the original `prompt.txt`, so all generation requests are
+text-only. For a vision-capable model, pass `--vlm` to instead send category 3
+tasks as multimodal requests with `source.png` attached and the original
+`prompt.txt` as the instruction text — works with either backend:
+
+```bash
+uv run run-model \
+  --model Qwen/Qwen3.7-Plus \
+  --vlm \
+  --tasks tasks/ \
+  --outputs outputs/
+```
+
+The original prompt and PNG assets remain available for the image-conditioned
+task format, rendering, and semantic judging regardless of `--vlm`. Reasoning is disabled by default
+(`reasoning_effort=none`), sent explicitly as
 `{"reasoning": {"enabled": false}}`, since these are hybrid-reasoning models
 that reason by default even with no `reasoning` field at all. Every request
 is sent with `stream: true` and reassembled into a normal response, since
@@ -225,4 +263,3 @@ built-in pricing defaults; for other judge models pass
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for repository conventions and contribution guidance.
 the `Deploy Website` workflow manually.
-
