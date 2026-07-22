@@ -397,9 +397,17 @@ function makeTooltip(card) {
 
 function showTooltip(tooltip, x, y, html) {
   tooltip.innerHTML = html;
-  tooltip.style.left = `${x}px`;
   tooltip.style.top = `${y}px`;
   tooltip.classList.add("active");
+
+  const containerWidth = tooltip.parentElement.clientWidth;
+  const halfWidth = tooltip.offsetWidth / 2;
+  const edgePadding = 8;
+  const minX = halfWidth + edgePadding;
+  const maxX = containerWidth - halfWidth - edgePadding;
+  const clampedX = minX > maxX ? containerWidth / 2 : Math.max(minX, Math.min(maxX, x));
+  tooltip.style.left = `${clampedX}px`;
+  tooltip.classList.toggle("below", y - tooltip.offsetHeight - 10 < edgePadding);
 }
 
 function hideTooltip(tooltip) {
