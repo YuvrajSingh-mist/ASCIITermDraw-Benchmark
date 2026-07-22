@@ -15,7 +15,12 @@
 
 <nav aria-label="Main navigation">
   <span class="nav-title">ASCIITermDraw-Bench</span>
-  <div class="nav-links">
+  <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation" aria-label="Open navigation menu">
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+  </button>
+  <div class="nav-links" id="primary-navigation">
     <a href="../index.html">Overview</a>
     <a href="./tasks.html">Tasks</a>
     <a href="./quickstart.html">Quick Start</a>
@@ -72,6 +77,7 @@
   </div>
 </footer>
 
+<script src="../assets/js/nav.js"></script>
 <script src="../assets/js/app.js"></script>
 
 <script>
