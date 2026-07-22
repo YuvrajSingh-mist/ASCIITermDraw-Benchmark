@@ -612,13 +612,21 @@ footer .footnote { font-size: 0.78rem; margin-top: 0.35rem; }
   white-space: normal;
 }
 
+.lb-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.75rem;
+}
+
 .lb-mode-filter {
   display: inline-flex;
   gap: 0.3rem;
   padding: 0.3rem;
   border: 1px solid var(--border);
   border-radius: 999px;
-  margin-bottom: 1rem;
   flex-wrap: wrap;
 }
 
@@ -652,7 +660,6 @@ footer .footnote { font-size: 0.78rem; margin-top: 0.35rem; }
   padding: 0.3rem;
   border: 1px solid var(--border);
   border-radius: 3px;
-  margin-bottom: 1.75rem;
   flex-wrap: wrap;
 }
 
@@ -804,6 +811,7 @@ table.lb-table td.lb-params {
   .hero { padding: 4.25rem 0 3.5rem; }
   .hero h1 { font-size: 2.65rem; }
   .docs-list li { display: block; }
+  .lb-controls-row { flex-direction: column; align-items: stretch; }
   .lb-tabs { width: 100%; }
   .lb-tab { flex: 1; text-align: center; }
   .lb-mode-filter { width: 100%; }

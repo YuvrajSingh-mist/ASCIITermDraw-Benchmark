@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google-site-verification" content="q0xhhVFWD1qNJVaojzerbyrAbvXReR9OrQWqT-FlVRk" />
   <title>ASCIITermDraw-Bench  -  ASCII Diagram Generation and Editing Benchmark</title>
   <meta name="description" content="ASCIITermDraw-Bench is a benchmark for ASCII diagram generation and editing across 80 tasks spanning domains like topology, clusters, real-world applications, and diagram editing.">
   <meta property="og:type" content="website">
@@ -152,7 +153,7 @@
     <div class="container">
       <h2 class="section-title" id="heading-leaderboard">Leaderboard</h2>
       <div class="lb-disclaimer">
-        <strong>Early results.</strong> Generation runs on Together AI. Judged by GPT-5.4. Score
+        <strong>Early results.</strong> Generation runs on Together AI or local Ollama. Judged by GPT-5.4. Score
         is each model's mean combined structural + semantic score across all
         80 tasks (5 judge rounds per task), shown with a 95% confidence
         interval computed over the 80 tasks. The raw mean +/- stdev is averaged (out of 2.0) and converted to percentages for display.
@@ -175,11 +176,13 @@
         </button>
       </div>
 
-      <div id="lb-mode-filter" class="lb-mode-filter" role="tablist" aria-label="Filter by generation mode"></div>
+      <div class="lb-controls-row">
+        <div id="lb-mode-filter" class="lb-mode-filter" role="tablist" aria-label="Filter by generation mode"></div>
 
-      <div class="lb-tabs" role="tablist">
-        <button class="lb-tab active" data-panel="panel-mcq" role="tab">ASCII</button>
-        <button class="lb-tab" data-panel="panel-perf-dollar" role="tab">Perf/$</button>
+        <div class="lb-tabs" role="tablist">
+          <button class="lb-tab active" data-panel="panel-mcq" role="tab">ASCII</button>
+          <button class="lb-tab" data-panel="panel-perf-dollar" role="tab">Perf/$</button>
+        </div>
       </div>
 
       <div id="panel-mcq" class="lb-panel active">

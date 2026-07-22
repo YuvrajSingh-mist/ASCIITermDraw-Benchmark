@@ -4,7 +4,7 @@
 // fetched at build time). Update these constants -- and add another entry to
 // LEADERBOARD_ROWS -- whenever a new model's results are published.
 //
-// Generation backend is Together AI (see scripts/lib/together_api.py).
+// Generation backends are Together AI and Ollama (see scripts/backends/).
 // Per model, 80 tasks, num_judgments=5 (see outputs/<model>/metrics.json):
 //   gemma-4-31b-it:      final=0.7380 ci95=[0.6975,0.7786] -> 73.8% +/- 4.1%
 //     structural=0.8425+/-0.2468  semantics=0.6336+/-0.1715
@@ -56,16 +56,23 @@
 // nemotron-3-ultra-550b-a55b=7.1765, qwen3.7-max=7.8584.
 // Params: nemotron-3-ultra-550b-a55b's total/active counts are read straight
 // off the model slug (550B total, 55B active), matching the MoE convention
-// above. glm-5.2, deepseek-v4-pro, and kimi-k2.7-code have no confirmed
-// public parameter count at time of writing -- shown as "undisclosed".
-// qwen3.7-max follows qwen3.7-plus's convention (also "undisclosed" --
-// Alibaba hasn't published a count for either).
+// above. glm-5.2 (743B/39B active), deepseek-v4-pro (1.6T/49B active), and
+// kimi-k2.7-code (1T/32B active, same as kimi-k2.6) are each confirmed by
+// their maker's own model card. qwen3.7-max is genuinely undisclosed --
+// Alibaba has not published a parameter count for either qwen3.7-max or
+// qwen3.7-plus as of this writing.
 // qwen3.7-max is the highest scorer of any model on the leaderboard so far
 // (77.2% final), text-only, no --vlm.
 // A fifth model originally tried in this batch (thinkingmachines/Inkling)
 // was dropped: it ignores reasoning_effort=none and burns its entire
 // --max-tokens budget on hidden reasoning, returning empty diagrams.
 // qwen3.7-max was generated as its replacement.
+//
+// Local Ollama batch (2026-07-22), text-only category-3 prompts, seed 7,
+// 80 tasks and 5 GPT-5.4 judge rounds per task. Generation API cost is $0
+// for these local runs; hardware and electricity are not estimated.
+// Scores and judging costs are copied from outputs/mini2/<model>/metrics.json
+// and the corresponding per-task gval/result.json files.
 
 // `mode` marks how each model's category-3 (diagram-editing) requests were
 // generated: "vision" = source.png attached as an image (the only path that
@@ -141,7 +148,7 @@ const LEADERBOARD_ROWS = [
   },
   {
     model: "glm-5.2",
-    params: "undisclosed",
+    params: "743B / 39B active",
     org: "Z.ai (via Together AI)",
     mode: "text",
     genCost: 0.1258,
@@ -152,7 +159,7 @@ const LEADERBOARD_ROWS = [
   },
   {
     model: "deepseek-v4-pro",
-    params: "undisclosed",
+    params: "1.6T / 49B active",
     org: "DeepSeek (via Together AI)",
     mode: "text",
     genCost: 0.1258,
@@ -163,7 +170,7 @@ const LEADERBOARD_ROWS = [
   },
   {
     model: "kimi-k2.7-code",
-    params: "undisclosed",
+    params: "1T / 32B active",
     org: "Moonshot AI (via Together AI)",
     mode: "text",
     genCost: 0.3776,
@@ -193,6 +200,50 @@ const LEADERBOARD_ROWS = [
     final: { score: 77.2, margin: 4.0 },
     structural: { score: 86.5, margin: 22.1 },
     semantics: { score: 68.0, margin: 20.0 },
+  },
+  {
+    model: "lfm2.5-1.2b-instruct-q4_k_m",
+    params: "1.2B",
+    org: "Liquid AI (local Ollama)",
+    mode: "text",
+    genCost: 0.0,
+    judgeCost: 6.4529,
+    final: { score: 30.5, margin: 4.4 },
+    structural: { score: 45.2, margin: 31.6 },
+    semantics: { score: 15.9, margin: 15.3 },
+  },
+  {
+    model: "gemma3-1b",
+    params: "1B",
+    org: "Google (local Ollama)",
+    mode: "text",
+    genCost: 0.0,
+    judgeCost: 6.5984,
+    final: { score: 23.0, margin: 4.1 },
+    structural: { score: 23.0, margin: 29.1 },
+    semantics: { score: 23.0, margin: 12.4 },
+  },
+  {
+    model: "granite-4.0-h-1b-gguf-q4_k_m",
+    params: "1B",
+    org: "IBM (local Ollama)",
+    mode: "text",
+    genCost: 0.0,
+    judgeCost: 5.8179,
+    final: { score: 22.5, margin: 5.3 },
+    structural: { score: 24.0, margin: 33.8 },
+    semantics: { score: 21.1, margin: 18.5 },
+  },
+  {
+    model: "qwen3-1.7b",
+    params: "1.7B",
+    org: "Alibaba (local Ollama)",
+    mode: "text",
+    genCost: 0.0,
+    judgeCost: 6.1838,
+    final: { score: 19.8, margin: 5.4 },
+    structural: { score: 23.7, margin: 33.1 },
+    semantics: { score: 16.0, margin: 18.9 },
   },
 ];
 
@@ -265,7 +316,7 @@ const METRICS = {
 function renderTable(containerId, rows) {
   const root = document.getElementById(containerId);
   if (rows.length === 0) {
-    root.innerHTML = `<p class="lb-empty">No models benchmarked yet on the current (Together AI) generation backend.</p>`;
+    root.innerHTML = `<p class="lb-empty">No models benchmarked yet for this generation mode.</p>`;
     return;
   }
   root.innerHTML = `
