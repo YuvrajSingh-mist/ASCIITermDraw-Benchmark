@@ -202,6 +202,17 @@ const LEADERBOARD_ROWS = [
     semantics: { score: 68.0, margin: 20.0 },
   },
   {
+    model: "falcon-h1-1.5b-instruct-gguf-q4_k_m",
+    params: "1.5B",
+    org: "TII (local Ollama)",
+    mode: "text",
+    genCost: 0.0,
+    judgeCost: 7.4253,
+    final: { score: 31.2, margin: 4.2 },
+    structural: { score: 43.6, margin: 32.3 },
+    semantics: { score: 18.9, margin: 13.2 },
+  },
+  {
     model: "lfm2.5-1.2b-instruct-q4_k_m",
     params: "1.2B",
     org: "Liquid AI (local Ollama)",
