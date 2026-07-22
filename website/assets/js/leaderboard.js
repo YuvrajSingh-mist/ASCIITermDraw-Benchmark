@@ -281,13 +281,30 @@ function ordinal(n) {
   }
 }
 
-// Rows are always displayed sorted by final score, so rank is derived from
-// the current (possibly filtered) set rather than stored statically --
-// filtering to "text" shouldn't leave a lone row stuck showing "4th".
+// Dense models use their total parameter count; MoE models use the disclosed
+// active count. Undisclosed sizes sort last. Performance rank is calculated
+// separately, so changing the display order does not redefine leaderboard rank.
+function activeParamsBillions(params) {
+  const activeMatch = params.match(/\/\s*([\d.]+)([BT])\s+active/i);
+  const denseMatch = params.match(/^([\d.]+)([BT])/i);
+  const match = activeMatch || denseMatch;
+  if (!match) return Number.POSITIVE_INFINITY;
+  return Number(match[1]) * (match[2].toUpperCase() === "T" ? 1000 : 1);
+}
+
 function rankedRows(rows) {
+  const performanceRanks = new Map(
+    [...rows]
+      .sort((a, b) => b.final.score - a.final.score)
+      .map((row, index) => [row.model, ordinal(index + 1)])
+  );
+
   return [...rows]
-    .sort((a, b) => b.final.score - a.final.score)
-    .map((row, index) => ({ ...row, rank: ordinal(index + 1) }));
+    .sort((a, b) =>
+      activeParamsBillions(a.params) - activeParamsBillions(b.params) ||
+      a.model.localeCompare(b.model)
+    )
+    .map((row) => ({ ...row, rank: performanceRanks.get(row.model) }));
 }
 
 function getFilteredRows() {
@@ -334,9 +351,9 @@ function renderTable(containerId, rows) {
     <table class="lb-table">
       <thead>
         <tr>
-          <th>Rank</th>
+          <th>Score rank</th>
           <th>Model</th>
-          <th>Params</th>
+          <th>Active params &#8593;</th>
           <th>Score (95% CI, 80 tasks)</th>
           <th>Structural</th>
           <th>Semantic</th>
