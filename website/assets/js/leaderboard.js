@@ -390,6 +390,13 @@ function hideTooltip(tooltip) {
 }
 
 let currentChartMetric = "final";
+let pinnedChartTooltip = null;
+
+document.addEventListener("click", (event) => {
+  if (!pinnedChartTooltip || event.target.closest(".lb-hit")) return;
+  hideTooltip(pinnedChartTooltip.tooltip);
+  pinnedChartTooltip = null;
+});
 
 function renderMetricToggle(card) {
   const root = card.querySelector(".lb-metric-toggle");
@@ -413,76 +420,139 @@ function renderPerfDollarChart() {
   const card = document.getElementById("perf-dollar-chart");
   const width = 760;
   const height = 360;
-  const margin = { top: 16, right: 24, bottom: 44, left: 60 };
-  const plotW = width - margin.left - margin.right;
+  const margin = { top: 16, right: 24, bottom: 44, left: 68 };
   const plotH = height - margin.top - margin.bottom;
+  const paidPlotStart = 250;
+  const paidPlotWidth = width - margin.right - paidPlotStart;
+  const localBandStart = margin.left + 18;
+  const localBandEnd = paidPlotStart - 24;
 
   const xMin = Math.log10(0.01);
   const xMax = Math.log10(1);
   const yMin = 0;
   const yMax = 100;
+  const visibleRows = getFilteredRows();
 
-  // Clamp to xMin's linear value before taking log10: a free-tier model
-  // (genCost 0) would otherwise produce log10(0) = -Infinity and vanish
-  // from the chart. It's pinned to the left edge instead, which is an
-  // honest representation of "as cheap as this chart can show."
-  const xScale = (price) => margin.left + ((Math.log10(Math.max(price, 10 ** xMin)) - xMin) / (xMax - xMin)) * plotW;
+  const xScalePrice = (price) =>
+    paidPlotStart +
+    ((Math.log10(Math.max(price, 10 ** xMin)) - xMin) / (xMax - xMin)) * paidPlotWidth;
   const yScale = (score) => margin.top + plotH - ((score - yMin) / (yMax - yMin)) * plotH;
+
+  // Zero-API-cost runs need a categorical band: log10(0) is undefined, and
+  // pinning every free/local model to $0.01 makes the points indistinguishable.
+  const localRows = visibleRows
+    .filter((row) => row.genCost <= 0)
+    .sort((a, b) => a.model.localeCompare(b.model));
+  const localXByModel = new Map(
+    localRows.map((row, index) => {
+      const ratio = localRows.length === 1 ? 0.5 : index / (localRows.length - 1);
+      return [row.model, localBandStart + ratio * (localBandEnd - localBandStart)];
+    })
+  );
+
+  // Paid points retain their true log-scaled x position. If two nearby points
+  // would overlap, move them sideways by the smallest possible amount.
+  const pointLayouts = [];
+  const offsetCandidates = [0, -28, 28, -56, 56, -84, 84, -112, 112];
+  for (const row of [...visibleRows].sort((a, b) => a.genCost - b.genCost || a.model.localeCompare(b.model))) {
+    const point = row[currentChartMetric];
+    const cy = yScale(point.score);
+    const isLocal = row.genCost <= 0;
+    const baseX = isLocal ? localXByModel.get(row.model) : xScalePrice(row.genCost);
+    let cx = baseX;
+
+    if (!isLocal) {
+      for (const offset of offsetCandidates) {
+        const candidateX = Math.max(paidPlotStart, Math.min(width - margin.right, baseX + offset));
+        const overlaps = pointLayouts.some(
+          (placed) => Math.hypot(candidateX - placed.cx, cy - placed.cy) < 28
+        );
+        if (!overlaps) {
+          cx = candidateX;
+          break;
+        }
+      }
+    }
+
+    pointLayouts.push({ row, point, cx, cy });
+  }
 
   const xTicks = [0.01, 0.03, 0.1, 0.3, 1];
   const yTicks = [0, 25, 50, 75, 100];
-
   const metricMeta = METRICS[currentChartMetric];
+  const localBandCenter = (localBandStart + localBandEnd) / 2;
 
-  let svg = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${metricMeta.label} score (${metricMeta.statLabel.replace(/&plusmn;/g, "+/-")}) versus generation cost per full benchmark run">`;
+  let svg = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${metricMeta.label} score (${metricMeta.statLabel.replace(/&plusmn;/g, "+/-")}) versus generation API cost per full benchmark run">`;
 
   for (const t of yTicks) {
     const y = yScale(t);
     svg += `<line class="lb-grid-line" x1="${margin.left}" y1="${y}" x2="${width - margin.right}" y2="${y}" />`;
     svg += `<text class="lb-tick-label" x="${margin.left - 8}" y="${y + 3}" text-anchor="end">${t}%</text>`;
   }
+  if (localRows.length > 0) {
+    svg += `<text class="lb-tick-label" x="${localBandCenter}" y="${height - margin.bottom + 16}" text-anchor="middle">$0 API</text>`;
+    svg += `<line class="lb-cost-band-divider" x1="${paidPlotStart - 12}" y1="${margin.top}" x2="${paidPlotStart - 12}" y2="${margin.top + plotH}" />`;
+  }
   for (const t of xTicks) {
-    const x = xScale(t);
+    const x = xScalePrice(t);
     svg += `<text class="lb-tick-label" x="${x}" y="${height - margin.bottom + 16}" text-anchor="middle">$${t}</text>`;
   }
-  svg += `<text class="lb-axis-label" x="${margin.left + plotW / 2}" y="${height - 6}" text-anchor="middle">$ per full benchmark run, generation only (log) &nbsp;&middot;&nbsp; cheaper &#8592; &#8594; more expensive</text>`;
+  svg += `<text class="lb-axis-label" x="${margin.left + (width - margin.right - margin.left) / 2}" y="${height - 6}" text-anchor="middle">Generation API cost per full run &nbsp;&middot;&nbsp; paid models use a log scale</text>`;
   svg += `<text class="lb-axis-label" transform="translate(14 ${margin.top + plotH / 2}) rotate(-90)" text-anchor="middle">${metricMeta.label} score (%)</text>`;
 
-  for (const row of getFilteredRows()) {
-    const point = row[currentChartMetric];
-    const cx = xScale(row.genCost);
-    const cy = yScale(point.score);
+  for (const { row, point, cx, cy } of pointLayouts) {
     const yTop = yScale(Math.min(100, point.score + point.margin));
     const yBottom = yScale(Math.max(0, point.score - point.margin));
     const capHalfWidth = 7;
-    // Whisker: for "final" this is a 95% CI on the mean (1.96 *
-    // sample_stdev / sqrt(80) over the 80 tasks); for structural/semantics
-    // it's +/-1 population stdev (descriptive spread, not an inferential
-    // CI). Either way, not a box plot -- no quartiles/median available.
+    const priceLabel = row.genCost <= 0 ? "$0 API" : "$" + row.genCost.toFixed(4);
+    // Whisker: final uses a 95% CI; structural/semantics use one population
+    // stdev. The x-offset only prevents visual collisions and does not alter cost.
     svg += `<line class="lb-whisker" x1="${cx}" y1="${yTop}" x2="${cx}" y2="${yBottom}" />`;
     svg += `<line class="lb-whisker-cap" x1="${cx - capHalfWidth}" y1="${yTop}" x2="${cx + capHalfWidth}" y2="${yTop}" />`;
     svg += `<line class="lb-whisker-cap" x1="${cx - capHalfWidth}" y1="${yBottom}" x2="${cx + capHalfWidth}" y2="${yBottom}" />`;
     svg += `<circle class="lb-dot" cx="${cx}" cy="${cy}" r="6" fill="var(--accent)" />`;
-    svg += `<circle class="lb-hit" cx="${cx}" cy="${cy}" r="13" data-model="${row.model}" data-price="${row.genCost.toFixed(4)}" data-score="${point.score}" data-score-margin="${point.margin}" data-stat-label="${metricMeta.statLabel}" />`;
+    svg += `<circle class="lb-hit" cx="${cx}" cy="${cy}" r="13" tabindex="0" role="button" aria-label="${row.model}: ${point.score}% plus or minus ${point.margin}%, ${priceLabel}" data-model="${row.model}" data-price-label="${priceLabel}" data-score="${point.score}" data-score-margin="${point.margin}" data-stat-label="${metricMeta.statLabel}" />`;
   }
   svg += `</svg>`;
 
   card.querySelector(".lb-chart-card-inner").innerHTML = svg;
   renderMetricToggle(card);
+  if (pinnedChartTooltip) {
+    hideTooltip(pinnedChartTooltip.tooltip);
+    pinnedChartTooltip = null;
+  }
   const tooltip = makeTooltip(card);
+
+  function displayHitTooltip(hit) {
+    const rect = card.getBoundingClientRect();
+    const targetRect = hit.getBoundingClientRect();
+    showTooltip(
+      tooltip,
+      targetRect.left - rect.left + targetRect.width / 2,
+      targetRect.top - rect.top,
+      `<strong>${hit.dataset.score}% &plusmn; ${hit.dataset.scoreMargin}%</strong><span>${hit.dataset.model} &middot; ${hit.dataset.priceLabel}</span>`
+    );
+  }
 
   for (const hit of card.querySelectorAll(".lb-hit")) {
     hit.addEventListener("pointerenter", () => {
-      const rect = card.getBoundingClientRect();
-      const targetRect = hit.getBoundingClientRect();
-      showTooltip(
-        tooltip,
-        targetRect.left - rect.left + targetRect.width / 2,
-        targetRect.top - rect.top,
-        `<strong>${hit.dataset.score}% &plusmn; ${hit.dataset.scoreMargin}%</strong><span>${hit.dataset.model} &middot; $${hit.dataset.price}</span>`
-      );
+      if (!pinnedChartTooltip) displayHitTooltip(hit);
     });
-    hit.addEventListener("pointerleave", () => hideTooltip(tooltip));
+    hit.addEventListener("pointerleave", () => {
+      if (!pinnedChartTooltip) hideTooltip(tooltip);
+    });
+    hit.addEventListener("click", (event) => {
+      event.stopPropagation();
+      displayHitTooltip(hit);
+      pinnedChartTooltip = { hit, tooltip };
+    });
+    hit.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        displayHitTooltip(hit);
+        pinnedChartTooltip = { hit, tooltip };
+      }
+    });
   }
 }
 

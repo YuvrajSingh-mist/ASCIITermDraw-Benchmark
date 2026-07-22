@@ -779,6 +779,7 @@ table.lb-table td.lb-params {
 }
 .lb-chart-card .lb-axis-label { fill: var(--text-ter); font-size: 11px; letter-spacing: 0.02em; }
 .lb-chart-card .lb-grid-line { stroke: var(--border-lt); stroke-width: 1; }
+.lb-chart-card .lb-cost-band-divider { stroke: var(--border); stroke-width: 1; stroke-dasharray: 3 5; }
 .lb-chart-card .lb-tick-label { fill: var(--text-ter); font-size: 11.5px; }
 
 .lb-dot {
@@ -802,6 +803,12 @@ table.lb-table td.lb-params {
 .lb-hit {
   fill: transparent;
   cursor: pointer;
+}
+
+.lb-hit:focus-visible {
+  stroke: var(--text);
+  stroke-width: 1;
+  outline: none;
 }
 
 .lb-tooltip {
