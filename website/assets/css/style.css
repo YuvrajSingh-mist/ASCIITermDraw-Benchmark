@@ -722,6 +722,40 @@ table.lb-table th {
   padding: 0.6rem 0.9rem;
 }
 
+.lb-sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  text-transform: inherit;
+  cursor: pointer;
+}
+
+.lb-sort-btn:hover,
+.lb-sort-btn:focus-visible,
+.lb-sort-btn.active {
+  color: var(--accent);
+}
+
+.lb-sort-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.lb-sort-arrow {
+  flex: 0 0 auto;
+  min-width: 0.75rem;
+  font-size: 0.9rem;
+  line-height: 1;
+  text-align: center;
+}
+
 table.lb-table td {
   padding: 0.7rem 0.9rem;
   border-bottom: 1px solid var(--border-lt);

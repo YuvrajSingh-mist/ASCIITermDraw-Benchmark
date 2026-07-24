@@ -265,6 +265,7 @@ const MODE_FILTERS = {
 };
 
 let currentModeFilter = "all";
+let currentTableSort = { key: "final", direction: "desc" };
 
 function ordinal(n) {
   const rem100 = n % 100;
@@ -281,30 +282,52 @@ function ordinal(n) {
   }
 }
 
-// Dense models use their total parameter count; MoE models use the disclosed
-// active count. Undisclosed sizes sort last. Performance rank is calculated
-// separately, so changing the display order does not redefine leaderboard rank.
 function activeParamsBillions(params) {
   const activeMatch = params.match(/\/\s*([\d.]+)([BT])\s+active/i);
   const denseMatch = params.match(/^([\d.]+)([BT])/i);
   const match = activeMatch || denseMatch;
-  if (!match) return Number.POSITIVE_INFINITY;
+  if (!match) return null;
   return Number(match[1]) * (match[2].toUpperCase() === "T" ? 1000 : 1);
 }
 
-function rankedRows(rows) {
-  const performanceRanks = new Map(
-    [...rows]
-      .sort((a, b) => b.final.score - a.final.score)
-      .map((row, index) => [row.model, ordinal(index + 1)])
-  );
+const TABLE_SORTS = {
+  rank: { label: "Score rank", defaultDirection: "asc", value: (row) => row.rankValue },
+  params: { label: "Active params", defaultDirection: "asc", value: (row) => activeParamsBillions(row.params) },
+  final: { label: "Final score", defaultDirection: "desc", value: (row) => row.final.score },
+  structural: { label: "Structural score", defaultDirection: "desc", value: (row) => row.structural.score },
+  semantics: { label: "Semantic score", defaultDirection: "desc", value: (row) => row.semantics.score },
+  genCost: { label: "Generation cost", defaultDirection: "asc", value: (row) => row.genCost },
+  judgeCost: { label: "Judging cost", defaultDirection: "asc", value: (row) => row.judgeCost },
+  org: { label: "Organization", defaultDirection: "asc", value: (row) => row.org.toLowerCase() },
+};
 
-  return [...rows]
-    .sort((a, b) =>
-      activeParamsBillions(a.params) - activeParamsBillions(b.params) ||
-      a.model.localeCompare(b.model)
-    )
-    .map((row) => ({ ...row, rank: performanceRanks.get(row.model) }));
+function rankedRows(rows) {
+  const rankByModel = new Map(
+    [...rows]
+      .sort((a, b) => b.final.score - a.final.score || a.model.localeCompare(b.model))
+      .map((row, index) => [row.model, index + 1])
+  );
+  const sort = TABLE_SORTS[currentTableSort.key];
+  const direction = currentTableSort.direction === "asc" ? 1 : -1;
+
+  return rows
+    .map((row) => {
+      const rankValue = rankByModel.get(row.model);
+      return { ...row, rankValue, rank: ordinal(rankValue) };
+    })
+    .sort((a, b) => {
+      const aValue = sort.value(a);
+      const bValue = sort.value(b);
+
+      // Unknown values (such as undisclosed parameter counts) stay at the end
+      // in both directions instead of unexpectedly jumping to the top.
+      if (aValue == null && bValue != null) return 1;
+      if (aValue != null && bValue == null) return -1;
+      if (typeof aValue === "string" && typeof bValue === "string") {
+        return direction * aValue.localeCompare(bValue) || a.model.localeCompare(b.model);
+      }
+      return direction * (aValue - bValue) || a.model.localeCompare(b.model);
+    });
 }
 
 function getFilteredRows() {
@@ -341,6 +364,20 @@ const METRICS = {
   semantics: { label: "Semantics", statLabel: "mean &plusmn; stdev" },
 };
 
+function sortableHeader(key, label, suffix = "") {
+  const isActive = currentTableSort.key === key;
+  const direction = isActive ? currentTableSort.direction : "none";
+  const arrow = isActive ? (direction === "asc" ? "&#8593;" : "&#8595;") : "&#8597;";
+  const ariaSort = direction === "asc" ? "ascending" : direction === "desc" ? "descending" : "none";
+  return `
+    <th aria-sort="${ariaSort}">
+      <button type="button" class="lb-sort-btn${isActive ? " active" : ""}" data-sort-key="${key}" aria-label="Sort by ${TABLE_SORTS[key].label}">
+        <span>${label}${suffix}</span><span class="lb-sort-arrow" aria-hidden="true">${arrow}</span>
+      </button>
+    </th>
+  `;
+}
+
 function renderTable(containerId, rows) {
   const root = document.getElementById(containerId);
   if (rows.length === 0) {
@@ -351,15 +388,15 @@ function renderTable(containerId, rows) {
     <table class="lb-table">
       <thead>
         <tr>
-          <th>Score rank</th>
+          ${sortableHeader("rank", "Score rank")}
           <th>Model</th>
-          <th>Active params &#8593;</th>
-          <th>Score (95% CI, 80 tasks)</th>
-          <th>Structural</th>
-          <th>Semantic</th>
-          <th>Gen Cost</th>
-          <th>Judging Cost</th>
-          <th>Organization</th>
+          ${sortableHeader("params", "Active params")}
+          ${sortableHeader("final", "Final score", " (95% CI, 80 tasks)")}
+          ${sortableHeader("structural", "Structural")}
+          ${sortableHeader("semantics", "Semantic")}
+          ${sortableHeader("genCost", "Gen Cost")}
+          ${sortableHeader("judgeCost", "Judging Cost")}
+          ${sortableHeader("org", "Organization")}
         </tr>
       </thead>
       <tbody>
@@ -383,6 +420,18 @@ function renderTable(containerId, rows) {
       </tbody>
     </table>
   `;
+
+  for (const button of root.querySelectorAll(".lb-sort-btn")) {
+    button.addEventListener("click", () => {
+      const key = button.dataset.sortKey;
+      if (currentTableSort.key === key) {
+        currentTableSort.direction = currentTableSort.direction === "asc" ? "desc" : "asc";
+      } else {
+        currentTableSort = { key, direction: TABLE_SORTS[key].defaultDirection };
+      }
+      renderTable(containerId, rankedRows(getFilteredRows()));
+    });
+  }
 }
 
 function makeTooltip(card) {

@@ -263,3 +263,7 @@ built-in pricing defaults; for other judge models pass
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for repository conventions and contribution guidance.
 the `Deploy Website` workflow manually.
+
+## Video Summary
+
+https://youtu.be/7HknduDDFiM
