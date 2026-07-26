@@ -388,6 +388,23 @@ footer a:hover { color: var(--accent); }
 .footer-links { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 0.75rem; }
 footer .footnote { font-size: 0.78rem; margin-top: 0.35rem; }
 
+.video-summary-frame {
+  width: min(100%, 960px);
+  margin: 0 auto;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: #000;
+}
+
+.video-summary-frame iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
 .hf-cta {
   margin-top: 1rem;
   padding: 1.5rem;
