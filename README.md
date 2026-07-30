@@ -24,12 +24,15 @@ cp .env.example .env
 # put your Together AI / OpenAI / Anthropic keys in .env
 ```
 
-Rendering ASCII diagrams to PNG uses Node + Playwright. See `DEVELOPER.md`
-(local-only, not tracked in this repo) for setup; once set up:
+Then jump to [Public Dataset](#public-dataset) below — download the 12 example
+tasks and run the full generate → judge pipeline in under a minute. It's the
+fastest way to confirm everything is wired up.
 
-```bash
-uv run python -m scripts.rendered.render_all
-```
+> **Note:** `run-model` renders generated ASCII to PNG via Node + Playwright.
+> See `DEVELOPER.md` (local-only) for setup if rendering fails. The public
+> dataset ships with pre-rendered reference PNGs, so `render_all` is only
+> needed when working with raw `.ascii` files that lack PNGs (e.g. the private
+> task set).
 
 `--model` must be a valid Together AI model slug (e.g. `Qwen/Qwen3.7-Plus`,
 `MiniMaxAI/MiniMax-M3`, `moonshotai/Kimi-K2.6`); check
@@ -266,4 +269,7 @@ the `Deploy Website` workflow manually.
 
 ## Video Summary
 
-https://youtu.be/7HknduDDFiM
+<a href="https://youtu.be/7HknduDDFiM">
+  <img src="https://img.youtube.com/vi/7HknduDDFiM/maxresdefault.jpg"
+       alt="TermDraw-Bench Demo Video" width="720">
+</a>
