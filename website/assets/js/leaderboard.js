@@ -258,13 +258,14 @@ const LEADERBOARD_ROWS = [
   },
 ];
 
-const MODE_FILTERS = {
-  all: { label: "All" },
-  vision: { label: "Vision" },
-  text: { label: "Text-only" },
-};
+const MODE_FILTERS = [
+  { value: "all", label: "All" },
+  { value: "vision", label: "Vision" },
+  { value: "text", label: "Text-only" },
+];
 
 let currentModeFilter = "all";
+let currentSearchQuery = "";
 let currentTableSort = { key: "final", direction: "desc" };
 
 function ordinal(n) {
@@ -331,31 +332,62 @@ function rankedRows(rows) {
 }
 
 function getFilteredRows() {
-  if (currentModeFilter === "all") return LEADERBOARD_ROWS;
-  return LEADERBOARD_ROWS.filter((row) => row.mode === currentModeFilter);
+  let rows = LEADERBOARD_ROWS;
+  if (currentModeFilter !== "all") {
+    rows = rows.filter((row) => row.mode === currentModeFilter);
+  }
+  if (currentSearchQuery) {
+    const q = currentSearchQuery.toLowerCase();
+    rows = rows.filter((row) => row.model.toLowerCase().includes(q));
+  }
+  return rows;
 }
 
 function renderModeFilter() {
   const root = document.getElementById("lb-mode-filter");
   if (!root) return;
-  root.innerHTML = Object.entries(MODE_FILTERS)
-    .map(([key, meta]) => {
-      const count = key === "all" ? LEADERBOARD_ROWS.length : LEADERBOARD_ROWS.filter((r) => r.mode === key).length;
-      return `
-        <button class="lb-mode-btn${key === currentModeFilter ? " active" : ""}" data-mode="${key}" role="tab" aria-selected="${key === currentModeFilter}">
-          ${meta.label}
-          <span class="lb-mode-count">${count}</span>
-        </button>
-      `;
-    })
-    .join("");
-  for (const btn of root.querySelectorAll(".lb-mode-btn")) {
-    btn.addEventListener("click", () => {
-      if (btn.dataset.mode === currentModeFilter) return;
-      currentModeFilter = btn.dataset.mode;
+  root.innerHTML = `
+    <label class="lb-filter-label" for="lb-mode-select">Filter</label>
+    <div class="lb-select-wrap">
+      <select id="lb-mode-select" class="lb-filter-select">
+        ${MODE_FILTERS
+          .map((opt) => {
+            const count = opt.value === "all" ? LEADERBOARD_ROWS.length : LEADERBOARD_ROWS.filter((r) => r.mode === opt.value).length;
+            return `<option value="${opt.value}"${opt.value === currentModeFilter ? " selected" : ""}>${opt.label} (${count})</option>`;
+          })
+          .join("")}
+      </select>
+    </div>
+  `;
+  const select = root.querySelector("#lb-mode-select");
+  select.addEventListener("change", () => {
+    currentModeFilter = select.value;
+    renderLeaderboard();
+  });
+}
+
+function renderSearchBar() {
+  const root = document.getElementById("lb-search-bar");
+  if (!root) return;
+  root.innerHTML = `
+    <input
+      type="search"
+      class="lb-search-input"
+      id="lb-search-input"
+      placeholder="Search for any model"
+      value="${currentSearchQuery.replace(/"/g, "&quot;")}"
+      autocomplete="off"
+    />
+  `;
+  const input = root.querySelector("#lb-search-input");
+  let debounceTimer;
+  input.addEventListener("input", () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      currentSearchQuery = input.value.trim();
       renderLeaderboard();
-    });
-  }
+    }, 200);
+  });
 }
 
 const METRICS = {
@@ -645,6 +677,7 @@ function attachTabs() {
 
 function renderLeaderboard() {
   renderModeFilter();
+  renderSearchBar();
   renderTable("mcq-table", rankedRows(getFilteredRows()));
   renderPerfDollarChart();
 }
