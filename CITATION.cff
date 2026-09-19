@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: If you use ASCIITermDraw-Bench (benchmark, tasks, tooling, or results), please cite it as below.
+title: "ASCIITermDraw-Bench: Benchmarking ASCII Diagram Generation and Editing"
+type: software
+authors:
+  - family-names: Singh
+    given-names: Yuvraj
+date-released: "2026-08-04"
+year: 2026
+url: "https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark"
+repository-code: "https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark"
+license: Apache-2.0
+keywords:
+  - ascii-art
+  - diagram-generation
+  - diagram-editing
+  - benchmark
+  - llm-evaluation
+  - llm-as-a-judge
+preferred-citation:
+  type: generic
+  title: "ASCIITermDraw-Bench: Benchmarking ASCII Diagram Generation and Editing"
+  authors:
+    - family-names: Singh
+      given-names: Yuvraj
+  year: 2026
+  url: "https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark"
+  howpublished: "\\url{https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark}"

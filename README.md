@@ -267,6 +267,34 @@ built-in pricing defaults; for other judge models pass
 See [CONTRIBUTING.md](CONTRIBUTING.md) for repository conventions and contribution guidance.
 the `Deploy Website` workflow manually.
 
+## Citation
+
+If you use ASCIITermDraw-Bench — the benchmark, tasks, tooling, leaderboard, or
+results — please credit this work and cite it as:
+
+```bibtex
+@misc{singh2026asciitermdrawbench,
+      title={ASCIITermDraw-Bench: Benchmarking ASCII Diagram Generation and Editing},
+      author={Yuvraj Singh},
+      year={2026},
+      howpublished={\url{https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark}},
+}
+```
+
+Also see [`CITATION.cff`](CITATION.cff).
+
+## License
+
+- **Code / tooling** (runners, renderers, judge, website source): [Apache License 2.0](LICENSE) — keep the copyright notice and [`NOTICE`](NOTICE) when you redistribute.
+- **Benchmark task content** (task definitions, reference diagrams, judge prompts, the public example dataset, and published evaluation artifacts): [CC BY 4.0](LICENSE-DATASET) — free to use and adapt, including commercially, **with attribution** to Yuvraj Singh (name + link; indicate changes if you modify).
+
+The private 80-task evaluation set is not distributed and is not covered by the
+CC BY grant. Public tasks are published on
+[Hugging Face](https://huggingface.co/datasets/YuvrajSingh9886/asciitermdraw-bench-public).
+
+Academic paper citation is a community norm (use the BibTeX above); CC BY is what
+legally requires credit when the dataset or task content is shared or adapted.
+
 ## Video Summary
 
 <a href="https://youtu.be/7HknduDDFiM">

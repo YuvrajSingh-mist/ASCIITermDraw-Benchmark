@@ -1,0 +1,29 @@
+Creative Commons Attribution 4.0 International (CC BY 4.0)
+
+The TermDraw-Bench / ASCIITermDraw-Bench benchmark task content, task
+definitions, reference diagrams, judge prompts, public dataset, and published
+evaluation artifacts (leaderboard scores and results) are licensed under
+CC BY 4.0:
+
+  https://creativecommons.org/licenses/by/4.0/
+
+You are free to share and adapt the material for any purpose, including
+commercially, provided you give appropriate credit to Yuvraj Singh,
+provide a link to the license, and indicate if changes were made.
+
+Preferred credit / citation:
+
+  Singh, Y. (2026). ASCIITermDraw-Bench: Benchmarking ASCII Diagram
+  Generation and Editing.
+  https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark
+
+Public example dataset (12 tasks):
+
+  https://huggingface.co/datasets/YuvrajSingh9886/asciitermdraw-bench-public
+
+The private 80-task evaluation set is not distributed and is not covered by
+this license grant; access is maintainer-controlled.
+
+Full legal code:
+
+  https://creativecommons.org/licenses/by/4.0/legalcode
