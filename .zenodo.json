@@ -1,0 +1,35 @@
+{
+  "title": "ASCIITermDraw-Bench: Benchmarking ASCII Diagram Generation and Editing",
+  "description": "<p><strong>ASCIITermDraw-Bench (TermDraw-Bench)</strong> evaluates whether language and vision-language models can generate and edit structured ASCII diagrams. It ships 80 tasks across 4 categories, public example tasks on Hugging Face, and a DeepEval LLM-as-a-judge scoring path.</p>\n<p>Benchmark code and tooling are licensed under Apache-2.0. Tasks, prompts, model outputs and published results are licensed under CC BY 4.0.</p>",
+  "creators": [
+    {
+      "name": "Singh, Yuvraj"
+    }
+  ],
+  "license": "apache-2.0",
+  "upload_type": "software",
+  "access_right": "open",
+  "language": "eng",
+  "keywords": [
+    "benchmark",
+    "ascii art",
+    "diagram generation",
+    "llm evaluation",
+    "llm as a judge",
+    "deepeval",
+    "vlm"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    },
+    {
+      "identifier": "https://huggingface.co/datasets/YuvrajSingh9886/asciitermdraw-bench-public",
+      "relation": "isSupplementedBy",
+      "scheme": "url"
+    }
+  ],
+  "notes": "Code and tooling are licensed under Apache-2.0. Tasks, prompts, model outputs and published results are additionally licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)."
+}
