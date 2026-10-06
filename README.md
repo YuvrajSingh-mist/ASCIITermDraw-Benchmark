@@ -273,11 +273,13 @@ If you use ASCIITermDraw-Bench — the benchmark, tasks, tooling, leaderboard, o
 results — please credit this work and cite it as:
 
 ```bibtex
-@misc{singh2026asciitermdrawbench,
-      title={ASCIITermDraw-Bench: Benchmarking ASCII Diagram Generation and Editing},
-      author={Yuvraj Singh},
-      year={2026},
-      howpublished={\url{https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark}},
+@software{singh2026asciitermdrawbench,
+  title     = {ASCIITermDraw-Bench: Benchmarking ASCII Diagram Generation and Editing},
+  author    = {Singh, Yuvraj},
+  year      = {2026},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.23198058},
+  url       = {https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark}
 }
 ```
 
