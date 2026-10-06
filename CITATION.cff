@@ -11,6 +11,7 @@ year: 2026
 url: "https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark"
 repository-code: "https://github.com/YuvrajSingh-mist/ASCIITermDraw-Benchmark"
 license: Apache-2.0
+doi: "10.5281/zenodo.23198058"
 keywords:
   - ascii-art
   - diagram-generation
