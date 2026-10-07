@@ -303,16 +303,3 @@ legally requires credit when the dataset or task content is shared or adapted.
   <img src="https://img.youtube.com/vi/7HknduDDFiM/maxresdefault.jpg"
        alt="TermDraw-Bench Demo Video" width="720">
 </a>
-
-<!-- support-footer -->
----
-
-<div align="center">
-
-## Support the work
-
-If this project saved you time, you can fuel more like it.
-
-[![Sponsor: GitHub](https://img.shields.io/badge/Sponsor-GitHub-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/YuvrajSingh-mist) [![Buy me a coffee](https://img.shields.io/badge/Buy_me_a_coffee-FFDD00?logo=buymeacoffee&logoColor=black)](https://ko-fi.com/O7W120DR8R)
-
-</div>
